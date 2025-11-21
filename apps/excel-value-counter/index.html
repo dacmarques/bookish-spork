@@ -111,21 +111,33 @@
                     <i class="ph ph-list-magnifying-glass text-indigo-600"></i> Extracted Information
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 relative group">
                         <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Protokoll (Nr.)</span>
                         <span id="outDatum" class="block text-lg font-semibold text-slate-800 mt-1">-</span>
+                        <button onclick="copyToClipboard('outDatum')" class="absolute top-2 right-2 text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Copy">
+                            <i class="ph ph-copy"></i>
+                        </button>
                     </div>
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 relative group">
                         <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Auftrags-Nr.</span>
                         <span id="outAuftrag" class="block text-lg font-semibold text-slate-800 mt-1">-</span>
+                        <button onclick="copyToClipboard('outAuftrag')" class="absolute top-2 right-2 text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Copy">
+                            <i class="ph ph-copy"></i>
+                        </button>
                     </div>
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 relative group">
                         <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Anlage (INV_Anlage)</span>
                         <span id="outAnlage" class="block text-lg font-semibold text-slate-800 mt-1 break-all">-</span>
+                        <button onclick="copyToClipboard('outAnlage')" class="absolute top-2 right-2 text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Copy">
+                            <i class="ph ph-copy"></i>
+                        </button>
                     </div>
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 relative group">
                         <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Einsatzort</span>
                         <span id="outOrt" class="block text-lg font-semibold text-slate-800 mt-1">-</span>
+                        <button onclick="copyToClipboard('outOrt')" class="absolute top-2 right-2 text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Copy">
+                            <i class="ph ph-copy"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -457,11 +469,20 @@
 
         // --- Export Features ---
 
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            if (text && text !== '-' && text !== 'Not Found') {
+                navigator.clipboard.writeText(text).then(() => {
+                    showFeedback(`Copied "${text}" to clipboard!`, 'success');
+                });
+            }
+        }
+
         function copyTableToClipboard() {
             if (!currentResults.length) return;
             let text = "Target Value\tCount\n";
             currentResults.forEach(r => text += `${r[0]}\t${r[1]}\n`);
-            navigator.clipboard.writeText(text).then(() => alert("Table copied to clipboard!"));
+            navigator.clipboard.writeText(text).then(() => showFeedback("Table copied to clipboard!", 'success'));
         }
 
         function downloadCSV() {
