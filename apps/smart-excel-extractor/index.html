@@ -408,7 +408,9 @@
 
         function renderRow(data) {
             const tr = document.createElement('tr');
-            tr.className = "bg-white hover:bg-blue-50 transition-colors fade-in group";
+            const hasBemerkung = data.bemerkung && String(data.bemerkung).trim().length > 0;
+            const baseBg = hasBemerkung ? "bg-orange-50" : "bg-white";
+            tr.className = `${baseBg} hover:bg-blue-50 transition-colors fade-in group`;
 
             // Format Currency for Display
             const sumDisplay = (data.sumRaw > 0)
