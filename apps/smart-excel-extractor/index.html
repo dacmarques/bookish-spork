@@ -81,13 +81,23 @@
 
         <!-- Toolbar -->
         <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-4 gap-4">
-            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <div class="bg-emerald-100 p-1.5 rounded text-emerald-700">
-                    <i data-lucide="table-2" class="w-4 h-4"></i>
+            <div class="flex items-center gap-4 flex-wrap">
+                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <div class="bg-emerald-100 p-1.5 rounded text-emerald-700">
+                        <i data-lucide="table-2" class="w-4 h-4"></i>
+                    </div>
+                    Extrahierte Daten
+                    <span id="record-count-badge" class="text-xs font-normal bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full hidden">0</span>
+                </h2>
+                <!-- Filter Input -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                    </div>
+                    <input type="text" id="filter-input" placeholder="Filtern..." onkeyup="handleFilter(this.value)"
+                        class="pl-9 pr-4 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-700 shadow-sm w-48">
                 </div>
-                Extrahierte Daten
-                <span id="record-count-badge" class="text-xs font-normal bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full hidden">0</span>
-            </h2>
+            </div>
 
             <div class="flex gap-2">
                 <button onclick="exportToExcel()" id="btn-export" class="opacity-50 cursor-not-allowed px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm shadow-green-200 transition-all flex items-center gap-2" disabled>
@@ -107,18 +117,36 @@
                 <table id="data-table" class="w-full text-sm text-left">
                     <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200 sticky top-0">
                         <tr>
-                            <th class="px-6 py-4 font-semibold whitespace-nowrap">Datei</th>
-                            <th class="px-6 py-4 font-semibold">Auftrags-Nr.</th>
-                            <th class="px-6 py-4 font-semibold">Anlage</th>
-                            <th class="px-6 py-4 font-semibold">Einsatzort</th>
-                            <th class="px-6 py-4 font-semibold">Datum</th>
-                            <th class="px-6 py-4 font-semibold" title="Fachmonteurstunde">
-                                Fach. (M)
+                            <th class="px-6 py-4 font-semibold whitespace-nowrap cursor-pointer hover:bg-slate-100 select-none group" onclick="handleSort('fileName')">
+                                <div class="flex items-center gap-1">Datei <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-fileName"></i></div>
+                            </th>
+                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" onclick="handleSort('auftragsNr')">
+                                <div class="flex items-center gap-1">Auftrags-Nr. <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-auftragsNr"></i></div>
+                            </th>
+                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" onclick="handleSort('anlage')">
+                                <div class="flex items-center gap-1">Anlage <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-anlage"></i></div>
+                            </th>
+                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" onclick="handleSort('einsatzort')">
+                                <div class="flex items-center gap-1">Einsatzort <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-einsatzort"></i></div>
+                            </th>
+                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" onclick="handleSort('datum')">
+                                <div class="flex items-center gap-1">Datum <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-datum"></i></div>
+                            </th>
+                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" title="Fachmonteurstunde" onclick="handleSort('fachmonteur')">
+                                <div class="flex items-center gap-1">
+                                    Fach. (M)
+                                    <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-fachmonteur"></i>
+                                </div>
                                 <span class="block text-[10px] normal-case opacity-70 font-normal">Links v. Label</span>
                             </th>
-                            <th class="px-6 py-4 font-semibold text-right">Auftragssumme</th>
-                            <th class="px-6 py-4 font-semibold min-w-[250px]">
-                                Bemerkung
+                            <th class="px-6 py-4 font-semibold text-right cursor-pointer hover:bg-slate-100 select-none group" onclick="handleSort('sumRaw')">
+                                <div class="flex items-center justify-end gap-1">Auftragssumme <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-sumRaw"></i></div>
+                            </th>
+                            <th class="px-6 py-4 font-semibold min-w-[250px] cursor-pointer hover:bg-slate-100 select-none group" onclick="handleSort('bemerkung')">
+                                <div class="flex items-center gap-1">
+                                    Bemerkung
+                                    <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-bemerkung"></i>
+                                </div>
                                 <span class="block text-[10px] normal-case opacity-70 font-normal">Unter d. Label</span>
                             </th>
                         </tr>
@@ -171,7 +199,9 @@
         let state = {
             totalSum: 0,
             validRecords: 0,
-            extractedData: [] // Store data for export
+            extractedData: [], // Store data for export
+            sort: { column: null, direction: 'asc' },
+            filter: ''
         };
 
         const UI = {
@@ -403,41 +433,113 @@
             state.extractedData.push(record);
 
             updateUI();
-            renderRow(record);
+            renderTable();
         }
 
-        function renderRow(data) {
-            const tr = document.createElement('tr');
-            const hasBemerkung = data.bemerkung && String(data.bemerkung).trim().length > 0;
-            const baseBg = hasBemerkung ? "bg-orange-50" : "bg-white";
-            tr.className = `${baseBg} hover:bg-blue-50 transition-colors fade-in group`;
+        function handleSort(column) {
+            if (state.sort.column === column) {
+                state.sort.direction = state.sort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                state.sort.column = column;
+                state.sort.direction = 'asc';
+            }
+            renderTable();
+        }
 
-            // Format Currency for Display
-            const sumDisplay = (data.sumRaw > 0)
-                ? data.sumRaw.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
-                : '-';
+        function handleFilter(value) {
+            state.filter = value.toLowerCase();
+            renderTable();
+        }
 
-            // Safe HTML injection helper
-            const safe = (txt) => txt ? String(txt) : '';
+        function renderTable() {
+            // Clear Table
+            UI.tableBody.innerHTML = '';
 
-            tr.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-slate-400 border-b border-slate-100">
-                    <div class="flex items-center gap-2 max-w-[150px]">
-                        <i data-lucide="file" class="w-3 h-3 flex-shrink-0"></i>
-                        <span class="truncate" title="${safe(data.fileName)}">${safe(data.fileName)}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700 font-mono text-xs bg-slate-50 rounded">${safe(data.auftragsNr)}</td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-xs max-w-[150px] truncate" title="${safe(data.anlage)}">${safe(data.anlage)}</td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-xs max-w-[150px] truncate" title="${safe(data.einsatzort)}">${safe(data.einsatzort)}</td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700">${safe(data.datum)}</td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-center">${safe(data.fachmonteur)}</td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-right font-mono text-slate-800 font-semibold">${sumDisplay}</td>
-                <td class="px-6 py-4 border-b border-slate-100 text-slate-500 text-xs min-w-[200px] leading-relaxed">${safe(data.bemerkung)}</td>
-            `;
+            // Filter
+            let filtered = state.extractedData.filter(item => {
+                if (!state.filter) return true;
+                return Object.values(item).some(val =>
+                    String(val).toLowerCase().includes(state.filter)
+                );
+            });
 
-            UI.tableBody.appendChild(tr);
-            lucide.createIcons(); // Refresh icons for new row
+            // Sort
+            if (state.sort.column) {
+                const col = state.sort.column;
+                const dir = state.sort.direction === 'asc' ? 1 : -1;
+
+                filtered.sort((a, b) => {
+                    let valA = a[col];
+                    let valB = b[col];
+
+                    // Numeric sort for Sum
+                    if (col === 'sumRaw') {
+                        return (valA - valB) * dir;
+                    }
+
+                    // String sort
+                    return String(valA).localeCompare(String(valB), undefined, { numeric: true }) * dir;
+                });
+            }
+
+            // Update Icons
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.classList.add('opacity-30');
+                icon.setAttribute('data-lucide', 'arrow-up-down');
+                icon.classList.remove('text-blue-600', 'opacity-100');
+            });
+
+            if (state.sort.column) {
+                const activeIcon = document.getElementById(`sort-${state.sort.column}`);
+                if (activeIcon) {
+                    activeIcon.setAttribute('data-lucide', state.sort.direction === 'asc' ? 'arrow-up' : 'arrow-down');
+                    activeIcon.classList.remove('opacity-30');
+                    activeIcon.classList.add('opacity-100', 'text-blue-600');
+                }
+            }
+
+            // Render Rows
+            if (filtered.length === 0) {
+                UI.tableBody.appendChild(UI.emptyState);
+                if (state.extractedData.length > 0) {
+                   UI.emptyState.querySelector('span').textContent = "Keine Ergebnisse für den Filter";
+                   UI.emptyState.style.display = 'table-row';
+                }
+            } else {
+                filtered.forEach(data => {
+                    const tr = document.createElement('tr');
+                    const hasBemerkung = data.bemerkung && String(data.bemerkung).trim().length > 0;
+                    const baseBg = hasBemerkung ? "bg-orange-50" : "bg-white";
+                    tr.className = `${baseBg} hover:bg-blue-50 transition-colors fade-in group`;
+
+                    // Format Currency for Display
+                    const sumDisplay = (data.sumRaw > 0)
+                        ? data.sumRaw.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
+                        : '-';
+
+                    // Safe HTML injection helper
+                    const safe = (txt) => txt ? String(txt) : '';
+
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-slate-400 border-b border-slate-100">
+                            <div class="flex items-center gap-2 max-w-[150px]">
+                                <i data-lucide="file" class="w-3 h-3 flex-shrink-0"></i>
+                                <span class="truncate" title="${safe(data.fileName)}">${safe(data.fileName)}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700 font-mono text-xs bg-slate-50 rounded">${safe(data.auftragsNr)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-xs max-w-[150px] truncate" title="${safe(data.anlage)}">${safe(data.anlage)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-xs max-w-[150px] truncate" title="${safe(data.einsatzort)}">${safe(data.einsatzort)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700">${safe(data.datum)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-center">${safe(data.fachmonteur)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-right font-mono text-slate-800 font-semibold">${sumDisplay}</td>
+                        <td class="px-6 py-4 border-b border-slate-100 text-slate-500 text-xs min-w-[200px] leading-relaxed">${safe(data.bemerkung)}</td>
+                    `;
+                    UI.tableBody.appendChild(tr);
+                });
+            }
+
+            lucide.createIcons();
         }
 
         function updateUI() {
