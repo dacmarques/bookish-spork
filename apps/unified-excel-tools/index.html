@@ -208,8 +208,18 @@
                     <table class="min-w-full divide-y divide-slate-200" id="resultsTable">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Target Value</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Count</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none" onclick="handleSort('target')">
+                                    <div class="flex items-center gap-1">
+                                        Target Value
+                                        <i id="sort-icon-target" class="ph ph-arrows-down-up text-slate-400"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none" onclick="handleSort('count')">
+                                    <div class="flex items-center gap-1">
+                                        Count
+                                        <i id="sort-icon-count" class="ph ph-arrow-down text-indigo-600"></i>
+                                    </div>
+                                </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
                             </tr>
                         </thead>
@@ -393,6 +403,7 @@
             let currentTargets = [];
             let currentResults = []; // For CSV export
             let extractedHeader = {}; // For CSV export
+            let sortState = { column: 'count', direction: 'desc' }; // Default sort
 
             // --- Elements ---
             const dropArea = document.getElementById('dropArea');
@@ -616,19 +627,72 @@
                 return null;
             }
 
+            function handleSort(column) {
+                if (sortState.column === column) {
+                    // Toggle direction
+                    sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    // New column, default to descending for count, ascending for target
+                    sortState.column = column;
+                    sortState.direction = column === 'count' ? 'desc' : 'asc';
+                }
+
+                // Re-render with cached data
+                if (lastCountsMap) {
+                    renderTable(lastCountsMap, lastTotalMatches, lastRowCount);
+                }
+            }
+
+            let lastCountsMap = null;
+            let lastTotalMatches = 0;
+            let lastRowCount = 0;
+
             function renderTable(countsMap, totalMatches, rowCount) {
+                // Store for sorting re-renders
+                lastCountsMap = countsMap;
+                lastTotalMatches = totalMatches;
+                lastRowCount = rowCount;
+
                 const tbody = document.getElementById('tableBody');
                 tbody.innerHTML = '';
 
                 document.getElementById('matchSummary').textContent =
                     `Found ${totalMatches} matches across ${rowCount} processed rows.`;
 
-                // Filter only positive counts if you want to hide zeros,
-                // OR show all to confirm what was checked.
-                // Logic: Show all non-zero, plus sort them.
-                const sorted = Array.from(countsMap.entries())
-                    .filter(([_, count]) => count > 0)
-                    .sort((a, b) => b[1] - a[1]); // Sort by count DESC
+                // Update Sort Icons
+                ['target', 'count'].forEach(col => {
+                    const icon = document.getElementById(`sort-icon-${col}`);
+                    if(icon) {
+                        if (sortState.column === col) {
+                            icon.className = sortState.direction === 'asc'
+                                ? 'ph ph-arrow-up text-indigo-600'
+                                : 'ph ph-arrow-down text-indigo-600';
+                        } else {
+                            icon.className = 'ph ph-arrows-down-up text-slate-400';
+                        }
+                    }
+                });
+
+                // Filter only positive counts
+                let sorted = Array.from(countsMap.entries())
+                    .filter(([_, count]) => count > 0);
+
+                // Sort logic
+                sorted.sort((a, b) => {
+                    const valA = a[0];
+                    const countA = a[1];
+                    const valB = b[0];
+                    const countB = b[1];
+
+                    if (sortState.column === 'count') {
+                        return sortState.direction === 'asc' ? countA - countB : countB - countA;
+                    } else {
+                        // Target value sort (string)
+                        return sortState.direction === 'asc'
+                            ? valA.localeCompare(valB, undefined, { numeric: true })
+                            : valB.localeCompare(valA, undefined, { numeric: true });
+                    }
+                });
 
                 if (sorted.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-slate-500 italic">No targets found in Column A</td></tr>`;
@@ -701,6 +765,8 @@
 
             // Also need global access to resetDefaultTargets if used in onclick
              window.resetDefaultTargets = resetDefaultTargets;
+
+             window.handleSort = handleSort;
 
             // Run init
             init();
