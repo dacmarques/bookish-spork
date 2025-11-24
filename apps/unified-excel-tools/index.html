@@ -81,6 +81,9 @@
                         <button onclick="switchTab('tool2')" id="tab-tool2" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Smart Extractor
                         </button>
+                        <button onclick="switchTab('tool3')" id="tab-tool3" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Row Manager
+                        </button>
                     </div>
                 </div>
             </div>
@@ -88,7 +91,7 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="max-w-[95%] mx-auto py-6 sm:px-6 lg:px-8">
 
         <!-- Tool 1: Excel Value Counter -->
         <div id="tool1-content" class="block">
@@ -373,6 +376,68 @@
     </main>
         </div>
 
+        <!-- Tool 3: Row Manager -->
+        <div id="tool3-content" class="hidden">
+            <div class="space-y-6">
+
+                <!-- Header -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-indigo-700 flex items-center gap-2">
+                            <i class="ph ph-rows text-3xl"></i> Row Manager
+                        </h1>
+                        <p class="text-slate-500 text-sm mt-1">Upload an Excel file, drag to reorder rows, and copy data for pasting back into Excel.</p>
+                    </div>
+                </div>
+
+                <!-- Upload Zone -->
+                <div id="rm-drop-area" class="relative group cursor-pointer">
+                    <input type="file" id="rm-file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".xlsx, .xls">
+                    <div class="w-full h-32 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center bg-white transition-all group-hover:border-indigo-400 group-hover:bg-indigo-50">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-full bg-indigo-50 text-indigo-600">
+                                <i class="ph ph-upload-simple text-2xl"></i>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-base font-medium text-slate-700">Drop <span class="text-indigo-600 font-bold">.xlsx</span> file here</p>
+                                <p class="text-xs text-slate-400">or click to browse</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div id="rm-results" class="hidden bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[75vh]">
+                    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
+                        <div class="flex items-center gap-4">
+                            <span class="font-bold text-slate-700 flex items-center gap-2">
+                                <i class="ph ph-table"></i>
+                                <span id="rm-status">0 Rows</span>
+                            </span>
+                            <span class="text-xs text-slate-400">Drag rows to reorder.</span>
+                        </div>
+                        <button onclick="window.rmClear()" class="px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors flex items-center gap-2">
+                            <i class="ph ph-trash"></i> Clear
+                        </button>
+                    </div>
+
+                    <div class="overflow-auto flex-grow custom-scrollbar relative">
+                        <table class="min-w-full divide-y divide-slate-200 text-sm relative border-collapse">
+                            <thead class="bg-slate-100 sticky top-0 z-20 shadow-sm ring-1 ring-slate-200">
+                                <tr id="rm-thead-tr">
+                                    <!-- Headers generated here -->
+                                </tr>
+                            </thead>
+                            <tbody id="rm-tbody" class="bg-white divide-y divide-slate-100">
+                                <!-- Rows generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
     <!-- Notification Area (Shared) -->
@@ -381,29 +446,29 @@
     <script>
         // Tab Switching Logic
         function switchTab(tabName) {
-            const tool1Content = document.getElementById('tool1-content');
-            const tool2Content = document.getElementById('tool2-content');
-            const tab1 = document.getElementById('tab-tool1');
-            const tab2 = document.getElementById('tab-tool2');
+            const contents = {
+                'tool1': document.getElementById('tool1-content'),
+                'tool2': document.getElementById('tool2-content'),
+                'tool3': document.getElementById('tool3-content')
+            };
+            const tabs = {
+                'tool1': document.getElementById('tab-tool1'),
+                'tool2': document.getElementById('tab-tool2'),
+                'tool3': document.getElementById('tab-tool3')
+            };
 
-            if (tabName === 'tool1') {
-                tool1Content.classList.remove('hidden');
-                tool2Content.classList.add('hidden');
+            // Hide all, reset tabs
+            Object.keys(contents).forEach(key => {
+                contents[key].classList.add('hidden');
+                tabs[key].classList.add('border-transparent', 'text-gray-500');
+                tabs[key].classList.remove('border-indigo-500', 'text-gray-900');
+            });
 
-                tab1.classList.add('border-indigo-500', 'text-gray-900');
-                tab1.classList.remove('border-transparent', 'text-gray-500');
-
-                tab2.classList.add('border-transparent', 'text-gray-500');
-                tab2.classList.remove('border-indigo-500', 'text-gray-900');
-            } else {
-                tool1Content.classList.add('hidden');
-                tool2Content.classList.remove('hidden');
-
-                tab2.classList.add('border-indigo-500', 'text-gray-900');
-                tab2.classList.remove('border-transparent', 'text-gray-500');
-
-                tab1.classList.add('border-transparent', 'text-gray-500');
-                tab1.classList.remove('border-indigo-500', 'text-gray-900');
+            // Show active
+            if (contents[tabName]) {
+                contents[tabName].classList.remove('hidden');
+                tabs[tabName].classList.remove('border-transparent', 'text-gray-500');
+                tabs[tabName].classList.add('border-indigo-500', 'text-gray-900');
             }
         }
 
@@ -1245,6 +1310,287 @@
                     setTimeout(() => notif.remove(), 500);
                 }, 3000);
             }
+        })();
+
+        // --- Tool 3 Logic (Row Manager) ---
+        (function() {
+            let rmHeaders = [];
+            let rmData = [];
+            let draggedRow = null;
+
+            const UI = {
+                fileInput: document.getElementById('rm-file-input'),
+                dropArea: document.getElementById('rm-drop-area'),
+                results: document.getElementById('rm-results'),
+                theadTr: document.getElementById('rm-thead-tr'),
+                tbody: document.getElementById('rm-tbody'),
+                status: document.getElementById('rm-status')
+            };
+
+            // Init listeners
+            if(UI.fileInput) UI.fileInput.addEventListener('change', handleFileSelect);
+
+            // Upload Area Drag & Drop
+            if(UI.dropArea) {
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    UI.dropArea.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        UI.dropArea.querySelector('div').classList.add('border-indigo-400', 'bg-indigo-50');
+                    }, false);
+                });
+                ['dragleave', 'drop'].forEach(eventName => {
+                    UI.dropArea.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        UI.dropArea.querySelector('div').classList.remove('border-indigo-400', 'bg-indigo-50');
+                    }, false);
+                });
+                UI.dropArea.addEventListener('drop', handleDropFile, false);
+            }
+
+            // Table Event Delegation
+            if (UI.tbody) {
+                UI.tbody.addEventListener('click', handleTableClick);
+                UI.tbody.addEventListener('dragstart', handleRowDragStart);
+                UI.tbody.addEventListener('dragover', handleRowDragOver);
+                UI.tbody.addEventListener('drop', handleRowDrop);
+                UI.tbody.addEventListener('dragend', handleRowDragEnd);
+            }
+
+            // --- File Handling ---
+
+            function handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) processFile(file);
+                e.target.value = '';
+            }
+
+            function handleDropFile(e) {
+                const dt = e.dataTransfer;
+                const file = dt.files[0];
+                if (file) processFile(file);
+            }
+
+            function processFile(file) {
+                 if (!file.name.match(/\.(xlsx|xls)$/)) {
+                    showNotification("Please upload a valid Excel file.", 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+
+                        if (json.length > 0) {
+                            rmHeaders = json[0];
+                            rmData = json.slice(1);
+                            renderTable();
+                            UI.dropArea.classList.add('hidden');
+                            UI.results.classList.remove('hidden');
+                            showNotification(`Loaded ${file.name}`, 'success');
+                        } else {
+                             showNotification("Empty file.", 'error');
+                        }
+                    } catch(err) {
+                        console.error(err);
+                        showNotification("Error processing file", 'error');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            // --- Rendering ---
+
+            function renderTable() {
+                UI.status.textContent = `${rmData.length} Rows`;
+
+                // Render Headers
+                UI.theadTr.innerHTML = rmHeaders.map(h =>
+                    `<th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50 border-b border-slate-200 select-none">${h || '-'}</th>`
+                ).join('') +
+                `<th class="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50 border-b border-slate-200 sticky right-0 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-20">Actions</th>`;
+
+                // Render Body (String Concatenation for Performance)
+                const rowsHtml = rmData.map((row) => {
+                    const cellsHtml = row.map(cell =>
+                        `<td class="px-4 py-2 whitespace-nowrap text-slate-700 border-b border-slate-100 text-xs pointer-events-none">${cell}</td>`
+                    ).join('');
+
+                    return `
+                    <tr draggable="true" class="hover:bg-indigo-50 transition-colors bg-white group cursor-move">
+                        ${cellsHtml}
+                        <td class="px-4 py-2 whitespace-nowrap border-b border-slate-100 text-right sticky right-0 bg-white group-hover:bg-indigo-50 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">
+                            <div class="flex justify-end gap-2">
+                                <button type="button" class="js-copy p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all" title="Copy Row">
+                                    <i class="ph ph-copy text-lg pointer-events-none"></i>
+                                </button>
+                                <button type="button" class="js-bulk-copy p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all" title="Bulk Copy (Next 22)">
+                                    <i class="ph ph-stack text-lg pointer-events-none"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+                }).join('');
+
+                UI.tbody.innerHTML = rowsHtml;
+            }
+
+            // --- Interactive Logic (Delegation) ---
+
+            function handleTableClick(e) {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+
+                const tr = btn.closest('tr');
+                if (!tr) return;
+
+                // Calculate index dynamically based on current DOM order
+                const index = Array.from(UI.tbody.children).indexOf(tr);
+                if (index === -1) return;
+
+                if (btn.classList.contains('js-copy')) {
+                    copyRow(index);
+                } else if (btn.classList.contains('js-bulk-copy')) {
+                    bulkCopy(index);
+                }
+            }
+
+            function copyRow(index) {
+                const row = rmData[index];
+                if (!row) return;
+                const text = row.join('\t');
+                navigator.clipboard.writeText(text).then(() => showNotification("Row copied!", "success"));
+            }
+
+            function bulkCopy(index) {
+                const rows = rmData.slice(index, index + 22);
+                if (!rows.length) return;
+                const text = rows.map(r => r.join('\t')).join('\n');
+                navigator.clipboard.writeText(text).then(() => showNotification(`Copied ${rows.length} rows!`, "success"));
+            }
+
+            // --- Optimized Drag & Drop ---
+
+            function handleRowDragStart(e) {
+                const tr = e.target.closest('tr');
+                if (!tr) return;
+
+                draggedRow = tr;
+                tr.classList.add('opacity-50', 'bg-indigo-100');
+                e.dataTransfer.effectAllowed = 'move';
+                // Set data for compatibility, though we use state var 'draggedRow'
+                e.dataTransfer.setData('text/plain', '');
+            }
+
+            function handleRowDragOver(e) {
+                e.preventDefault(); // Necessary to allow dropping
+                const tr = e.target.closest('tr');
+                if (!tr || tr === draggedRow) return;
+
+                e.dataTransfer.dropEffect = 'move';
+
+                // Visual Indicator
+                // Remove existing indicators
+                UI.tbody.querySelectorAll('.border-t-2', '.border-b-2', '.border-indigo-500').forEach(el => {
+                    el.style.borderTop = '';
+                    el.style.borderBottom = '';
+                });
+
+                // Calculate whether to drop before or after based on mouse Y
+                const rect = tr.getBoundingClientRect();
+                const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+
+                if (next) {
+                    tr.style.borderBottom = '2px solid #6366f1';
+                } else {
+                    tr.style.borderTop = '2px solid #6366f1';
+                }
+            }
+
+            function handleRowDrop(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                const targetRow = e.target.closest('tr');
+
+                // Cleanup Styles
+                UI.tbody.querySelectorAll('tr').forEach(el => {
+                    el.style.borderTop = '';
+                    el.style.borderBottom = '';
+                    el.classList.remove('bg-indigo-100', 'opacity-50');
+                });
+
+                if (draggedRow && targetRow && draggedRow !== targetRow) {
+                    // Determine position
+                    const rect = targetRow.getBoundingClientRect();
+                    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+
+                    // 1. Update Data Model
+                    const fromIndex = Array.from(UI.tbody.children).indexOf(draggedRow);
+                    let toIndex = Array.from(UI.tbody.children).indexOf(targetRow);
+
+                    if (next) toIndex++; // If dropping after, increment index
+
+                    // Adjust toIndex if moving downwards because removal shifts indices
+                    if (fromIndex < toIndex) toIndex--;
+
+                    // Move Data
+                    const item = rmData.splice(fromIndex, 1)[0];
+                    rmData.splice(toIndex, 0, item);
+
+                    // 2. Update DOM directly (No Re-render)
+                    if (next) {
+                        UI.tbody.insertBefore(draggedRow, targetRow.nextSibling);
+                    } else {
+                        UI.tbody.insertBefore(draggedRow, targetRow);
+                    }
+                }
+
+                draggedRow = null;
+            }
+
+            function handleRowDragEnd(e) {
+                if (draggedRow) {
+                    draggedRow.classList.remove('opacity-50', 'bg-indigo-100');
+                    draggedRow = null;
+                }
+                UI.tbody.querySelectorAll('tr').forEach(el => {
+                    el.style.borderTop = '';
+                    el.style.borderBottom = '';
+                });
+            }
+
+            // Global Actions (Exposed)
+            window.rmClear = function() {
+                rmData = [];
+                rmHeaders = [];
+                UI.results.classList.add('hidden');
+                UI.dropArea.classList.remove('hidden');
+                UI.fileInput.value = '';
+            };
+
+            // Notification Helper
+            function showNotification(msg, type) {
+                 const area = document.getElementById('notification-area');
+                 const el = document.createElement('div');
+                 const styles = type === 'error'
+                    ? 'bg-red-50 text-red-600 border-red-200'
+                    : 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                 const icon = type === 'error' ? 'alert-circle' : 'check-circle-2';
+
+                 el.className = `${styles} border px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 text-sm font-medium animate-in slide-in-from-bottom-5 fade-in duration-300`;
+                 el.innerHTML = `<span>${msg}</span>`;
+
+                 if(area) area.appendChild(el);
+                 setTimeout(() => {
+                     el.classList.add('opacity-0', 'translate-y-2', 'transition-all');
+                     setTimeout(() => el.remove(), 500);
+                 }, 2000);
+            }
+
         })();
 
     </script>
