@@ -1316,6 +1316,12 @@
         (function() {
             let rmHeaders = [];
             let rmData = [];
+
+            // Selection State
+            let selectedIndices = new Set();
+            let lastSelectedIndex = null; // For Shift+Click range
+
+            // Drag State
             let draggedIndex = null;
 
             const UI = {
@@ -1330,7 +1336,7 @@
             // Init
             if(UI.fileInput) UI.fileInput.addEventListener('change', handleFileSelect);
 
-            // Drag Drop Zone
+            // Drag Drop Zone for File Upload
             if(UI.dropArea) {
                 ['dragenter', 'dragover'].forEach(eventName => {
                     UI.dropArea.addEventListener(eventName, (e) => {
@@ -1344,8 +1350,38 @@
                         UI.dropArea.querySelector('div').classList.remove('border-indigo-400', 'bg-indigo-50');
                     }, false);
                 });
-                UI.dropArea.addEventListener('drop', handleDrop, false);
+                UI.dropArea.addEventListener('drop', handleFileDrop, false);
             }
+
+            // Initialize Event Delegation for Table Interactions
+            function initTableEvents() {
+                // Remove existing to prevent duplicates if re-inited (though this runs once per load)
+                UI.tbody.removeEventListener('click', handleTableClick);
+                UI.tbody.addEventListener('click', handleTableClick);
+
+                // Drag Events Delegation
+                UI.tbody.removeEventListener('dragstart', handleDragStart);
+                UI.tbody.addEventListener('dragstart', handleDragStart);
+
+                UI.tbody.removeEventListener('dragover', handleDragOver);
+                UI.tbody.addEventListener('dragover', handleDragOver);
+
+                UI.tbody.removeEventListener('drop', handleDropRow);
+                UI.tbody.addEventListener('drop', handleDropRow);
+
+                UI.tbody.removeEventListener('dragend', handleDragEnd);
+                UI.tbody.addEventListener('dragend', handleDragEnd);
+
+                // Select All Header Listener
+                UI.theadTr.parentElement.addEventListener('click', (e) => {
+                    if (e.target.id === 'rm-select-all') {
+                        toggleSelectAll(e.target.checked);
+                    }
+                });
+            }
+            initTableEvents();
+
+            // --- File Handling ---
 
             function handleFileSelect(e) {
                 const file = e.target.files[0];
@@ -1353,7 +1389,7 @@
                 e.target.value = ''; // Reset
             }
 
-            function handleDrop(e) {
+            function handleFileDrop(e) {
                 const dt = e.dataTransfer;
                 const file = dt.files[0];
                 if (file) processFile(file);
@@ -1376,7 +1412,11 @@
                         if (json.length > 0) {
                             rmHeaders = json[0];
                             rmData = json.slice(1);
+                            selectedIndices.clear(); // Reset selection
+                            lastSelectedIndex = null;
+
                             renderTable();
+
                             UI.dropArea.classList.add('hidden'); // Hide upload
                             UI.results.classList.remove('hidden'); // Show table
                             showNotification(`Loaded ${file.name}`, 'success');
@@ -1391,26 +1431,283 @@
                 reader.readAsArrayBuffer(file);
             }
 
+            // --- Selection Logic (Delegated) ---
+
+            function handleTableClick(e) {
+                // Find nearest TR
+                const tr = e.target.closest('tr');
+                if (!tr || !UI.tbody.contains(tr)) return;
+
+                const index = parseInt(tr.dataset.index, 10);
+                if (isNaN(index)) return;
+
+                // Check if target was the checkbox
+                const isCheckbox = e.target.classList.contains('rm-row-checkbox');
+
+                // If clicking an action button, do nothing (let button handler work)
+                if (e.target.closest('button')) return;
+
+                if (isCheckbox) {
+                    // Checkbox logic: simple toggle, no clearing others
+                    toggleSelection(index, e.target.checked);
+                    lastSelectedIndex = index;
+                } else {
+                    // Row click logic
+                    if (e.shiftKey && lastSelectedIndex !== null) {
+                        // Range Select
+                        selectRange(lastSelectedIndex, index);
+                    } else if (e.ctrlKey || e.metaKey) {
+                        // Toggle individual
+                        toggleSelection(index, !selectedIndices.has(index));
+                        lastSelectedIndex = index;
+                    } else {
+                        // Single select (clear others)
+                        selectedIndices.clear();
+                        toggleSelection(index, true);
+                        lastSelectedIndex = index;
+                    }
+                }
+
+                updateSelectionUI();
+            }
+
+            function toggleSelection(index, isSelected) {
+                if (isSelected) {
+                    selectedIndices.add(index);
+                } else {
+                    selectedIndices.delete(index);
+                }
+            }
+
+            function selectRange(start, end) {
+                const low = Math.min(start, end);
+                const high = Math.max(start, end);
+
+                // Logic: Add range to current selection? Or replace?
+                // Standard behavior usually keeps ctrl+selected items.
+                // We'll add to selection.
+                for (let i = low; i <= high; i++) {
+                    selectedIndices.add(i);
+                }
+            }
+
+            function toggleSelectAll(checked) {
+                if (checked) {
+                    rmData.forEach((_, i) => selectedIndices.add(i));
+                } else {
+                    selectedIndices.clear();
+                }
+                updateSelectionUI();
+            }
+
+            function updateSelectionUI() {
+                // Update Select All Checkbox state
+                const selectAllCb = document.getElementById('rm-select-all');
+                if (selectAllCb) {
+                    const allSelected = rmData.length > 0 && selectedIndices.size === rmData.length;
+                    const someSelected = selectedIndices.size > 0 && selectedIndices.size < rmData.length;
+                    selectAllCb.checked = allSelected;
+                    selectAllCb.indeterminate = someSelected;
+                }
+
+                // Update Rows
+                const rows = UI.tbody.children;
+                for (let i = 0; i < rows.length; i++) {
+                    const tr = rows[i];
+                    const index = parseInt(tr.dataset.index, 10);
+                    const checkbox = tr.querySelector('.rm-row-checkbox');
+
+                    if (selectedIndices.has(index)) {
+                        tr.classList.add('bg-indigo-50');
+                        tr.classList.remove('bg-white');
+                        if (checkbox) checkbox.checked = true;
+                    } else {
+                        tr.classList.remove('bg-indigo-50');
+                        tr.classList.add('bg-white');
+                        if (checkbox) checkbox.checked = false;
+                    }
+                }
+
+                // Update Status Text
+                if (selectedIndices.size > 0) {
+                     UI.status.textContent = `${selectedIndices.size} of ${rmData.length} Selected`;
+                } else {
+                     UI.status.textContent = `${rmData.length} Rows`;
+                }
+            }
+
+            // --- Drag and Drop Logic (Bulk & Optimized) ---
+
+            function handleDragStart(e) {
+                const tr = e.target.closest('tr');
+                if (!tr) return;
+
+                const index = parseInt(tr.dataset.index, 10);
+                draggedIndex = index;
+
+                // Logic: If dragging a row NOT in selection, select only that row
+                if (!selectedIndices.has(index)) {
+                    selectedIndices.clear();
+                    selectedIndices.add(index);
+                    updateSelectionUI();
+                }
+
+                // Drag Image / Feedback
+                const count = selectedIndices.size;
+                e.dataTransfer.effectAllowed = 'move';
+
+                // Create a ghost element
+                const ghost = document.createElement('div');
+                ghost.className = 'absolute -top-[1000px] bg-indigo-600 text-white px-3 py-2 rounded-lg shadow-lg font-bold text-sm z-50';
+                ghost.innerHTML = `<i class="ph ph-stack"></i> Moving ${count} Row${count > 1 ? 's' : ''}`;
+                document.body.appendChild(ghost);
+                e.dataTransfer.setDragImage(ghost, 0, 0);
+                setTimeout(() => document.body.removeChild(ghost), 0);
+
+                // Add styling to all dragged rows
+                selectedIndices.forEach(idx => {
+                    const row = UI.tbody.querySelector(`tr[data-index="${idx}"]`);
+                    if(row) row.classList.add('opacity-40');
+                });
+            }
+
+            function handleDragOver(e) {
+                e.preventDefault(); // Allow Drop
+                e.dataTransfer.dropEffect = 'move';
+
+                const tr = e.target.closest('tr');
+                if (!tr || !UI.tbody.contains(tr)) return;
+
+                // Visual Feedback: Show line
+                // Remove existing indicators
+                UI.tbody.querySelectorAll('.border-t-4', '.border-indigo-500').forEach(el => {
+                    el.classList.remove('border-t-4', 'border-indigo-500');
+                });
+
+                // Add indicator to current target
+                tr.classList.add('border-t-4', 'border-indigo-500');
+            }
+
+            function handleDragEnd(e) {
+                // Cleanup Styles
+                UI.tbody.querySelectorAll('tr').forEach(row => {
+                     row.classList.remove('opacity-40', 'border-t-4', 'border-indigo-500');
+                });
+            }
+
+            function handleDropRow(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const targetTr = e.target.closest('tr');
+                if (!targetTr) return;
+
+                const targetIndex = parseInt(targetTr.dataset.index, 10);
+
+                // Don't drop on self or within selection (unless moving out, but simplified: don't move if target is selected)
+                if (selectedIndices.has(targetIndex)) return;
+
+                // Prepare Data Move
+                // 1. Extract Selected Data
+                // Sort indices descending to splice correctly without shifting
+                const indicesArray = Array.from(selectedIndices).sort((a, b) => a - b);
+
+                // 2. Identify items to move
+                const itemsToMove = [];
+                // We map indices to the actual objects.
+                // Important: Since we splice, we must do it carefully.
+                // Actually easier: Partition the array into "moved" and "staying".
+
+                const newRmData = [];
+                const movingItems = [];
+
+                rmData.forEach((item, i) => {
+                    if (selectedIndices.has(i)) {
+                        movingItems.push(item);
+                    } else {
+                        newRmData.push(item);
+                    }
+                });
+
+                // 3. Insert at new position
+                // Calculate where the target index is in the *reduced* array
+                // Example: Data [A, B, C, D, E], Move [B, D] to before E (idx 4)
+                // Remaining: [A, C, E]
+                // Target was E. In original it was 4. In remaining it is 2.
+                // We need to find the target's new position.
+
+                // Find the object corresponding to targetIndex
+                const targetItem = rmData[targetIndex];
+                let newTargetIndex = newRmData.indexOf(targetItem);
+
+                // If dropping "after" or "on" usually means insert before.
+                // If newTargetIndex is -1 (shouldn't happen unless target was part of selection), handled above.
+
+                if (newTargetIndex === -1) newTargetIndex = newRmData.length;
+
+                // Splice them in
+                newRmData.splice(newTargetIndex, 0, ...movingItems);
+
+                // 4. Update State
+                rmData = newRmData;
+
+                // 5. Update Selection to point to new indices
+                // They are now at [newTargetIndex, newTargetIndex + movingItems.length - 1]
+                selectedIndices.clear();
+                for(let i=0; i<movingItems.length; i++) {
+                    selectedIndices.add(newTargetIndex + i);
+                }
+
+                // 6. Efficient DOM Update
+                // Instead of full renderTable, we could try to move nodes, but since indexes change for everyone,
+                // and we need to update data-index attributes, a re-render is safer and reasonably fast for text tables < 1000 rows.
+                // Optimization: Use the fragment approach from renderTable which is already reasonably fast.
+                renderTable();
+
+                // Flash success or something?
+                // showNotification(`Moved ${movingItems.length} rows`);
+            }
+
+            // --- Rendering ---
+
             function renderTable() {
                 UI.status.textContent = `${rmData.length} Rows`;
 
                 // Headers
-                UI.theadTr.innerHTML = rmHeaders.map(h => `<th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50 border-b border-slate-200">${h || '-'}</th>`).join('') + `<th class="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50 border-b border-slate-200 sticky right-0 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-20">Actions</th>`;
+                const checkboxHeader = `<th class="w-10 px-4 py-3 bg-slate-50 border-b border-slate-200 text-center"><input type="checkbox" id="rm-select-all" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"></th>`;
+                const dataHeaders = rmHeaders.map(h => `<th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50 border-b border-slate-200">${h || '-'}</th>`).join('');
+                const actionsHeader = `<th class="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50 border-b border-slate-200 sticky right-0 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-20">Actions</th>`;
+
+                UI.theadTr.innerHTML = checkboxHeader + dataHeaders + actionsHeader;
 
                 // Body
                 UI.tbody.innerHTML = '';
+
+                const fragment = document.createDocumentFragment();
+
                 rmData.forEach((row, index) => {
                     const tr = document.createElement('tr');
                     tr.draggable = true;
                     tr.dataset.index = index;
-                    tr.className = "hover:bg-indigo-50 transition-colors bg-white group";
+
+                    // Initial Selection State
+                    const isSelected = selectedIndices.has(index);
+                    const bgClass = isSelected ? 'bg-indigo-50' : 'bg-white';
+
+                    tr.className = `hover:bg-indigo-50 transition-colors ${bgClass} group border-b border-slate-100`;
+
+                    // Selection Checkbox
+                    let html = `<td class="px-4 py-2 text-center w-10"><input type="checkbox" class="rm-row-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" data-index="${index}" ${isSelected ? 'checked' : ''}></td>`;
 
                     // Cells
-                    let html = row.map(cell => `<td class="px-4 py-2 whitespace-nowrap text-slate-700 border-b border-slate-100 text-xs">${cell}</td>`).join('');
+                    html += row.map(cell => {
+                        const cellStr = String(cell || '');
+                        return `<td class="px-4 py-2 whitespace-nowrap text-slate-700 text-xs min-w-[80px] max-w-[300px] truncate" title="${cellStr.replace(/"/g, '&quot;')}">${cellStr}</td>`;
+                    }).join('');
 
                     // Actions
                     html += `
-                        <td class="px-4 py-2 whitespace-nowrap border-b border-slate-100 text-right sticky right-0 bg-white group-hover:bg-indigo-50 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">
+                        <td class="px-4 py-2 whitespace-nowrap text-right sticky right-0 bg-white group-hover:bg-indigo-50 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">
                             <div class="flex justify-end gap-2">
                                 <button onclick="window.rmCopyRow(${index})" title="Copy Row" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all">
                                     <i class="ph ph-copy text-lg"></i>
@@ -1422,45 +1719,10 @@
                         </td>
                     `;
                     tr.innerHTML = html;
-
-                    // Drag Events
-                    tr.addEventListener('dragstart', handleDragStart);
-                    tr.addEventListener('dragover', handleDragOver);
-                    tr.addEventListener('drop', handleDropRow);
-                    tr.addEventListener('dragend', handleDragEnd);
-
-                    UI.tbody.appendChild(tr);
+                    fragment.appendChild(tr);
                 });
-            }
 
-            // Drag Functions
-            function handleDragStart(e) {
-                draggedIndex = Number(this.dataset.index);
-                this.classList.add('opacity-50');
-                e.dataTransfer.effectAllowed = 'move';
-            }
-
-            function handleDragOver(e) {
-                e.preventDefault(); // Necessary to allow dropping
-                e.dataTransfer.dropEffect = 'move';
-                this.classList.add('bg-indigo-100');
-            }
-
-            function handleDragEnd(e) {
-                this.classList.remove('opacity-50');
-                document.querySelectorAll('#rm-tbody tr').forEach(row => row.classList.remove('bg-indigo-100'));
-            }
-
-            function handleDropRow(e) {
-                e.stopPropagation();
-                const targetIndex = Number(this.dataset.index);
-                if (draggedIndex !== null && draggedIndex !== targetIndex) {
-                    // Reorder
-                    const item = rmData.splice(draggedIndex, 1)[0];
-                    rmData.splice(targetIndex, 0, item);
-                    renderTable();
-                }
-                return false;
+                UI.tbody.appendChild(fragment);
             }
 
             // Global Actions
