@@ -1,0 +1,551 @@
+/**
+ * Component Styles
+ * Reusable component styles
+ */
+
+/* Sidebar */
+.sidebar-link.active {
+    background-color: #eef2ff;
+    color: #4f46e5;
+    border-right: 3px solid #4f46e5;
+}
+
+.sidebar-link {
+    /* Touch target size */
+}
+
+/* Section Cards */
+.section-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-neutral-200);
+}
+
+.section-header {
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px solid var(--color-neutral-100);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Buttons */
+.btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-6);
+    font-weight: 500;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    /* Touch target size */
+    min-width: 44px;
+    /* Touch target size */
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn:focus-visible {
+    outline: 3px solid var(--color-action);
+    outline-offset: 2px;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.3);
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn:disabled::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(45deg,
+            transparent,
+            transparent 10px,
+            rgba(255, 255, 255, 0.05) 10px,
+            rgba(255, 255, 255, 0.05) 20px);
+    pointer-events: none;
+}
+
+.btn-primary {
+    background-color: var(--color-action);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--color-action-hover);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.btn-primary:active:not(:disabled) {
+    background-color: var(--color-action-active);
+}
+
+.btn-primary:focus-visible {
+    outline-color: var(--color-action);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+}
+
+.btn-secondary {
+    background-color: var(--color-neutral-100);
+    color: var(--text-tertiary);
+    border: 1px solid var(--color-neutral-200);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-neutral-200);
+    color: var(--text-secondary);
+    border-color: var(--color-neutral-300);
+}
+
+.btn-secondary:active:not(:disabled) {
+    background-color: var(--color-neutral-300);
+}
+
+.btn-secondary:focus-visible {
+    outline-color: var(--color-neutral-400);
+    box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.2);
+}
+
+/* Dropzone */
+.dropzone {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    min-height: 44px;
+    /* Touch target baseline */
+}
+
+.dropzone:hover {
+    border-color: var(--color-action);
+    background-color: var(--color-action-bg);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.dropzone:hover i {
+    transform: scale(1.1);
+    color: var(--color-action);
+}
+
+.dropzone.drag-over {
+    border-color: var(--color-action) !important;
+    background-color: var(--color-action-bg) !important;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15), var(--shadow-lg);
+}
+
+.dropzone.drag-over i {
+    transform: scale(1.2) rotate(5deg);
+    color: var(--color-action);
+    animation: pulse 1s infinite;
+}
+
+.dropzone.drag-over::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at center, rgba(79, 70, 229, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.dropzone i {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropzone:focus-visible {
+    outline: 3px solid var(--color-action);
+    outline-offset: 2px;
+    border-color: var(--color-action);
+    background-color: var(--color-action-bg);
+}
+
+.dropzone-protokoll {
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    border-color: #a5b4fc !important;
+}
+
+.dropzone-protokoll.drag-over {
+    background: linear-gradient(135deg, #ddd6fe 0%, #c7d2fe 100%);
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.dropzone-abrechnung {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-color: #a7f3d0 !important;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-ready {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 1px solid #059669;
+}
+
+.status-error {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+    border: 1px solid #dc2626;
+}
+
+/* Toast Notifications */
+.toast {
+    min-width: 320px;
+    max-width: 500px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.toast-success {
+    background: linear-gradient(135deg, var(--color-success-light) 0%, var(--color-success-bg) 100%);
+    border-color: var(--color-success);
+    color: #065f46;
+}
+
+.toast-error {
+    background: linear-gradient(135deg, var(--color-error-light) 0%, var(--color-error-bg) 100%);
+    border-color: var(--color-error);
+    color: #991b1b;
+}
+
+.toast-info {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-color: #60a5fa;
+    color: #1e40af;
+}
+
+.toast-warning {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-color: #fbbf24;
+    color: #92400e;
+}
+
+.toast-enter {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.toast-exit {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+/* Collapsible Sections */
+/* Collapsible Button */
+.collapse-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-tertiary);
+}
+
+.collapse-btn:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--text-primary);
+}
+
+.collapse-btn:active {
+    transform: scale(0.95);
+}
+
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapsible-content.expanded {
+    max-height: 2000px;
+}
+
+.collapse-icon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.25rem;
+}
+
+.collapse-icon.rotated {
+    transform: rotate(180deg);
+}
+
+
+/* Table Container */
+.table-container {
+    position: relative;
+    overflow: auto;
+    max-height: calc(100vh - 300px);
+    /* Ensure container has a height for sticky header */
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-md);
+}
+
+/* Table Styles */
+table {
+    border-collapse: separate;
+    /* Required for sticky header border handling */
+    border-spacing: 0;
+    width: 100%;
+}
+
+table th,
+table td {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+table th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    background-color: var(--color-neutral-50);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--color-neutral-300);
+    /* Slightly darker border for header */
+}
+
+/* Sortable Headers */
+th.sortable {
+    cursor: pointer;
+    user-select: none;
+    /* Prevent text selection while clicking */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+th.sortable:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--text-primary);
+}
+
+th.sortable .sort-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+}
+
+th.sortable:hover .sort-icon {
+    opacity: 0.6;
+}
+
+th.sortable[aria-sort="ascending"] .sort-icon,
+th.sortable[aria-sort="descending"] .sort-icon {
+    opacity: 1;
+    color: var(--color-action);
+}
+
+/* Table Body */
+table td {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    background-color: white;
+    /* Ensure content covers sticky header if scrolled behind (though not applicable here) and covers bg */
+}
+
+table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+table tbody tr:hover {
+    background-color: var(--color-neutral-50);
+    /* Row Hover Background */
+}
+
+/* Numeric alignment helper */
+.text-right {
+    text-align: right;
+}
+
+.table-container::before,
+.table-container::after {
+    display: none;
+    /* Removed fade effects which might interfere with sticky headers visual cleanliness or implementation simplicty */
+}
+
+/* Rich Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-12) var(--space-6);
+    text-align: center;
+    color: var(--text-tertiary);
+    background-color: white;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: var(--color-neutral-300);
+    margin-bottom: var(--space-4);
+}
+
+.empty-state-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+
+.empty-state-subtext {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    max-width: 300px;
+}
+
+/* Tool 2 - Smart Extractor Validation Styles */
+.validation-error {
+    background-color: #fee2e2 !important;
+    border: 1px solid #fca5a5 !important;
+}
+
+.validation-warning {
+    background-color: #fef3c7 !important;
+}
+
+/* Tool 3 - Row Manager Drag & Drop Styles */
+.dragging-row {
+    opacity: 0.5;
+    background-color: #e0e7ff !important;
+}
+
+.drop-indicator {
+    border-top: 3px solid #6366f1;
+    border-bottom: 3px solid #6366f1;
+}
+
+/* Fade-in animation for table rows */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Icon buttons (small) */
+.btn-icon-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-icon-sm:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--text-secondary);
+}
+
+.btn-icon-sm:active {
+    background-color: var(--color-neutral-200);
+    transform: scale(0.95);
+}
+
+.btn-icon-sm:focus-visible {
+    outline: 2px solid var(--color-action);
+    outline-offset: 2px;
+}
+
+/* Debug output */
+.debug-output {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.debug-output::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.debug-output::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.debug-output::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.debug-output::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}

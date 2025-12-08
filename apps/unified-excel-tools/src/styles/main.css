@@ -1,0 +1,291 @@
+/**
+ * Main Styles
+ * Global styles and CSS variables
+ */
+
+/* ============================================================================
+   DESIGN SYSTEM DOCUMENTATION
+   ============================================================================
+   
+   This design system uses CSS custom properties (variables) to maintain
+   consistent styling across the application. All tokens are defined in :root
+   and can be overridden for dark mode using [data-theme="dark"].
+   
+   COLOR TOKENS
+   ------------
+   Text Colors:
+   - --text-primary: Primary text for headings and important content (#0f172a)
+   - --text-secondary: Secondary text for body content (#334155)
+   - --text-tertiary: Tertiary text for labels and metadata (#475569)
+   - --text-muted: Muted text for disabled or subtle content (#64748b)
+   
+   Action Colors (Primary interactive elements):
+   - --color-action: Base action color for buttons and links (#4f46e5 indigo)
+   - --color-action-hover: Hover state for actions (#4338ca)
+   - --color-action-active: Active/pressed state (#3730a3)
+   - --color-action-bg: Background tint for action areas (#eef2ff)
+   - --color-action-light: Light accent for borders/highlights (#c7d2fe)
+   
+   Success Colors (Positive feedback):
+   - --color-success: Success state indicator (#059669 emerald)
+   - --color-success-hover: Hover state for success buttons (#047857)
+   - --color-success-bg: Success background tint (#d1fae5)
+   - --color-success-light: Light success highlight (#ecfdf5)
+   
+   Error Colors (Negative feedback, validation):
+   - --color-error: Error state indicator (#dc2626 red)
+   - --color-error-hover: Hover state for error buttons (#b91c1c)
+   - --color-error-bg: Error background tint (#fecaca)
+   - --color-error-light: Light error highlight (#fef2f2)
+   
+   Neutral Colors (Backgrounds, borders, dividers):
+   - --color-neutral-50 to --color-neutral-500: Grayscale palette
+   - Use for backgrounds, borders, and subtle UI elements
+   
+   SPACING TOKENS
+   --------------
+   Based on 4px grid system for consistent rhythm:
+   - --space-1: 4px (tight spacing, icon gaps)
+   - --space-2: 8px (compact spacing, small gaps)
+   - --space-3: 12px (default spacing, component padding)
+   - --space-4: 16px (comfortable spacing, section padding)
+   - --space-5: 20px (relaxed spacing)
+   - --space-6: 24px (generous spacing, section margins)
+   - --space-8: 32px (large spacing, major sections)
+   
+   TYPOGRAPHY
+   ----------
+   Font Family: System font stack (inherited from body)
+   - Primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif
+   
+   Font Sizes: Use Tailwind utility classes
+   - text-xs: 12px (metadata, labels)
+   - text-sm: 14px (body text, secondary content)
+   - text-base: 16px (primary body text)
+   - text-lg: 18px (large body text)
+   - text-xl: 20px (small headings)
+   - text-2xl: 24px (section headings)
+   - text-3xl: 30px (page headings)
+   
+   Font Weights: Use Tailwind utility classes
+   - font-normal: 400 (body text)
+   - font-medium: 500 (emphasized text, labels)
+   - font-semibold: 600 (headings, buttons)
+   - font-bold: 700 (strong emphasis)
+   
+   BORDER RADIUS
+   -------------
+   Consistent rounding for UI elements:
+   - --radius-sm: 4px (small elements, badges)
+   - --radius-md: 8px (buttons, inputs, cards)
+   - --radius-lg: 12px (large cards, modals)
+   - --radius-full: 50% (circular elements, avatars)
+   
+   SHADOWS
+   -------
+   Elevation system for depth hierarchy:
+   - --shadow-sm: Subtle lift (dropdowns, tooltips)
+   - --shadow-md: Moderate elevation (cards, buttons)
+   - --shadow-lg: Prominent elevation (modals, popovers)
+   - --shadow-xl: Maximum elevation (fullscreen overlays)
+   
+   USAGE GUIDELINES
+   ----------------
+   1. Always use CSS variables instead of hardcoded values
+   2. Maintain 4px spacing increments for consistency
+   3. Use semantic color names (success/error/action) not color names
+   4. Test all changes in both light and dark modes
+   5. Prefer utility classes (Tailwind) for common patterns
+   
+   ============================================================================
+*/
+
+/* Design System Variables */
+:root {
+    /* Text Colors */
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-tertiary: #475569;
+    --text-muted: #64748b;
+
+    /* Action Colors */
+    --color-action: #4f46e5;
+    --color-action-hover: #4338ca;
+    --color-action-active: #3730a3;
+    --color-action-bg: #eef2ff;
+    --color-action-light: #c7d2fe;
+
+    /* Success Colors */
+    --color-success: #059669;
+    --color-success-hover: #047857;
+    --color-success-bg: #d1fae5;
+    --color-success-light: #ecfdf5;
+
+    /* Error Colors */
+    --color-error: #dc2626;
+    --color-error-hover: #b91c1c;
+    --color-error-bg: #fecaca;
+    --color-error-light: #fef2f2;
+
+    /* Neutral Colors */
+    --color-neutral-50: #f8fafc;
+    --color-neutral-100: #f1f5f9;
+    --color-neutral-200: #e2e8f0;
+    --color-neutral-300: #cbd5e1;
+    --color-neutral-400: #94a3b8;
+    --color-neutral-500: #64748b;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 50%;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    /* Background */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
+    --text-muted: #64748b;
+
+    --color-action: #818cf8;
+    --color-action-hover: #a5b4fc;
+    --color-action-bg: #1e1b4b;
+    --color-action-light: #312e81;
+
+    --color-success: #34d399;
+    --color-success-hover: #6ee7b7;
+    --color-success-bg: #064e3b;
+    --color-success-light: #065f46;
+
+    --color-error: #f87171;
+    --color-error-hover: #fca5a5;
+    --color-error-bg: #7f1d1d;
+    --color-error-light: #991b1b;
+
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* App Header */
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.header-status {
+    backdrop-filter: blur(4px);
+}
+
+/* Section Layouts */
+.tool-section {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.section-header-inline {
+    padding-bottom: var(--space-4);
+    border-bottom: 2px solid var(--color-neutral-200);
+}
+
+.section-header-inline h2 {
+    margin: 0;
+}
+
+.section-header-inline p {
+    margin: 0;
+}
+
+/* Animations */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Focus States */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--color-action);
+    outline-offset: 2px;
+}
+
+/* Responsiveness Media Queries */
+@media (max-width: 1024px) {
+    .section-card {
+        padding: var(--space-4);
+    }
+
+    .dropzone {
+        padding: var(--space-6);
+    }
+}

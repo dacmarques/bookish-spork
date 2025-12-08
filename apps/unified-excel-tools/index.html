@@ -1,1850 +1,494 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unified Excel Tools</title>
+    <title>Unified Excel Tools - Modular</title>
 
-    <!-- Tailwind CSS -->
+    <!-- External Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- SheetJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-    <!-- Phosphor Icons (Tool 1) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <!-- Lucide Icons (Tool 2) -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        /* Shared Styles */
-        body { font-family: 'Inter', sans-serif; }
-
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
-
-        /* Animations */
-        @keyframes pulse-border {
-            0% { border-color: #6366f1; box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-            70% { border-color: #4f46e5; box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
-            100% { border-color: #6366f1; box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-        }
-        .drag-active {
-            animation: pulse-border 2s infinite;
-            background-color: #eef2ff;
-            border-color: #4f46e5;
-        }
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 3px solid #4f46e5;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Tool 2 Drag styles */
-        .dragover {
-            background-color: #eff6ff;
-            border-color: #3b82f6;
-            border-style: solid;
-            transform: scale(1.005);
-        }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Sidebar Styles */
-        .sidebar-link.active {
-            background-color: #eef2ff;
-            color: #4f46e5;
-            border-right: 3px solid #4f46e5;
-        }
-    </style>
+    <!-- Styles -->
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="stylesheet" href="src/styles/components.css">
 </head>
+
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-50">
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-50"
+        aria-label="Main Navigation">
         <div class="h-16 flex items-center px-6 border-b border-slate-100">
             <span class="font-bold text-xl text-slate-800 flex items-center gap-2">
-                <i class="ph ph-squares-four text-indigo-600"></i>
+                <i class="ph ph-squares-four text-indigo-600" aria-hidden="true"></i>
                 Excel Suite
             </span>
         </div>
 
-        <nav class="flex-1 overflow-y-auto py-6 space-y-1">
-            <button onclick="switchTab('tool1')" id="nav-tool1" class="sidebar-link active w-full flex items-center px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-                <i class="ph ph-calculator mr-3 text-lg"></i>
+        <nav class="flex-1 overflow-y-auto py-6 space-y-1" aria-label="Tools">
+            <button id="nav-tool1"
+                class="sidebar-link active w-full flex items-center px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                aria-current="page">
+                <i class="ph ph-calculator mr-3 text-lg" aria-hidden="true"></i>
                 Value Counter
             </button>
-            <button onclick="switchTab('tool2')" id="nav-tool2" class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-                <i class="ph ph-table mr-3 text-lg"></i>
+            <button id="nav-tool2"
+                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                <i class="ph ph-table mr-3 text-lg" aria-hidden="true"></i>
                 Smart Extractor
             </button>
-            <button onclick="switchTab('tool3')" id="nav-tool3" class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-                <i class="ph ph-rows mr-3 text-lg"></i>
+            <button id="nav-tool3"
+                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                <i class="ph ph-rows mr-3 text-lg" aria-hidden="true"></i>
                 Row Manager
             </button>
         </nav>
-
-        <div class="p-4 border-t border-slate-100">
-            <div class="flex items-center gap-3 px-2">
-                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
-                    OP
-                </div>
-                <div class="flex-1">
-                    <p class="text-xs font-semibold text-slate-700">Operator View</p>
-                    <p class="text-[10px] text-slate-400">v2.1.0</p>
-                </div>
-            </div>
-        </div>
     </aside>
 
-    <!-- Main Content Wrapper -->
-    <div class="flex-1 flex flex-col h-screen overflow-hidden">
-
-        <!-- Top Header -->
-        <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 flex-shrink-0">
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm">
             <div class="flex items-center gap-4">
-                <h2 id="page-title" class="text-lg font-semibold text-slate-800">Value Counter</h2>
-                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium border border-emerald-200">
-                    Production
-                </span>
-            </div>
-            <div class="flex items-center gap-6">
-                <div class="text-right hidden sm:block">
-                    <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Last Activity</p>
-                    <p id="last-activity" class="text-xs text-slate-600 font-mono">No recent activity</p>
+                <h1 class="text-lg font-semibold text-slate-800">Excel Tools Suite</h1>
+                <div class="header-status flex items-center gap-3 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200"
+                    aria-live="polite" aria-atomic="true">
+                    <span class="flex items-center gap-1">
+                        <i class="ph ph-file-text text-indigo-500" aria-hidden="true"></i>
+                        Files: <strong class="text-slate-700" id="global-file-count">0</strong>
+                    </span>
+                    <span class="text-slate-300" aria-hidden="true">•</span>
+                    <span class="flex items-center gap-1">
+                        <i class="ph ph-clock text-slate-400" aria-hidden="true"></i>
+                        Last activity: <span id="last-activity">--:--</span>
+                    </span>
                 </div>
-                <div class="w-px h-8 bg-slate-200"></div>
-                <button class="p-2 text-slate-400 hover:text-indigo-600 transition-colors rounded-full hover:bg-slate-50">
-                    <i class="ph ph-bell text-xl"></i>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="window.loadSampleData()"
+                    class="px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors mr-2">
+                    <i class="ph ph-flask mr-1"></i>
+                    Sample Data
+                </button>
+                <button id="helpBtn" class="p-2 hover:bg-slate-100 rounded-lg transition-colors" aria-label="Help">
+                    <i class="ph ph-question text-lg" aria-hidden="true"></i>
+                </button>
+                <button id="settingsBtn" class="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                    aria-label="Settings">
+                    <i class="ph ph-gear text-lg" aria-hidden="true"></i>
+                </button>
+                <button id="themeToggle" class="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                    aria-label="Toggle Dark Mode">
+                    <i class="ph ph-moon text-lg" aria-hidden="true"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Workspace Area -->
-        <main class="flex-1 overflow-auto bg-slate-50 p-6 relative">
+        <!-- Tool Content Area -->
+        <main class="flex-1 overflow-auto p-6" role="main" aria-label="Tool content area">
+            <!-- Tool 1: Value Counter -->
+            <section id="tool1-content" class="space-y-6" aria-labelledby="tool1-heading">
+                <h2 id="tool1-heading" class="text-2xl font-bold text-slate-800">Value Counter</h2>
 
-            <!-- Tool 1: Excel Value Counter (Redesigned) -->
-            <div id="tool1-content" class="h-full flex flex-col">
-
-                <div class="grid grid-cols-12 gap-6 h-full">
-
-                    <!-- Left Panel: Import & Controls (30%) -->
-                    <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
-
-                        <!-- Upload Section -->
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex-shrink-0">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                                    <i class="ph ph-upload-simple text-indigo-600"></i> Import Data
-                                </h3>
-                                <button onclick="openSettingsModal()" class="text-xs font-medium text-slate-500 hover:text-indigo-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-slate-50 transition-colors">
-                                    <i class="ph ph-gear"></i> Settings
-                                </button>
-                            </div>
-
-                            <div class="space-y-4">
-                                <!-- 1. Protokoll -->
-                                <div>
-                                    <div class="flex justify-between mb-1">
-                                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">1. Protokoll</label>
-                                        <span id="status-protokoll" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">Waiting</span>
-                                    </div>
-                                    <div id="dropArea" class="relative group cursor-pointer h-24 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center bg-slate-50 transition-all hover:border-indigo-400 hover:bg-indigo-50">
-                                        <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".xlsx, .xls">
-                                        <div class="text-center pointer-events-none">
-                                            <p class="text-sm font-medium text-slate-600 group-hover:text-indigo-700">Drop Protokoll.xlsx</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- 2. Abrechnung -->
-                                <div>
-                                    <div class="flex justify-between mb-1">
-                                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">2. Abrechnung</label>
-                                        <span id="status-abrechnung" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">Waiting</span>
-                                    </div>
-                                    <div id="dropAreaAbrechnung" class="relative group cursor-pointer h-24 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center bg-slate-50 transition-all hover:border-emerald-400 hover:bg-emerald-50">
-                                        <input type="file" id="fileInputAbrechnung" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".xlsx, .xls">
-                                        <div class="text-center pointer-events-none">
-                                            <p class="text-sm font-medium text-slate-600 group-hover:text-emerald-700">Drop Abrechnung.xlsx</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <!-- File Upload Areas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" aria-label="File upload section">
+                    <!-- Protokoll Upload -->
+                    <section class="section-card p-6" aria-labelledby="protokoll-heading">
+                        <h3 id="protokoll-heading" class="text-lg font-semibold mb-4">Protokoll File</h3>
+                        <div id="protokollDropzone"
+                            class="dropzone dropzone-protokoll border-2 border-dashed rounded-lg p-8 text-center cursor-pointer"
+                            role="button" tabindex="0"
+                            aria-label="Upload Protokoll File. Drop file here or press Enter to browse.">
+                            <i class="ph ph-upload text-4xl text-indigo-400 mb-2" aria-hidden="true"></i>
+                            <p class="text-sm text-slate-600">Drop Protokoll file here or click to browse</p>
+                            <input type="file" id="protokollFileInput" accept=".xlsx,.xls" class="hidden" tabindex="-1">
                         </div>
-
-                        <!-- Feedback / Alert Box -->
-                        <div id="feedback" class="hidden rounded-lg p-4 text-sm border shadow-sm"></div>
-
-                         <!-- Extracted Info Summary (Vertical) -->
-                         <div id="infoPanel" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hidden flex-1 flex flex-col">
-                            <h3 class="font-bold text-slate-800 text-sm mb-4 border-b border-slate-100 pb-2">Extracted Details</h3>
-                            <div class="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-2">
-                                <div class="group">
-                                    <p class="text-xs text-slate-400 font-medium uppercase">Datum</p>
-                                    <div class="flex justify-between items-center">
-                                        <p id="outDatum" class="text-base font-semibold text-slate-800">-</p>
-                                        <button onclick="copyToClipboard('outDatum')" class="text-slate-300 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"><i class="ph ph-copy"></i></button>
-                                    </div>
-                                </div>
-                                <div class="group">
-                                    <p class="text-xs text-slate-400 font-medium uppercase">Auftrags-Nr.</p>
-                                    <div class="flex justify-between items-center">
-                                        <p id="outAuftrag" class="text-base font-semibold text-slate-800">-</p>
-                                        <button onclick="copyToClipboard('outAuftrag')" class="text-slate-300 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"><i class="ph ph-copy"></i></button>
-                                    </div>
-                                </div>
-                                <div class="group">
-                                    <p class="text-xs text-slate-400 font-medium uppercase">Anlage</p>
-                                    <div class="flex justify-between items-center">
-                                        <p id="outAnlage" class="text-sm font-medium text-slate-800 break-all">-</p>
-                                        <button onclick="copyToClipboard('outAnlage')" class="text-slate-300 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"><i class="ph ph-copy"></i></button>
-                                    </div>
-                                </div>
-                                <div class="group">
-                                    <p class="text-xs text-slate-400 font-medium uppercase">Einsatzort</p>
-                                    <div class="flex justify-between items-center">
-                                        <p id="outOrt" class="text-sm font-medium text-slate-800">-</p>
-                                        <button onclick="copyToClipboard('outOrt')" class="text-slate-300 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"><i class="ph ph-copy"></i></button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div id="protokollMetadata" class="mt-4 p-3 bg-slate-50 rounded-lg hidden" aria-live="polite">
                         </div>
-                    </div>
+                    </section>
 
-                    <!-- Right Panel: Data Grid (70%) -->
-                    <div class="col-span-12 lg:col-span-8 flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-[calc(100vh-8rem)]">
-
-                        <!-- Toolbar -->
-                        <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <div class="flex items-center gap-3">
-                                <div class="relative">
-                                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                                    <input type="text" id="tableFilter" placeholder="Filter targets..." class="pl-9 pr-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none w-48">
-                                </div>
-                                <span id="matchSummary" class="text-xs text-slate-500 font-medium">Ready to process</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="downloadMergedAbrechnung()" id="btnDownloadMerged" class="opacity-50 cursor-not-allowed px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm flex items-center gap-2 transition-all" disabled>
-                                    <i class="ph ph-download-simple"></i> Download Result
-                                </button>
-                            </div>
+                    <!-- Abrechnung Upload -->
+                    <section class="section-card p-6" aria-labelledby="abrechnung-heading">
+                        <h3 id="abrechnung-heading" class="text-lg font-semibold mb-4">Abrechnung File</h3>
+                        <div id="abrechnungDropzone"
+                            class="dropzone dropzone-abrechnung border-2 border-dashed rounded-lg p-8 text-center cursor-pointer"
+                            role="button" tabindex="0"
+                            aria-label="Upload Abrechnung File. Drop file here or press Enter to browse.">
+                            <i class="ph ph-upload text-4xl text-emerald-400 mb-2" aria-hidden="true"></i>
+                            <p class="text-sm text-slate-600">Drop Abrechnung file here or click to browse</p>
+                            <input type="file" id="abrechnungFileInput" accept=".xlsx,.xls" class="hidden"
+                                tabindex="-1">
                         </div>
-
-                        <!-- Table -->
-                        <div class="flex-1 overflow-auto custom-scrollbar relative">
-                            <table class="min-w-full divide-y divide-slate-200" id="resultsTable">
-                                <thead class="bg-slate-50 sticky top-0 z-10 shadow-sm">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none group" onclick="handleSort('target')">
-                                            <div class="flex items-center gap-1">
-                                                Target Value
-                                                <i id="sort-icon-target" class="ph ph-arrows-down-up text-slate-300 group-hover:text-slate-500"></i>
-                                            </div>
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none group" onclick="handleSort('count')">
-                                            <div class="flex items-center gap-1">
-                                                Count
-                                                <i id="sort-icon-count" class="ph ph-arrow-down text-indigo-600"></i>
-                                            </div>
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableBody" class="bg-white divide-y divide-slate-200">
-                                    <tr>
-                                        <td colspan="3" class="px-6 py-24 text-center">
-                                            <div class="flex flex-col items-center justify-center text-slate-300">
-                                                <i class="ph ph-table text-4xl mb-2 opacity-50"></i>
-                                                <p class="text-sm">No data generated yet.</p>
-                                                <p class="text-xs mt-1">Upload a Protokoll file to begin.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div id="abrechnungMetadata" class="mt-4 p-3 bg-slate-50 rounded-lg hidden" aria-live="polite">
                         </div>
-
-                        <!-- Footer -->
-                        <div class="p-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 flex justify-between items-center">
-                            <span>Rows: <span id="rowCount" class="font-bold text-slate-700">0</span></span>
-                            <div class="flex gap-4">
-                                <button onclick="window.downloadCSV()" class="hover:text-indigo-600 underline">Export CSV</button>
-                            </div>
-                        </div>
-                    </div>
-
+                    </section>
                 </div>
 
-                <!-- Debug Area -->
-                <div id="debugArea" class="hidden mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-                    <p class="font-bold mb-2"><i class="ph ph-warning-circle"></i> Debugging Info (First 5 values found in Column A):</p>
-                    <ul id="debugList" class="list-disc list-inside font-mono text-xs"></ul>
-                </div>
+                <!-- Target Values -->
+                <section class="section-card p-6" aria-labelledby="targets-heading">
+                    <h3 id="targets-heading" class="text-lg font-semibold mb-4">Target Values</h3>
+                    <label for="targetValues" class="sr-only">Target Values List</label>
+                    <textarea id="targetValues" rows="4" class="w-full border border-slate-300 rounded-lg p-3 text-sm"
+                        placeholder="Enter target values (one per line)">Montage
+Demontage
+Reparatur
+Wartung</textarea>
+                    <button id="resetTargetsBtn" class="btn btn-secondary mt-2">
+                        <i class="ph ph-arrow-counter-clockwise mr-2" aria-hidden="true"></i>
+                        Reset to Defaults
+                    </button>
+                </section>
 
-            </div>
-
-            <!-- Tool 2: Smart Excel Extractor (Preserved Content) -->
-            <div id="tool2-content" class="hidden h-full flex flex-col">
-
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-8 max-w-7xl">
-
-        <!-- Upload Section -->
-        <div class="mb-8">
-            <div id="drop-area" class="group relative w-full h-48 border-2 border-dashed border-slate-300 rounded-2xl bg-white flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-blue-500 hover:shadow-md">
-                <div class="pointer-events-none flex flex-col items-center text-center space-y-3">
-                    <div class="p-3 bg-slate-100 rounded-full group-hover:bg-blue-100 text-slate-400 group-hover:text-blue-600 transition-colors duration-300">
-                        <i data-lucide="upload-cloud" class="w-8 h-8"></i>
-                    </div>
-                    <div>
-                        <p class="text-lg font-semibold text-slate-700 group-hover:text-blue-700 transition-colors">Excel-Dateien hier ablegen</p>
-                        <p class="text-sm text-slate-400 mt-1">Unterstützt .xlsx Dateien</p>
-                    </div>
-                </div>
-                <input type="file" id="fileElem" multiple accept=".xlsx" class="hidden" onchange="handleFiles(this.files)">
-            </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-4 gap-4">
-            <div class="flex items-center gap-4 flex-wrap">
-                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <div class="bg-emerald-100 p-1.5 rounded text-emerald-700">
-                        <i data-lucide="table-2" class="w-4 h-4"></i>
-                    </div>
-                    Extrahierte Daten
-                    <span id="record-count-badge" class="text-xs font-normal bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full hidden">0</span>
-                </h2>
-                <!-- Filter Input -->
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
-                    </div>
-                    <input type="text" id="filter-input-extractor" placeholder="Filtern..."
-                        class="pl-9 pr-4 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-700 shadow-sm w-48">
-                </div>
-            </div>
-
-            <div class="flex gap-2">
-                <button onclick="exportToExcel()" id="btn-export" class="opacity-50 cursor-not-allowed px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm shadow-green-200 transition-all flex items-center gap-2" disabled>
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                    Exportieren (.xlsx)
-                </button>
-                <button onclick="clearTable()" class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors flex items-center gap-2">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    Leeren
-                </button>
-            </div>
-        </div>
-
-        <!-- Data Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-            <div class="overflow-x-auto custom-scrollbar">
-                <table id="data-table" class="w-full text-sm text-left">
-                    <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200 sticky top-0">
-                        <tr>
-                            <th class="px-6 py-4 font-semibold whitespace-nowrap cursor-pointer hover:bg-slate-100 select-none group" onclick="handleExtractorSort('fileName')">
-                                <div class="flex items-center gap-1">Datei <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-fileName"></i></div>
-                            </th>
-                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" onclick="handleExtractorSort('auftragsNr')">
-                                <div class="flex items-center gap-1">Auftrags-Nr. <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-auftragsNr"></i></div>
-                            </th>
-                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" onclick="handleExtractorSort('anlage')">
-                                <div class="flex items-center gap-1">Anlage <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-anlage"></i></div>
-                            </th>
-                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" onclick="handleExtractorSort('einsatzort')">
-                                <div class="flex items-center gap-1">Einsatzort <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-einsatzort"></i></div>
-                            </th>
-                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" onclick="handleExtractorSort('datum')">
-                                <div class="flex items-center gap-1">Datum <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-datum"></i></div>
-                            </th>
-                            <th class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 select-none group" title="Fachmonteurstunde" onclick="handleExtractorSort('fachmonteur')">
-                                <div class="flex items-center gap-1">
-                                    Fach. (M)
-                                    <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-fachmonteur"></i>
-                                </div>
-                                <span class="block text-[10px] normal-case opacity-70 font-normal">Links v. Label</span>
-                            </th>
-                            <th class="px-6 py-4 font-semibold text-right cursor-pointer hover:bg-slate-100 select-none group" onclick="handleExtractorSort('sumRaw')">
-                                <div class="flex items-center justify-end gap-1">Auftragssumme <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-sumRaw"></i></div>
-                            </th>
-                            <th class="px-6 py-4 font-semibold min-w-[250px] cursor-pointer hover:bg-slate-100 select-none group" onclick="handleExtractorSort('bemerkung')">
-                                <div class="flex items-center gap-1">
-                                    Bemerkung
-                                    <i data-lucide="arrow-up-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity sort-icon" id="sort-bemerkung"></i>
-                                </div>
-                                <span class="block text-[10px] normal-case opacity-70 font-normal">Unter d. Label</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body" class="divide-y divide-slate-100">
-                        <!-- Rows inserted via JS -->
-                        <tr id="empty-state">
-                            <td colspan="8" class="px-6 py-20 text-center">
-                                <div class="flex flex-col items-center justify-center text-slate-300">
-                                    <i data-lucide="search-x" class="w-12 h-12 mb-3 opacity-50"></i>
-                                    <span class="text-base font-medium">Keine Daten vorhanden</span>
-                                    <span class="text-sm">Dateien oben in den Bereich ziehen</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Footer / Totals -->
-            <div class="bg-slate-50 border-t border-slate-200 p-4 sm:p-6">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="text-xs text-slate-500">
-                        Erfolgreich verarbeitet: <span id="count-display" class="font-bold text-slate-800">0</span> Dateien
-                    </div>
-
-                    <div class="flex items-center bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-sm gap-4">
-                        <div class="text-right">
-                            <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-0.5">Gesamtsumme</p>
-                            <h3 class="text-2xl font-bold text-slate-800 tabular-nums" id="total-display">0,00 €</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                            <i data-lucide="euro" class="w-5 h-5"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-            </div>
-
-            <!-- Tool 3: Row Manager (Preserved Content) -->
-            <div id="tool3-content" class="hidden h-full flex flex-col">
-            <div class="space-y-6 p-6">
-
-                <!-- Header -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl font-bold text-indigo-700 flex items-center gap-2">
-                            <i class="ph ph-rows text-3xl"></i> Row Manager
-                        </h1>
-                        <p class="text-slate-500 text-sm mt-1">Upload an Excel file, drag to reorder rows, and copy data for pasting back into Excel.</p>
-                    </div>
-                </div>
-
-                <!-- Upload Zone -->
-                <div id="rm-drop-area" class="relative group cursor-pointer">
-                    <input type="file" id="rm-file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".xlsx, .xls">
-                    <div class="w-full h-32 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center bg-white transition-all group-hover:border-indigo-400 group-hover:bg-indigo-50">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 rounded-full bg-indigo-50 text-indigo-600">
-                                <i class="ph ph-upload-simple text-2xl"></i>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-base font-medium text-slate-700">Drop <span class="text-indigo-600 font-bold">.xlsx</span> file here</p>
-                                <p class="text-xs text-slate-400">or click to browse</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Table Container -->
-                <div id="rm-results" class="hidden bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[75vh]">
-                    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
-                        <div class="flex items-center gap-4">
-                            <span class="font-bold text-slate-700 flex items-center gap-2">
-                                <i class="ph ph-table"></i>
-                                <span id="rm-status">0 Rows</span>
-                            </span>
-                            <span class="text-xs text-slate-400">Drag rows to reorder.</span>
-                        </div>
-                        <button onclick="window.rmClear()" class="px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors flex items-center gap-2">
-                            <i class="ph ph-trash"></i> Clear
+                <!-- Extracted Header -->
+                <section class="section-card" aria-labelledby="extracted-heading">
+                    <div class="section-header">
+                        <h3 id="extracted-heading" class="text-lg font-semibold flex items-center gap-2">
+                            <i class="ph ph-info text-indigo-500" aria-hidden="true"></i>
+                            Extracted Header Information
+                        </h3>
+                        <button id="extractedDetailsToggle" class="collapse-btn"
+                            aria-label="Toggle Extracted Information" aria-expanded="true"
+                            aria-controls="extractedDetailsContent">
+                            <i id="extractedDetailsIcon" class="ph ph-caret-down collapse-icon rotated"
+                                aria-hidden="true"></i>
                         </button>
                     </div>
+                    <div id="extractedDetailsContent" class="collapsible-content expanded p-6" role="region"
+                        aria-live="polite">
+                        <div id="extractedHeaderInfo" class="text-sm text-slate-500">
+                            Upload Protokoll file to see extracted information
+                        </div>
+                    </div>
+                </section>
 
-                    <div class="overflow-auto flex-grow custom-scrollbar relative">
-                        <table class="min-w-full divide-y divide-slate-200 text-sm relative border-collapse">
-                            <thead class="bg-slate-100 sticky top-0 z-20 shadow-sm ring-1 ring-slate-200">
-                                <tr id="rm-thead-tr">
-                                    <!-- Headers generated here -->
+                <!-- Results Header & Summary -->
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                        <i class="ph ph-chart-bar text-indigo-600" aria-hidden="true"></i>
+                        Results
+                    </h3>
+
+                    <!-- Loading Indicator (Hidden by default) -->
+                    <div id="processingIndicator"
+                        class="hidden flex items-center gap-2 text-sm text-indigo-600 font-medium">
+                        <i class="ph ph-spinner animate-spin text-lg" aria-hidden="true"></i>
+                        Processing...
+                    </div>
+                </div>
+
+                <!-- Summary Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <!-- Total Matches Card -->
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 text-xl">
+                            <i class="ph ph-check-circle" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-indigo-600 uppercase tracking-wide">Total Matches</p>
+                            <p id="summaryTotalMatches" class="text-2xl font-bold text-indigo-700">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Total Rows Card -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-xl">
+                            <i class="ph ph-rows" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Rows</p>
+                            <p id="summaryTotalRows" class="text-2xl font-bold text-slate-700">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Unique Targets Card -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-xl">
+                            <i class="ph ph-target" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Unique Targets</p>
+                            <p id="summaryUniqueTargets" class="text-2xl font-bold text-slate-700">0</p>
+                        </div>
+                    </div>
+                </div>
+                </header>
+                <div class="table-container overflow-x-auto" role="region" aria-labelledby="results-title">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th class="w-16">#</th>
+                                <th class="sortable" data-sort="target">
+                                    Target Value
+                                    <i class="ph ph-caret-up-down sort-icon"></i>
+                                </th>
+                                <th class="text-right sortable" data-sort="count">
+                                    Count
+                                    <i class="ph ph-caret-up-down sort-icon"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+                </article>
+
+                <!-- Debug Info Section -->
+                <section class="section-card" aria-labelledby="debug-heading">
+                    <div class="section-header">
+                        <h3 id="debug-heading" class="text-lg font-semibold flex items-center gap-2">
+                            <i class="ph ph-bug text-slate-500" aria-hidden="true"></i>
+                            Debug Information
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <button id="copyDebugBtn" class="btn-icon-sm" title="Copy debug info"
+                                aria-label="Copy debug information to clipboard">
+                                <i class="ph ph-copy"></i>
+                            </button>
+                            <button id="debugToggle" class="collapse-btn" aria-label="Toggle Debug Information"
+                                aria-expanded="false" aria-controls="debugContent">
+                                <i id="debugCollapseIcon" class="ph ph-caret-down collapse-icon" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="debugContent" class="collapsible-content p-6 hidden" role="region">
+                        <pre id="debugInfo"
+                            class="debug-output text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto">No debug information available</pre>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Tool 2: Smart Extractor -->
+            <section id="tool2-content" class="tool-section hidden space-y-6">
+                <header class="section-header-inline mb-6 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Smart Extractor</h2>
+                        <p class="text-sm text-slate-500 mt-1">Extract and process data from Excel files</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="record-count-badge"
+                            class="hidden bg-indigo-100 text-indigo-700 py-1 px-3 rounded-full text-xs font-semibold">0
+                            Records</span>
+                        <div class="text-right">
+                            <p class="text-xs text-slate-500 uppercase tracking-wide">Total Amount</p>
+                            <p id="total-display" class="text-xl font-bold text-slate-800">0,00 €</p>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Controls Bar -->
+                <div
+                    class="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-3 flex-1 min-w-[300px]">
+                        <div class="relative flex-1">
+                            <i
+                                class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="filterInput"
+                                class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                placeholder="Search by Order No, Location, Name...">
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="btnCopyTable2" disabled
+                            class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="ph ph-copy text-lg"></i>
+                            <span class="hidden sm:inline">Copy Table</span>
+                        </button>
+                        <button id="btn-export" disabled
+                            class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="ph ph-download-simple text-lg"></i>
+                            Export XLSX
+                        </button>
+                        <button id="btnClear" class="btn btn-danger">
+                            <i class="ph ph-trash text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Data Table -->
+                <div
+                    class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]">
+                    <div class="overflow-auto custom-scrollbar flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                                        File</th>
+                                    <th class="px-6 py-3 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group select-none whitespace-nowrap"
+                                        id="header-auftrag">
+                                        <div class="flex items-center gap-1">
+                                            Auftrag Nr.
+                                            <i data-lucide="chevrons-up-down"
+                                                class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-50 transition-opacity sort-icon"
+                                                id="sort-auftragsNr"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group select-none whitespace-nowrap"
+                                        id="header-anlage">
+                                        <div class="flex items-center gap-1">
+                                            Anlage
+                                            <i data-lucide="chevrons-up-down"
+                                                class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-50 transition-opacity sort-icon"
+                                                id="sort-anlage"></i>
+                                        </div>
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                                        Einsatzort</th>
+                                    <th class="px-6 py-3 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group select-none whitespace-nowrap"
+                                        id="header-datum">
+                                        <div class="flex items-center gap-1">
+                                            Datum
+                                            <i data-lucide="chevrons-up-down"
+                                                class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-50 transition-opacity sort-icon"
+                                                id="sort-datum"></i>
+                                        </div>
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right whitespace-nowrap">
+                                        Std.</th>
+                                    <th class="px-6 py-3 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right cursor-pointer hover:bg-slate-100 transition-colors group select-none whitespace-nowrap"
+                                        id="header-summe">
+                                        <div class="flex items-center justify-end gap-1">
+                                            Summe
+                                            <i data-lucide="chevrons-up-down"
+                                                class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-50 transition-opacity sort-icon"
+                                                id="sort-sumRaw"></i>
+                                        </div>
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                                        Bemerkung</th>
                                 </tr>
                             </thead>
-                            <tbody id="rm-tbody" class="bg-white divide-y divide-slate-100">
-                                <!-- Rows generated here -->
+                            <tbody id="table-body" class="divide-y divide-slate-100">
+                                <!-- Empty State -->
+                                <tr id="empty-state" class="group">
+                                    <td colspan="8" class="px-6 py-12 text-center text-slate-400 bg-white">
+                                        <div class="flex flex-col items-center justify-center gap-3">
+                                            <div
+                                                class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                                                <i class="ph ph-file-dashed text-3xl text-slate-300"></i>
+                                            </div>
+                                            <p class="text-base font-medium text-slate-600 empty-state-title">No data
+                                                extracted yet</p>
+                                            <p class="text-sm text-slate-400 max-w-md mx-auto">Upload Excel files with
+                                                "Protokoll" or "Abrechnung" in the filename to automatically extract
+                                                data.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer Info -->
+                    <div
+                        class="bg-slate-50 px-6 py-3 border-t border-slate-200 text-xs text-slate-500 flex justify-between items-center">
+                        <span>Showing <strong id="count-display" class="text-slate-700">0</strong> records</span>
+                        <div class="flex gap-4">
+                            <span class="flex items-center gap-1"><span
+                                    class="w-2 h-2 rounded-full bg-orange-100 border border-orange-200"></span> Has
+                                Remarks</span>
+                            <span class="flex items-center gap-1"><span
+                                    class="w-2 h-2 rounded-full bg-white border border-slate-200"></span>
+                                Standard</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tool 3: Row Manager -->
+            <section id="tool3-content" class="tool-section hidden space-y-6">
+                <header class="section-header-inline mb-6 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Row Manager</h2>
+                        <p class="text-sm text-slate-500 mt-1">Manage and organize rows in Excel files</p>
+                    </div>
+                </header>
+
+                <!-- Controls Bar -->
+                <div
+                    class="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <button id="btnCopyTable3" disabled
+                            class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="ph ph-copy text-lg"></i>
+                            Copy Selected Rows
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="rm-status"
+                            class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                            0 Rows
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Main Row Table -->
+                <div
+                    class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]">
+                    <div class="overflow-auto custom-scrollbar flex-1 relative">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50 sticky top-0 z-10 shadow-sm" id="rm-thead">
+                                <tr id="rm-thead-tr">
+                                    <!-- Headers injected by JS -->
+                                    <th class="px-6 py-4 text-center text-slate-400 italic font-normal">Upload a file to
+                                        see columns</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rm-tbody" class="divide-y divide-slate-100">
+                                <!-- Rows injected by JS -->
+                                <tr class="group">
+                                    <td colspan="10" class="px-6 py-12 text-center text-slate-400 bg-white">
+                                        <div class="flex flex-col items-center justify-center gap-3">
+                                            <div
+                                                class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                                                <i class="ph ph-rows text-3xl text-slate-300"></i>
+                                            </div>
+                                            <p class="text-base font-medium text-slate-600">No rows data</p>
+                                            <p class="text-sm text-slate-400 max-w-md mx-auto">Upload an Excel file to
+                                                view and manage individual rows.</p>
+                                        </div>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-
-            </div>
-            </div>
-
+            </section>
         </main>
     </div>
 
-    <!-- Modals -->
-    <!-- Settings Modal for Tool 1 -->
-    <div id="settingsModal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center z-[100] backdrop-blur-sm">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh]">
-            <div class="p-4 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                    <i class="ph ph-gear text-indigo-600"></i> Settings
-                </h3>
-                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600">
-                    <i class="ph ph-x text-lg"></i>
-                </button>
-            </div>
-            <div class="p-6 flex-1 overflow-auto">
-                 <div class="flex justify-between items-end mb-2">
-                    <label for="targetValuesArea" class="text-sm font-medium text-slate-600">
-                        Target Values (Search Patterns)
-                    </label>
-                    <button onclick="window.resetDefaultTargets()" class="text-xs text-indigo-600 hover:underline">Restore Defaults</button>
-                </div>
-                <textarea id="targetValuesArea" rows="10"
-                    class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm text-slate-700 bg-slate-50"
-                    placeholder="01.01.0010..."></textarea>
-                <p class="text-xs text-slate-500 mt-2">Enter one value per line. Matches will be counted in Column A of the protocol.</p>
-            </div>
-            <div class="p-4 border-t border-slate-200 flex justify-end gap-3">
-                <button onclick="closeSettingsModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg border border-transparent">Cancel</button>
-                <button id="updateTargets" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-2">
-                    <i class="ph ph-check"></i> Save Changes
-                </button>
-            </div>
+    <!-- Modals (Settings, Help) -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full">
+            <h2 class="text-xl font-bold mb-4">Settings</h2>
+            <p class="text-slate-600 mb-4">Settings panel content</p>
+            <button id="closeSettingsModal" class="btn btn-primary">Close</button>
         </div>
     </div>
 
-    <!-- Notification Area (Shared) -->
-    <div id="notification-area" class="fixed bottom-6 right-6 space-y-3 pointer-events-none z-[100] flex flex-col items-end"></div>
-
-    <script>
-        // --- Persistence & Navigation ---
-
-        function updateLastActivity() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const dateStr = now.toLocaleDateString();
-            const ts = `${dateStr} ${timeStr}`;
-
-            document.getElementById('last-activity').textContent = ts;
-            localStorage.setItem('uet_last_activity', ts);
-        }
-
-        // Restore Activity
-        const savedActivity = localStorage.getItem('uet_last_activity');
-        if (savedActivity) document.getElementById('last-activity').textContent = savedActivity;
-
-        function switchTab(tabName) {
-            const contents = {
-                'tool1': document.getElementById('tool1-content'),
-                'tool2': document.getElementById('tool2-content'),
-                'tool3': document.getElementById('tool3-content')
-            };
-            const tabs = {
-                'tool1': document.getElementById('nav-tool1'),
-                'tool2': document.getElementById('nav-tool2'),
-                'tool3': document.getElementById('nav-tool3')
-            };
-            const titles = {
-                'tool1': 'Value Counter',
-                'tool2': 'Smart Extractor',
-                'tool3': 'Row Manager'
-            };
-
-            // Hide all, reset tabs
-            Object.keys(contents).forEach(key => {
-                if(contents[key]) contents[key].classList.add('hidden');
-                if(tabs[key]) tabs[key].classList.remove('active', 'bg-slate-50', 'text-indigo-600');
-            });
-
-            // Show active
-            if (contents[tabName]) {
-                contents[tabName].classList.remove('hidden');
-                if(tabs[tabName]) {
-                    tabs[tabName].classList.add('active');
-                }
-                document.getElementById('page-title').textContent = titles[tabName];
-                updateLastActivity();
-            }
-        }
-
-        // --- Settings Modal Logic ---
-        function openSettingsModal() {
-            document.getElementById('settingsModal').classList.remove('hidden');
-            document.getElementById('settingsModal').classList.add('flex');
-        }
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.add('hidden');
-            document.getElementById('settingsModal').classList.remove('flex');
-        }
-
-        // --- Tool 1 Logic (Redesigned) ---
-        (function() {
-            // Constants
-            const DEFAULT_TARGETS = [
-                "01.01.0010", "01.01.0020", "01.01.0030", "01.01.0040", "01.01.0050",
-                "01.01.0060", "01.01.0070", "01.01.0080", "01.01.0090", "01.01.0100",
-                "01.01.0110", "01.01.0120", "01.01.0130", "01.01.0140", "01.01.0150",
-                "01.01.0160", "01.01.0170", "01.01.0180", "01.01.0190", "01.01.0200",
-                "01.01.0210", "01.01.0220", "01.01.0230", "01.01.0240", "01.01.0250",
-                "01.01.0260", "01.01.0270", "01.01.0280", "01.01.0290", "01.01.0300",
-                "01.01.0310", "01.01.0320", "01.01.0330", "01.01.0340", "01.02.0010",
-                "01.02.0020", "01.02.0030", "01.02.0040", "01.02.0050", "01.02.0060",
-                "01.02.0070", "01.02.0080", "01.03.0010", "01.03.0020", "01.03.0030",
-                "01.03.0040", "01.03.0050", "01.03.0060", "01.03.0070", "01.03.0080",
-                "01.03.0090", "01.03.0100", "01.03.0110", "01.04.0010", "01.04.0020",
-                "01.04.0030", "01.04.0040", "01.04.0050", "01.04.0060", "01.04.0070",
-                "01.04.0080", "01.04.0090", "01.05.0010", "01.05.0020", "01.05.0030",
-                "01.05.0040", "01.06.0010", "01.06.0020", "01.06.0030", "01.06.0040",
-                "01.06.0050"
-            ];
-
-            let currentTargets = [];
-            let currentResults = [];
-            let extractedHeader = {};
-            let sortState = { column: 'count', direction: 'desc' };
-            let abrechnungWorkbook = null;
-
-            // Elements
-            const fileInput = document.getElementById('fileInput');
-            const dropArea = document.getElementById('dropArea');
-            const fileInputAbrechnung = document.getElementById('fileInputAbrechnung');
-            const dropAreaAbrechnung = document.getElementById('dropAreaAbrechnung');
-
-            const targetValuesArea = document.getElementById('targetValuesArea');
-            const updateTargetsBtn = document.getElementById('updateTargets');
-
-            const filterInput = document.getElementById('tableFilter');
-
-            // Init
-            function init() {
-                resetDefaultTargets();
-                updateTargets();
-
-                updateTargetsBtn.addEventListener('click', () => {
-                    updateTargets();
-                    closeSettingsModal();
-                    showFeedback('Configuration saved.', 'success');
-                });
-
-                fileInput.addEventListener('change', handleFileSelect);
-                setupDragDrop(dropArea, handleDrop);
-
-                fileInputAbrechnung.addEventListener('change', handleAbrechnungFileSelect);
-                setupDragDrop(dropAreaAbrechnung, handleAbrechnungDrop);
-
-                // Filter Listener
-                filterInput.addEventListener('keyup', (e) => {
-                     const term = e.target.value.toLowerCase();
-                     const rows = document.querySelectorAll('#tableBody tr');
-                     rows.forEach(row => {
-                         const targetVal = row.children[0].textContent.toLowerCase();
-                         if (targetVal.includes(term)) {
-                             row.style.display = '';
-                         } else {
-                             row.style.display = 'none';
-                         }
-                     });
-                });
-            }
-
-            function setupDragDrop(area, dropHandler) {
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    area.addEventListener(eventName, (e) => {
-                        e.preventDefault();
-                        area.classList.add('drag-active');
-                    }, false);
-                });
-                ['dragleave', 'drop'].forEach(eventName => {
-                    area.addEventListener(eventName, (e) => {
-                        e.preventDefault();
-                        area.classList.remove('drag-active');
-                    }, false);
-                });
-                area.addEventListener('drop', dropHandler, false);
-            }
-
-            // Logic
-            function resetDefaultTargets() {
-                targetValuesArea.value = DEFAULT_TARGETS.join('\n');
-            }
-            function updateTargets() {
-                currentTargets = targetValuesArea.value.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-            }
-
-            function handleFileSelect(e) { if(e.target.files[0]) processFile(e.target.files[0]); }
-            function handleDrop(e) { if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); }
-
-            function showFeedback(msg, type) {
-                const fb = document.getElementById('feedback');
-                fb.className = `rounded-lg p-3 text-center text-xs font-medium ${
-                    type === 'error' ? 'bg-red-50 text-red-700 border-red-200' :
-                    type === 'loading' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                    'bg-green-50 text-green-700 border-green-200'
-                }`;
-                fb.innerHTML = type === 'loading' ? `<div class="loader inline-block mr-2"></div> ${msg}` : msg;
-                fb.classList.remove('hidden');
-            }
-
-            function processFile(file) {
-                if (!file.name.match(/\.(xlsx|xls)$/)) return showFeedback('Invalid file type.', 'error');
-                showFeedback('Processing Protocol...', 'loading');
-                updateLastActivity();
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: "" });
-
-                        analyzeData(rows);
-
-                        // Update UI Status
-                        document.getElementById('status-protokoll').textContent = 'Loaded';
-                        document.getElementById('status-protokoll').className = 'text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-bold';
-                        dropArea.classList.add('border-green-300', 'bg-green-50');
-
-                    } catch (err) {
-                        showFeedback('Error: ' + err.message, 'error');
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            }
-
-            function analyzeData(rows) {
-                // Header Extraction logic (same as before)
-                let rawDatum = findValue(rows, "Nr.:");
-                let formattedDatum = rawDatum || "-";
-                if (rawDatum && rawDatum.length >= 11) {
-                    const datePart = rawDatum.substring(3, 11);
-                    if (/^\d{8}$/.test(datePart)) {
-                        formattedDatum = `${datePart.substring(6,8)}.${datePart.substring(4,6)}.${datePart.substring(0,4)}`;
-                    }
-                }
-                const auftrag = findValue(rows, "Auftrag Nr.:");
-                const inv = findValue(rows, "INV:");
-                const anlage = findValue(rows, "Anlage:");
-                const ort = findOrtValue(rows);
-
-                extractedHeader = {
-                    datum: formattedDatum,
-                    auftrag: auftrag || "-",
-                    anlage: (inv || anlage) ? `${inv || ''}_${anlage || ''}` : "-",
-                    ort: ort || "-"
-                };
-
-                // Update UI
-                document.getElementById('outDatum').textContent = extractedHeader.datum;
-                document.getElementById('outAuftrag').textContent = extractedHeader.auftrag;
-                document.getElementById('outAnlage').textContent = extractedHeader.anlage;
-                document.getElementById('outOrt').textContent = extractedHeader.ort;
-
-                document.getElementById('infoPanel').classList.remove('hidden');
-
-                // Count
-                const counts = new Map();
-                let totalMatches = 0;
-                let debugRows = [];
-                currentTargets.forEach(t => counts.set(t, 0));
-
-                rows.forEach(row => {
-                    const cellVal = String(row[0] || "").trim();
-                    if (!cellVal) return;
-                    if (debugRows.length < 5) debugRows.push(cellVal);
-                    currentTargets.forEach(target => {
-                        if (cellVal.includes(target)) {
-                            counts.set(target, counts.get(target) + 1);
-                            totalMatches++;
-                        }
-                    });
-                });
-
-                renderTable(counts, totalMatches, rows.length);
-                showFeedback('Analysis Complete', 'success');
-
-                 // Debug info
-                if (totalMatches === 0) {
-                    document.getElementById('debugArea').classList.remove('hidden');
-                    document.getElementById('debugList').innerHTML = debugRows.map(v => `<li>${v}</li>`).join('');
-                } else {
-                    document.getElementById('debugArea').classList.add('hidden');
-                }
-            }
-
-            // Helpers
-            function findValue(rows, searchStr) {
-                for (let r = 0; r < rows.length; r++) {
-                    const row = rows[r];
-                    for (let c = 0; c < row.length; c++) {
-                        if (String(row[c] || "").includes(searchStr)) {
-                            for (let k = c + 1; k < row.length; k++) {
-                                const val = String(row[k] || "").trim();
-                                if (val) return val;
-                            }
-                        }
-                    }
-                }
-                return null;
-            }
-            function findOrtValue(rows) {
-                let occ = 0;
-                for (let r = 0; r < rows.length; r++) {
-                    for (let c = 0; c < rows[r].length; c++) {
-                        if (String(rows[r][c] || "").includes("Ort:")) {
-                            occ++;
-                            if (occ === 2) {
-                                for (let k = c + 1; k < rows[r].length; k++) {
-                                    const val = String(rows[r][k] || "").trim();
-                                    if (val) return val;
-                                }
-                            }
-                        }
-                    }
-                }
-                return null;
-            }
-
-            function handleAbrechnungFileSelect(e) { if(e.target.files[0]) processAbrechnungFile(e.target.files[0]); }
-            function handleAbrechnungDrop(e) { if(e.dataTransfer.files[0]) processAbrechnungFile(e.dataTransfer.files[0]); }
-
-            function processAbrechnungFile(file) {
-                 if (!file.name.match(/\.(xlsx|xls)$/)) return showFeedback('Invalid Abrechnung file.', 'error');
-                 const reader = new FileReader();
-                 reader.onload = function(e) {
-                     try {
-                         const data = new Uint8Array(e.target.result);
-                         abrechnungWorkbook = XLSX.read(data, { type: 'array' });
-                         document.getElementById('status-abrechnung').textContent = 'Loaded';
-                         document.getElementById('status-abrechnung').className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold';
-                         dropAreaAbrechnung.classList.add('border-emerald-300', 'bg-emerald-50');
-                         document.getElementById('btnDownloadMerged').disabled = false;
-                         document.getElementById('btnDownloadMerged').classList.remove('opacity-50', 'cursor-not-allowed');
-                         showFeedback('Abrechnung Loaded', 'success');
-                         updateLastActivity();
-                     } catch(err) {
-                         showFeedback('Error loading Abrechnung', 'error');
-                     }
-                 };
-                 reader.readAsArrayBuffer(file);
-            }
-
-            let lastCountsMap = null;
-            let lastTotalMatches = 0;
-            let lastRowCount = 0;
-
-            function renderTable(countsMap, totalMatches, rowCount) {
-                lastCountsMap = countsMap; lastTotalMatches = totalMatches; lastRowCount = rowCount;
-                const tbody = document.getElementById('tableBody');
-                tbody.innerHTML = '';
-                document.getElementById('matchSummary').textContent = `${totalMatches} matches found`;
-                document.getElementById('rowCount').textContent = rowCount;
-
-                let sorted = Array.from(countsMap.entries()).filter(([_, c]) => c > 0);
-
-                // Sorting
-                sorted.sort((a, b) => {
-                    if (sortState.column === 'count') {
-                        return sortState.direction === 'asc' ? a[1] - b[1] : b[1] - a[1];
-                    } else {
-                        return sortState.direction === 'asc' ? a[0].localeCompare(b[0], undefined, {numeric:true}) : b[0].localeCompare(a[0], undefined, {numeric:true});
-                    }
-                });
-
-                currentResults = sorted;
-
-                if (sorted.length === 0) {
-                     tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-8 text-center text-slate-500 text-sm">No matches found in the provided file.</td></tr>`;
-                     return;
-                }
-
-                const fragment = document.createDocumentFragment();
-                sorted.forEach(([target, count]) => {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0";
-                    tr.innerHTML = `
-                        <td class="px-6 py-3 whitespace-nowrap text-sm font-mono text-indigo-700 font-medium">${target}</td>
-                        <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-700 font-bold">${count}</td>
-                        <td class="px-6 py-3 whitespace-nowrap"><span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-emerald-100 text-emerald-700">Found</span></td>
-                    `;
-                    fragment.appendChild(tr);
-                });
-                tbody.appendChild(fragment);
-            }
-
-            // Global Exports
-            window.handleSort = function(col) {
-                if(sortState.column === col) sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
-                else { sortState.column = col; sortState.direction = col === 'count' ? 'desc' : 'asc'; }
-                if(lastCountsMap) renderTable(lastCountsMap, lastTotalMatches, lastRowCount);
-            };
-
-            window.copyToClipboard = function(id) {
-                const txt = document.getElementById(id).textContent;
-                if(txt && txt !== '-') navigator.clipboard.writeText(txt).then(() => showFeedback('Copied!', 'success'));
-            };
-
-            window.downloadCSV = function() {
-                if(!currentResults.length) return;
-                let csv = `Protokoll,${extractedHeader.datum}\nAuftrag,${extractedHeader.auftrag}\n\nTarget,Count\n`;
-                currentResults.forEach(r => csv += `${r[0]},${r[1]}\n`);
-                const link = document.createElement("a");
-                link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
-                link.download = "results.csv";
-                document.body.appendChild(link); link.click(); document.body.removeChild(link);
-            };
-
-            window.downloadMergedAbrechnung = function() {
-                if (!abrechnungWorkbook) return alert("Upload Abrechnung first.");
-                if (!currentResults.length) return alert("No counts to merge.");
-
-                try {
-                    const sheet = abrechnungWorkbook.Sheets[abrechnungWorkbook.SheetNames[0]];
-                    const range = XLSX.utils.decode_range(sheet['!ref']);
-                    const countMap = new Map(currentResults);
-                    let updated = 0;
-
-                    for (let R = range.s.r; R <= range.e.r; ++R) {
-                        const cellA = sheet[XLSX.utils.encode_cell({r:R, c:0})];
-                        if (cellA && countMap.has(String(cellA.v).trim())) {
-                            const val = String(cellA.v).trim();
-                            const count = countMap.get(val);
-                            sheet[XLSX.utils.encode_cell({r:R, c:1})] = { t:'n', v:count };
-                            updated++;
-                            countMap.delete(val); // Write only first occurrence
-                        }
-                    }
-                    XLSX.writeFile(abrechnungWorkbook, `Abrechnung_Updated.xlsx`);
-                    showFeedback(`Updated ${updated} rows in Abrechnung.`, 'success');
-                    updateLastActivity();
-                } catch(e) {
-                    alert("Error merging: " + e.message);
-                }
-            };
-
-            window.resetDefaultTargets = resetDefaultTargets;
-
-            init();
-        })();
-
-        // --- Tool 2 Logic (Wrapped) ---
-        (function() {
-            // Initialize Icons
-            lucide.createIcons();
-
-            // --- Global State ---
-            let state = {
-                totalSum: 0,
-                validRecords: 0,
-                extractedData: [], // Store data for export
-                sort: { column: null, direction: 'asc' },
-                filter: ''
-            };
-
-            const UI = {
-                tableBody: document.getElementById('table-body'),
-                emptyState: document.getElementById('empty-state'),
-                dropArea: document.getElementById('drop-area'),
-                totalDisplay: document.getElementById('total-display'),
-                countDisplay: document.getElementById('count-display'),
-                badgeCount: document.getElementById('record-count-badge'),
-                exportBtn: document.getElementById('btn-export')
-            };
-
-            // --- Drag and Drop Setup ---
-            const events = ['dragenter', 'dragover', 'dragleave', 'drop'];
-
-            events.forEach(evt => {
-                UI.dropArea.addEventListener(evt, preventDefaults, false);
-                document.body.addEventListener(evt, preventDefaults, false);
-            });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            ['dragenter', 'dragover'].forEach(evt => {
-                UI.dropArea.addEventListener(evt, () => UI.dropArea.classList.add('dragover'), false);
-            });
-
-            ['dragleave', 'drop'].forEach(evt => {
-                UI.dropArea.addEventListener(evt, () => UI.dropArea.classList.remove('dragover'), false);
-            });
-
-            UI.dropArea.addEventListener('drop', handleDrop, false);
-            UI.dropArea.addEventListener('click', () => document.getElementById('fileElem').click());
-
-            // Filter listener
-            const filterInput = document.getElementById('filter-input-extractor');
-            if (filterInput) {
-                filterInput.addEventListener('keyup', (e) => {
-                    state.filter = e.target.value.toLowerCase();
-                    renderTable();
-                });
-            }
-
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                handleFiles(dt.files);
-            }
-
-            // Made global for onchange="handleFiles(this.files)"
-            window.handleFiles = function(files) {
-                const filesArray = [...files];
-                const excelFiles = filesArray.filter(file => file.name.match(/\.xlsx$|\.xls$/));
-
-                if (excelFiles.length === 0 && filesArray.length > 0) {
-                    showNotification('Nur Excel-Dateien (.xlsx, .xls) erlaubt.', 'error');
-                    return;
-                }
-
-                // Process files
-                excelFiles.forEach(readExcel);
-
-                // Reset input so same file can be selected again if needed
-                document.getElementById('fileElem').value = '';
-            };
-
-            // --- Core Processing Logic ---
-
-            function readExcel(file) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-
-                        // Assume first sheet
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-
-                        // Convert to Array of Arrays (header: 1 gives raw array)
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-
-                        processData(jsonData, file.name);
-                        showNotification(`Dateigelesen: ${file.name}`, 'success');
-
-                    } catch (err) {
-                        console.error(err);
-                        showNotification(`Fehler bei ${file.name}`, 'error');
-                    }
-                };
-
-                reader.readAsArrayBuffer(file);
-            }
-
-            // Helper: Clean string for comparison
-            const cleanStr = (val) => String(val || '').trim().toLowerCase();
-
-            function parseExcelDate(value) {
-                if (!value) return "";
-                // Excel numeric date
-                if (typeof value === 'number') {
-                    const dateObj = XLSX.SSF.parse_date_code(value);
-                    if(dateObj) {
-                        const day = String(dateObj.d).padStart(2, '0');
-                        const month = String(dateObj.m).padStart(2, '0');
-                        return `${day}.${month}.${dateObj.y}`;
-                    }
-                }
-                // If it's already a string, assume it's fine but maybe trim it
-                return String(value).trim();
-            }
-
-            function parseCurrency(value) {
-                if (!value) return 0;
-                if (typeof value === 'number') return value;
-
-                // Remove currency symbols and whitespace
-                // Handles: "1.000,00 €", "1,000.00", "1000"
-                let clean = String(value).replace(/[^\d.,-]/g, '').trim();
-
-                // German format detection (comma is decimal separator if it appears last or only separator)
-                // 1.000,00 -> matches German
-                // 1,000.00 -> matches US
-
-                if (clean.indexOf(',') > -1 && clean.indexOf('.') > -1) {
-                    if (clean.lastIndexOf(',') > clean.lastIndexOf('.')) {
-                        // German: 1.234,56
-                        clean = clean.replace(/\./g, '').replace(',', '.');
-                    } else {
-                        // US: 1,234.56
-                        clean = clean.replace(/,/g, '');
-                    }
-                } else if (clean.indexOf(',') > -1) {
-                    // Assume German decimal only: 50,00
-                    clean = clean.replace(',', '.');
-                }
-
-                const num = parseFloat(clean);
-                return isNaN(num) ? 0 : num;
-            }
-
-            /**
-             * Flexible Finder
-             * logicType:
-             * 'next_col': cell to the right
-             * 'prev_col': cell to the left
-             * 'next_row': cell below
-             */
-            function findValueInMatrix(matrix, searchLabel, logicType) {
-                const label = cleanStr(searchLabel);
-
-                for (let r = 0; r < matrix.length; r++) {
-                    const row = matrix[r];
-                    if (!row) continue;
-
-                    for (let c = 0; c < row.length; c++) {
-                        const cellValue = cleanStr(row[c]);
-
-                        // Flexible match check
-                        if (cellValue.includes(label) && cellValue.length > 0) {
-
-                            // 1. Next Column (Scan right up to 5 cells for non-empty)
-                            if (logicType === 'next_col') {
-                                for (let offset = 1; offset <= 5; offset++) {
-                                    let val = row[c + offset];
-                                    if (val !== undefined && val !== null && String(val).trim() !== "") {
-                                        return val;
-                                    }
-                                }
-                                return "";
-                            }
-
-                            // 2. Previous Column (Immediate left)
-                            if (logicType === 'prev_col') {
-                                let val = row[c - 1];
-                                return (val !== undefined && val !== null && String(val).trim() !== "") ? val : "";
-                            }
-
-                            // 3. Next Row (Below)
-                            if (logicType === 'next_row') {
-                                if (matrix[r + 1]) {
-                                    let val = matrix[r + 1][c];
-                                    return (val !== undefined && val !== null && String(val).trim() !== "") ? val : "";
-                                }
-                                return "";
-                            }
-                        }
-                    }
-                }
-                return "";
-            }
-
-            function processData(matrix, fileName) {
-                // Hide empty state
-                if (UI.emptyState) UI.emptyState.style.display = 'none';
-
-                // Extraction Configuration
-                // Adjust search terms here if Excel templates change
-                const rawDatum = findValueInMatrix(matrix, "Datum", 'next_col');
-                const datum = parseExcelDate(rawDatum) || rawDatum; // Try parse, fallback to raw
-
-                const auftragsNr = findValueInMatrix(matrix, "Auftrags-Nr.", 'next_col');
-                const anlage = findValueInMatrix(matrix, "Anlage", 'next_col');
-                const einsatzort = findValueInMatrix(matrix, "Einsatzort", 'next_col');
-
-                // Logic: Sometimes value is BEFORE label like "4.5 Fachmonteurstunde"
-                const fachmonteur = findValueInMatrix(matrix, "Fachmonteurstunde", 'prev_col');
-
-                const bemerkung = findValueInMatrix(matrix, "Bemerkung", 'next_row');
-
-                const rawSum = findValueInMatrix(matrix, "Auftragssumme", 'next_col');
-                const parsedSum = rawSum !== "" ? parseCurrency(rawSum) : 0;
-
-                // Prevent adding empty rows if essentially no data found
-                if (!datum && !auftragsNr && !parsedSum) {
-                    showNotification(`Keine relevanten Daten in ${fileName} gefunden`, 'error');
-                    return;
-                }
-
-                // Update Global State
-                if (parsedSum > 0) {
-                    state.totalSum += parsedSum;
-                    state.validRecords++;
-                }
-
-                // Save for Export
-                const record = {
-                    fileName,
-                    datum,
-                    auftragsNr,
-                    anlage,
-                    einsatzort,
-                    fachmonteur,
-                    sumRaw: parsedSum,
-                    bemerkung
-                };
-                state.extractedData.push(record);
-
-                updateUI();
-                renderTable();
-            }
-
-            function handleExtractorSort(column) {
-                if (state.sort.column === column) {
-                    state.sort.direction = state.sort.direction === 'asc' ? 'desc' : 'asc';
-                } else {
-                    state.sort.column = column;
-                    state.sort.direction = 'asc';
-                }
-                renderTable();
-            }
-            // Make Global
-            window.handleExtractorSort = handleExtractorSort;
-
-            function renderTable() {
-                // Clear Table
-                UI.tableBody.innerHTML = '';
-
-                // Filter
-                let filtered = state.extractedData.filter(item => {
-                    if (!state.filter) return true;
-                    return Object.values(item).some(val =>
-                        String(val).toLowerCase().includes(state.filter)
-                    );
-                });
-
-                // Sort
-                if (state.sort.column) {
-                    const col = state.sort.column;
-                    const dir = state.sort.direction === 'asc' ? 1 : -1;
-
-                    filtered.sort((a, b) => {
-                        let valA = a[col];
-                        let valB = b[col];
-
-                        // Numeric sort for Sum
-                        if (col === 'sumRaw') {
-                            return (valA - valB) * dir;
-                        }
-
-                        // String sort
-                        return String(valA).localeCompare(String(valB), undefined, { numeric: true }) * dir;
-                    });
-                }
-
-                // Update Icons
-                document.querySelectorAll('.sort-icon').forEach(icon => {
-                    icon.classList.add('opacity-30');
-                    icon.setAttribute('data-lucide', 'arrow-up-down');
-                    icon.classList.remove('text-blue-600', 'opacity-100');
-                });
-
-                if (state.sort.column) {
-                    const activeIcon = document.getElementById(`sort-${state.sort.column}`);
-                    if (activeIcon) {
-                        activeIcon.setAttribute('data-lucide', state.sort.direction === 'asc' ? 'arrow-up' : 'arrow-down');
-                        activeIcon.classList.remove('opacity-30');
-                        activeIcon.classList.add('opacity-100', 'text-blue-600');
-                    }
-                }
-
-                // Render Rows
-                if (filtered.length === 0) {
-                    UI.tableBody.appendChild(UI.emptyState);
-                    if (state.extractedData.length > 0) {
-                       UI.emptyState.querySelector('span').textContent = "Keine Ergebnisse für den Filter";
-                       UI.emptyState.style.display = 'table-row';
-                    }
-                } else {
-                    filtered.forEach(data => {
-                        const tr = document.createElement('tr');
-                        const hasBemerkung = data.bemerkung && String(data.bemerkung).trim().length > 0;
-                        const baseBg = hasBemerkung ? "bg-orange-50" : "bg-white";
-                        tr.className = `${baseBg} hover:bg-blue-50 transition-colors fade-in group`;
-
-                        // Format Currency for Display
-                        const sumDisplay = (data.sumRaw > 0)
-                            ? data.sumRaw.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
-                            : '-';
-
-                        // Safe HTML injection helper
-                        const safe = (txt) => txt ? String(txt) : '';
-
-                        tr.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-slate-400 border-b border-slate-100">
-                                <div class="flex items-center gap-2 max-w-[150px]">
-                                    <i data-lucide="file" class="w-3 h-3 flex-shrink-0"></i>
-                                    <span class="truncate" title="${safe(data.fileName)}">${safe(data.fileName)}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700 font-mono text-xs bg-slate-50 rounded">${safe(data.auftragsNr)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-xs max-w-[150px] truncate" title="${safe(data.anlage)}">${safe(data.anlage)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-xs max-w-[150px] truncate" title="${safe(data.einsatzort)}">${safe(data.einsatzort)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700">${safe(data.datum)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-center">${safe(data.fachmonteur)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-right font-mono text-slate-800 font-semibold">${sumDisplay}</td>
-                            <td class="px-6 py-4 border-b border-slate-100 text-slate-500 text-xs min-w-[200px] leading-relaxed">${safe(data.bemerkung)}</td>
-                        `;
-                        UI.tableBody.appendChild(tr);
-                    });
-                }
-
-                lucide.createIcons();
-            }
-
-            function updateUI() {
-                UI.totalDisplay.textContent = state.totalSum.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
-                UI.countDisplay.textContent = state.validRecords;
-                UI.badgeCount.textContent = state.validRecords;
-
-                if (state.validRecords > 0) {
-                    UI.badgeCount.classList.remove('hidden');
-                    UI.exportBtn.disabled = false;
-                    UI.exportBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }
-
-            // Made global for onclick="clearTable()"
-            window.clearTable = function() {
-                UI.tableBody.innerHTML = '';
-                UI.tableBody.appendChild(UI.emptyState);
-                UI.emptyState.style.display = 'table-row';
-
-                // Reset State
-                state.totalSum = 0;
-                state.validRecords = 0;
-                state.extractedData = [];
-
-                // Reset UI
-                UI.badgeCount.classList.add('hidden');
-                UI.exportBtn.disabled = true;
-                UI.exportBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
-                updateUI();
-                showNotification('Tabelle geleert', 'success');
-            };
-
-            // Made global for onclick="exportToExcel()"
-            window.exportToExcel = function() {
-                if (state.extractedData.length === 0) return;
-
-                // Prepare data for export (clean headers)
-                const wsData = state.extractedData.map(item => ({
-                    "Dateiname": item.fileName,
-                    "Auftragsnummer": item.auftragsNr,
-                    "Anlage": item.anlage,
-                    "Einsatzort": item.einsatzort,
-                    "Datum": item.datum,
-                    "Fachmonteurstunden": item.fachmonteur,
-                    "Auftragssumme": item.sumRaw, // Keep as number for Excel math
-                    "Bemerkung": item.bemerkung
-                }));
-
-                const ws = XLSX.utils.json_to_sheet(wsData);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Exportierte Daten");
-
-                // Generate filename with timestamp
-                const dateStr = new Date().toISOString().slice(0,10);
-                XLSX.writeFile(wb, `Export_Daten_${dateStr}.xlsx`);
-
-                showNotification('Excel-Datei heruntergeladen!', 'success');
-            };
-
-            // --- Notification System ---
-            function showNotification(message, type = 'success') {
-                const notif = document.createElement('div');
-                const styles = type === 'error'
-                    ? 'bg-red-50 text-red-600 border-red-200'
-                    : 'bg-emerald-50 text-emerald-600 border-emerald-200';
-
-                const icon = type === 'error' ? 'alert-circle' : 'check-circle-2';
-
-                notif.className = `${styles} border px-4 py-3 rounded-lg shadow-lg transform transition-all duration-500 translate-y-10 opacity-0 flex items-center gap-3 text-sm font-medium min-w-[300px]`;
-                notif.innerHTML = `
-                    <i data-lucide="${icon}" class="w-5 h-5"></i>
-                    <span>${message}</span>
-                `;
-
-                document.getElementById('notification-area').appendChild(notif);
-                lucide.createIcons();
-
-                // Animate In
-                requestAnimationFrame(() => notif.classList.remove('translate-y-10', 'opacity-0'));
-
-                // Remove after 3s
-                setTimeout(() => {
-                    notif.classList.add('translate-y-4', 'opacity-0');
-                    setTimeout(() => notif.remove(), 500);
-                }, 3000);
-            }
-        })();
-
-        // --- Tool 3 Logic (Row Manager) ---
-        (function() {
-            let rmHeaders = [];
-            let rmData = [];
-
-            // Selection State
-            let selectedIndices = new Set();
-            let lastSelectedIndex = null; // For Shift+Click range
-
-            // Drag State
-            let draggedIndex = null;
-
-            const UI = {
-                fileInput: document.getElementById('rm-file-input'),
-                dropArea: document.getElementById('rm-drop-area'),
-                results: document.getElementById('rm-results'),
-                theadTr: document.getElementById('rm-thead-tr'),
-                tbody: document.getElementById('rm-tbody'),
-                status: document.getElementById('rm-status')
-            };
-
-            // Init
-            if(UI.fileInput) UI.fileInput.addEventListener('change', handleFileSelect);
-
-            // Drag Drop Zone for File Upload
-            if(UI.dropArea) {
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    UI.dropArea.addEventListener(eventName, (e) => {
-                        e.preventDefault();
-                        UI.dropArea.querySelector('div').classList.add('border-indigo-400', 'bg-indigo-50');
-                    }, false);
-                });
-                ['dragleave', 'drop'].forEach(eventName => {
-                    UI.dropArea.addEventListener(eventName, (e) => {
-                        e.preventDefault();
-                        UI.dropArea.querySelector('div').classList.remove('border-indigo-400', 'bg-indigo-50');
-                    }, false);
-                });
-                UI.dropArea.addEventListener('drop', handleFileDrop, false);
-            }
-
-            // Initialize Event Delegation for Table Interactions
-            function initTableEvents() {
-                // Remove existing to prevent duplicates if re-inited (though this runs once per load)
-                if(UI.tbody) {
-                    UI.tbody.removeEventListener('click', handleTableClick);
-                    UI.tbody.addEventListener('click', handleTableClick);
-
-                    // Drag Events Delegation
-                    UI.tbody.removeEventListener('dragstart', handleDragStart);
-                    UI.tbody.addEventListener('dragstart', handleDragStart);
-
-                    UI.tbody.removeEventListener('dragover', handleDragOver);
-                    UI.tbody.addEventListener('dragover', handleDragOver);
-
-                    UI.tbody.removeEventListener('drop', handleDropRow);
-                    UI.tbody.addEventListener('drop', handleDropRow);
-
-                    UI.tbody.removeEventListener('dragend', handleDragEnd);
-                    UI.tbody.addEventListener('dragend', handleDragEnd);
-                }
-
-                // Select All Header Listener
-                if(UI.theadTr && UI.theadTr.parentElement) {
-                     UI.theadTr.parentElement.addEventListener('click', (e) => {
-                        if (e.target.id === 'rm-select-all') {
-                            toggleSelectAll(e.target.checked);
-                        }
-                    });
-                }
-            }
-            initTableEvents();
-
-            // --- File Handling ---
-
-            function handleFileSelect(e) {
-                const file = e.target.files[0];
-                if (file) processFile(file);
-                e.target.value = ''; // Reset
-            }
-
-            function handleFileDrop(e) {
-                const dt = e.dataTransfer;
-                const file = dt.files[0];
-                if (file) processFile(file);
-            }
-
-            function processFile(file) {
-                 if (!file.name.match(/\.(xlsx|xls)$/)) {
-                    alert("Please upload a valid Excel file.");
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-
-                        if (json.length > 0) {
-                            rmHeaders = json[0];
-                            rmData = json.slice(1);
-                            selectedIndices.clear(); // Reset selection
-                            lastSelectedIndex = null;
-
-                            renderTable();
-
-                            UI.dropArea.classList.add('hidden'); // Hide upload
-                            UI.results.classList.remove('hidden'); // Show table
-                            showNotification(`Loaded ${file.name}`, 'success');
-                        } else {
-                             showNotification("Empty file.", 'error');
-                        }
-                    } catch(err) {
-                        console.error(err);
-                        showNotification("Error processing file", 'error');
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            }
-
-            // --- Selection Logic (Delegated) ---
-
-            function handleTableClick(e) {
-                // Find nearest TR
-                const tr = e.target.closest('tr');
-                if (!tr || !UI.tbody.contains(tr)) return;
-
-                const index = parseInt(tr.dataset.index, 10);
-                if (isNaN(index)) return;
-
-                // Check if target was the checkbox
-                const isCheckbox = e.target.classList.contains('rm-row-checkbox');
-
-                // If clicking an action button, do nothing (let button handler work)
-                if (e.target.closest('button')) return;
-
-                if (isCheckbox) {
-                    // Checkbox logic: simple toggle, no clearing others
-                    toggleSelection(index, e.target.checked);
-                    lastSelectedIndex = index;
-                } else {
-                    // Row click logic
-                    if (e.shiftKey && lastSelectedIndex !== null) {
-                        // Range Select
-                        selectRange(lastSelectedIndex, index);
-                    } else if (e.ctrlKey || e.metaKey) {
-                        // Toggle individual
-                        toggleSelection(index, !selectedIndices.has(index));
-                        lastSelectedIndex = index;
-                    } else {
-                        // Single select (clear others)
-                        selectedIndices.clear();
-                        toggleSelection(index, true);
-                        lastSelectedIndex = index;
-                    }
-                }
-
-                updateSelectionUI();
-            }
-
-            function toggleSelection(index, isSelected) {
-                if (isSelected) {
-                    selectedIndices.add(index);
-                } else {
-                    selectedIndices.delete(index);
-                }
-            }
-
-            function selectRange(start, end) {
-                const low = Math.min(start, end);
-                const high = Math.max(start, end);
-
-                // Logic: Add range to current selection? Or replace?
-                // Standard behavior usually keeps ctrl+selected items.
-                // We'll add to selection.
-                for (let i = low; i <= high; i++) {
-                    selectedIndices.add(i);
-                }
-            }
-
-            function toggleSelectAll(checked) {
-                if (checked) {
-                    rmData.forEach((_, i) => selectedIndices.add(i));
-                } else {
-                    selectedIndices.clear();
-                }
-                updateSelectionUI();
-            }
-
-            function updateSelectionUI() {
-                // Update Select All Checkbox state
-                const selectAllCb = document.getElementById('rm-select-all');
-                if (selectAllCb) {
-                    const allSelected = rmData.length > 0 && selectedIndices.size === rmData.length;
-                    const someSelected = selectedIndices.size > 0 && selectedIndices.size < rmData.length;
-                    selectAllCb.checked = allSelected;
-                    selectAllCb.indeterminate = someSelected;
-                }
-
-                // Update Rows
-                const rows = UI.tbody.children;
-                for (let i = 0; i < rows.length; i++) {
-                    const tr = rows[i];
-                    const index = parseInt(tr.dataset.index, 10);
-                    const checkbox = tr.querySelector('.rm-row-checkbox');
-
-                    if (selectedIndices.has(index)) {
-                        tr.classList.add('bg-indigo-50');
-                        tr.classList.remove('bg-white');
-                        if (checkbox) checkbox.checked = true;
-                    } else {
-                        tr.classList.remove('bg-indigo-50');
-                        tr.classList.add('bg-white');
-                        if (checkbox) checkbox.checked = false;
-                    }
-                }
-
-                // Update Status Text
-                if (selectedIndices.size > 0) {
-                     UI.status.textContent = `${selectedIndices.size} of ${rmData.length} Selected`;
-                } else {
-                     UI.status.textContent = `${rmData.length} Rows`;
-                }
-            }
-
-            // --- Drag and Drop Logic (Bulk & Optimized) ---
-
-            function handleDragStart(e) {
-                const tr = e.target.closest('tr');
-                if (!tr) return;
-
-                const index = parseInt(tr.dataset.index, 10);
-                draggedIndex = index;
-
-                // Logic: If dragging a row NOT in selection, select only that row
-                if (!selectedIndices.has(index)) {
-                    selectedIndices.clear();
-                    selectedIndices.add(index);
-                    updateSelectionUI();
-                }
-
-                // Drag Image / Feedback
-                const count = selectedIndices.size;
-                e.dataTransfer.effectAllowed = 'move';
-
-                // Create a ghost element
-                const ghost = document.createElement('div');
-                ghost.className = 'absolute -top-[1000px] bg-indigo-600 text-white px-3 py-2 rounded-lg shadow-lg font-bold text-sm z-50';
-                ghost.innerHTML = `<i class="ph ph-stack"></i> Moving ${count} Row${count > 1 ? 's' : ''}`;
-                document.body.appendChild(ghost);
-                e.dataTransfer.setDragImage(ghost, 0, 0);
-                setTimeout(() => document.body.removeChild(ghost), 0);
-
-                // Add styling to all dragged rows
-                selectedIndices.forEach(idx => {
-                    const row = UI.tbody.querySelector(`tr[data-index="${idx}"]`);
-                    if(row) row.classList.add('opacity-40');
-                });
-            }
-
-            function handleDragOver(e) {
-                e.preventDefault(); // Allow Drop
-                e.dataTransfer.dropEffect = 'move';
-
-                const tr = e.target.closest('tr');
-                if (!tr || !UI.tbody.contains(tr)) return;
-
-                // Visual Feedback: Show line
-                // Remove existing indicators
-                UI.tbody.querySelectorAll('.border-t-4', '.border-indigo-500').forEach(el => {
-                    el.classList.remove('border-t-4', 'border-indigo-500');
-                });
-
-                // Add indicator to current target
-                tr.classList.add('border-t-4', 'border-indigo-500');
-            }
-
-            function handleDragEnd(e) {
-                // Cleanup Styles
-                UI.tbody.querySelectorAll('tr').forEach(row => {
-                     row.classList.remove('opacity-40', 'border-t-4', 'border-indigo-500');
-                });
-            }
-
-            function handleDropRow(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const targetTr = e.target.closest('tr');
-                if (!targetTr) return;
-
-                const targetIndex = parseInt(targetTr.dataset.index, 10);
-
-                // Don't drop on self or within selection (unless moving out, but simplified: don't move if target is selected)
-                if (selectedIndices.has(targetIndex)) return;
-
-                // Prepare Data Move
-                // 1. Extract Selected Data
-                // Sort indices descending to splice correctly without shifting
-                const indicesArray = Array.from(selectedIndices).sort((a, b) => a - b);
-
-                // 2. Identify items to move
-                const itemsToMove = [];
-                // We map indices to the actual objects.
-                // Important: Since we splice, we must do it carefully.
-                // Actually easier: Partition the array into "moved" and "staying".
-
-                const newRmData = [];
-                const movingItems = [];
-
-                rmData.forEach((item, i) => {
-                    if (selectedIndices.has(i)) {
-                        movingItems.push(item);
-                    } else {
-                        newRmData.push(item);
-                    }
-                });
-
-                // 3. Insert at new position
-                // Calculate where the target index is in the *reduced* array
-                // Example: Data [A, B, C, D, E], Move [B, D] to before E (idx 4)
-                // Remaining: [A, C, E]
-                // Target was E. In original it was 4. In remaining it is 2.
-                // We need to find the target's new position.
-
-                // Find the object corresponding to targetIndex
-                const targetItem = rmData[targetIndex];
-                let newTargetIndex = newRmData.indexOf(targetItem);
-
-                // If dropping "after" or "on" usually means insert before.
-                // If newTargetIndex is -1 (shouldn't happen unless target was part of selection), handled above.
-
-                if (newTargetIndex === -1) newTargetIndex = newRmData.length;
-
-                // Splice them in
-                newRmData.splice(newTargetIndex, 0, ...movingItems);
-
-                // 4. Update State
-                rmData = newRmData;
-
-                // 5. Update Selection to point to new indices
-                // They are now at [newTargetIndex, newTargetIndex + movingItems.length - 1]
-                selectedIndices.clear();
-                for(let i=0; i<movingItems.length; i++) {
-                    selectedIndices.add(newTargetIndex + i);
-                }
-
-                // 6. Efficient DOM Update
-                // Instead of full renderTable, we could try to move nodes, but since indexes change for everyone,
-                // and we need to update data-index attributes, a re-render is safer and reasonably fast for text tables < 1000 rows.
-                // Optimization: Use the fragment approach from renderTable which is already reasonably fast.
-                renderTable();
-
-                // Flash success or something?
-                // showNotification(`Moved ${movingItems.length} rows`);
-            }
-
-            // --- Rendering ---
-
-            function renderTable() {
-                UI.status.textContent = `${rmData.length} Rows`;
-
-                // Headers
-                const checkboxHeader = `<th class="w-10 px-4 py-3 bg-slate-50 border-b border-slate-200 text-center"><input type="checkbox" id="rm-select-all" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"></th>`;
-                const dataHeaders = rmHeaders.map(h => `<th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50 border-b border-slate-200">${h || '-'}</th>`).join('');
-                const actionsHeader = `<th class="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50 border-b border-slate-200 sticky right-0 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-20">Actions</th>`;
-
-                UI.theadTr.innerHTML = checkboxHeader + dataHeaders + actionsHeader;
-
-                // Body
-                UI.tbody.innerHTML = '';
-
-                const fragment = document.createDocumentFragment();
-
-                rmData.forEach((row, index) => {
-                    const tr = document.createElement('tr');
-                    tr.draggable = true;
-                    tr.dataset.index = index;
-
-                    // Initial Selection State
-                    const isSelected = selectedIndices.has(index);
-                    const bgClass = isSelected ? 'bg-indigo-50' : 'bg-white';
-
-                    tr.className = `hover:bg-indigo-50 transition-colors ${bgClass} group border-b border-slate-100`;
-
-                    // Selection Checkbox
-                    let html = `<td class="px-4 py-2 text-center w-10"><input type="checkbox" class="rm-row-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" data-index="${index}" ${isSelected ? 'checked' : ''}></td>`;
-
-                    // Cells
-                    html += row.map(cell => {
-                        const cellStr = String(cell || '');
-                        return `<td class="px-4 py-2 whitespace-nowrap text-slate-700 text-xs min-w-[80px] max-w-[300px] truncate" title="${cellStr.replace(/"/g, '&quot;')}">${cellStr}</td>`;
-                    }).join('');
-
-                    // Actions
-                    html += `
-                        <td class="px-4 py-2 whitespace-nowrap text-right sticky right-0 bg-white group-hover:bg-indigo-50 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">
-                            <div class="flex justify-end gap-2">
-                                <button onclick="window.rmCopyRow(${index})" title="Copy Row" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all">
-                                    <i class="ph ph-copy text-lg"></i>
-                                </button>
-                                <button onclick="window.rmBulkCopy(${index})" title="Bulk Copy (Next 22)" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all">
-                                    <i class="ph ph-stack text-lg"></i>
-                                </button>
-                            </div>
-                        </td>
-                    `;
-                    tr.innerHTML = html;
-                    fragment.appendChild(tr);
-                });
-
-                UI.tbody.appendChild(fragment);
-            }
-
-            // Global Actions
-            window.rmClear = function() {
-                rmData = [];
-                rmHeaders = [];
-                UI.results.classList.add('hidden');
-                UI.dropArea.classList.remove('hidden'); // Show upload
-            };
-
-            window.rmCopyRow = function(index) {
-                const row = rmData[index];
-                if(!row) return;
-                // TSV format
-                const text = row.join('\t');
-                navigator.clipboard.writeText(text).then(() => showNotification("Row copied!", "success"));
-            };
-
-            window.rmBulkCopy = function(index) {
-                // Current + 21 next = 22 rows total
-                const rows = rmData.slice(index, index + 22);
-                if(!rows.length) return;
-
-                const text = rows.map(r => r.join('\t')).join('\n');
-                navigator.clipboard.writeText(text).then(() => showNotification(`Copied ${rows.length} rows!`, "success"));
-            };
-
-            function showNotification(msg, type) {
-                 const area = document.getElementById('notification-area');
-                 const el = document.createElement('div');
-                 const colorClass = type === 'error' ? 'bg-red-600' : 'bg-slate-800';
-                 el.className = `${colorClass} text-white px-4 py-2 rounded shadow-lg text-sm fade-in transition-all`;
-                 el.textContent = msg;
-                 if(area) area.appendChild(el);
-                 setTimeout(() => {
-                     el.classList.add('opacity-0', 'translate-y-2');
-                     setTimeout(() => el.remove(), 500);
-                 }, 2000);
-            }
-
-        })();
-
-    </script>
+    <div id="helpPanel" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-auto">
+            <h2 class="text-xl font-bold mb-4">Help & Documentation</h2>
+            <p class="text-slate-600 mb-4">Help content will be displayed here</p>
+            <button id="closeHelpPanel" class="btn btn-primary">Close</button>
+        </div>
+    </div>
+
+    <!-- Main Application Script -->
+    <script type="module" src="src/main.js"></script>
 </body>
+
 </html>
