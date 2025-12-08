@@ -102,12 +102,22 @@ export function renderTable() {
     // Clear Table
     tableBody.innerHTML = '';
 
-    // Filter
+    // Filter - Apply both basic and custom filters
     let filtered = state.tool2.extractedData.filter(item => {
-        if (!state.tool2.filter) return true;
-        return Object.values(item).some(val =>
-            String(val).toLowerCase().includes(state.tool2.filter)
-        );
+        // Basic search filter
+        if (state.tool2.filter) {
+            const matchesSearch = Object.values(item).some(val =>
+                String(val).toLowerCase().includes(state.tool2.filter)
+            );
+            if (!matchesSearch) return false;
+        }
+        
+        // Custom advanced filters
+        if (state.tool2.customFilter && !state.tool2.customFilter(item)) {
+            return false;
+        }
+        
+        return true;
     });
 
     // Sort
@@ -190,6 +200,11 @@ export function renderTable() {
     // Initialize scroll detection for horizontal scroll indicator
     const tableContainer = tableBody.closest('.overflow-auto');
     initScrollDetection(tableContainer);
+
+    // Apply table enhancements (column visibility, row selection)
+    if (window.applyTableEnhancements) {
+        window.applyTableEnhancements();
+    }
 
     // Announce to screen readers
     if (filtered.length > 0) {

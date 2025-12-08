@@ -5,16 +5,21 @@
 
 import { state } from '../state.js';
 import { handleFiles, clearExtractorUpload } from './fileProcessor.js';
-import { handleFiles, clearExtractorUpload } from './fileProcessor.js';
 import { renderTable, clearTable } from './renderer.js';
 import { exportToExcel, exportToCSV, exportToJSON } from '../shared/export-utils.js';
 import { readFromClipboard, parseClipboardData } from '../shared/clipboard-utils.js';
 import { showToast } from '../toast.js';
+import { initTableEnhancements, applyEnhancements } from './tableEnhancements.js';
 
 /**
  * Setup Tool 2 event handlers
  */
 export function setupTool2Handlers() {
+    // Initialize advanced table features
+    initTableEnhancements();
+    
+    // Make applyEnhancements globally accessible for renderer
+    window.applyTableEnhancements = applyEnhancements;
     // Drop area handlers
     const dropArea = document.getElementById('drop-area');
     if (dropArea) {

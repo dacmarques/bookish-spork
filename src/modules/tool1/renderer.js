@@ -6,6 +6,7 @@
 import { state, updateState } from '../state.js';
 import { updateDebugInfo } from './analyzer.js';
 import { announceToScreenReader } from '../ui.js';
+import { Analytics } from '../shared/analytics.js';
 
 /**
  * Initialize horizontal scroll detection for table container
@@ -13,15 +14,15 @@ import { announceToScreenReader } from '../ui.js';
  */
 function initScrollDetection(container) {
     if (!container) return;
-    
+
     const checkScroll = () => {
         const hasScroll = container.scrollWidth > container.clientWidth;
         const isScrolledToEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 5;
-        
+
         container.classList.toggle('has-horizontal-scroll', hasScroll);
         container.classList.toggle('scrolled-to-end', isScrolledToEnd);
     };
-    
+
     checkScroll();
     container.addEventListener('scroll', checkScroll);
     window.addEventListener('resize', checkScroll);
@@ -121,11 +122,11 @@ export function renderTable(countsMap, totalMatches, rowCount, uniqueTargets = 0
     if (resultsSection) {
         resultsSection.classList.remove('hidden');
     }
-    
+
     // Initialize scroll detection for horizontal scroll indicator
     const tableContainer = tbody.closest('.table-container');
     initScrollDetection(tableContainer);
-    
+
     // Announce results to screen readers
     announceToScreenReader(`Results updated: ${totalMatches} matches found across ${uniqueTargets} unique targets in ${rowCount} rows`);
 }
@@ -190,7 +191,118 @@ function updateSummary(totalMatches, rowCount, uniqueTargets = 0) {
     if (uniqueTargetsEl) {
         uniqueTargetsEl.textContent = uniqueTargets.toLocaleString();
     }
-    
+
     // Update debug info whenever summary changes
     updateDebugInfo();
+}
+
+/**
+ * Render dashboard metrics and summary
+ * Uses Analytics module to calculate stats from loaded files
+ */
+export function renderDashboard() {
+    const { protokollData, abrechnungData } = state.tool1;
+
+    // Determine which dataset to use for financial metrics
+    // Prefer Abrechnung for amounts, but fallback to Protokoll if that's all we have
+    let primaryData = [];
+    let sourceName = 'None';
+
+    if (abrechnungData && abrechnungData.length > 0) {
+        primaryData = abrechnungData.slice(1); // Skip header
+        sourceName = 'Abrechnung';
+    } else if (protokollData && protokollData.length > 0) {
+        primaryData = protokollData.slice(1); // Skip header
+        sourceName = 'Protokoll';
+    }
+
+    // Helpers to find columns (reuse or simplified version)
+    // We assume standard columns or try to find them
+    const headers = (abrechnungData && abrechnungData[0]) || (protokollData && protokollData[0]) || [];
+
+    const findCol = (terms) => headers.findIndex(h => terms.some(t => String(h).toLowerCase().includes(t)));
+
+    const amountColIdx = findCol(['summe', 'betrag', 'amount', 'wert', 'kosten']);
+    const dateColIdx = findCol(['datum', 'date', 'zeit']);
+
+    // Map array data to objects for Analytics module
+    const mappedData = primaryData.map(row => ({
+        Summe: amountColIdx >= 0 ? row[amountColIdx] : 0,
+        Datum: dateColIdx >= 0 ? row[dateColIdx] : null
+    }));
+
+    const metrics = Analytics.calculateDashboardMetrics(mappedData, 'Datum', 'Summe');
+
+    // Update DOM
+    const els = {
+        totalAmount: document.getElementById('dashboardTotalAmount'),
+        avgAmount: document.getElementById('dashboardAvgAmount'),
+        txCount: document.getElementById('dashboardTxCount'),
+        dateRange: document.getElementById('dashboardDateRange'),
+        sparkline: document.getElementById('sparklineTotal'),
+        trendLabel: document.getElementById('trendLabel'),
+
+        // Summary Panel
+        healthBar: document.getElementById('dataHealthBar'),
+        healthScore: document.getElementById('dataHealthScore'),
+        protokollRows: document.getElementById('summaryProtokollRows'),
+        abrechnungRows: document.getElementById('summaryAbrechnungRows'),
+        issuesList: document.getElementById('dataIssuesList')
+    };
+
+    if (els.totalAmount) {
+        els.totalAmount.textContent = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(metrics.totalAmount);
+    }
+
+    if (els.avgAmount) {
+        els.avgAmount.textContent = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(metrics.averageAmount);
+    }
+
+    if (els.txCount) {
+        els.txCount.textContent = metrics.transactionCount.toLocaleString();
+    }
+
+    if (els.dateRange) {
+        els.dateRange.textContent = Analytics.formatDateRange(metrics.dateRange.start, metrics.dateRange.end);
+    }
+
+    // Sparkline
+    if (els.sparkline && metrics.dailyTrends.length > 1) {
+        const values = metrics.dailyTrends.map(d => d.value);
+        const pathData = Analytics.generateSparklinePath(values, 100, 30);
+        els.sparkline.innerHTML = `<path d="${pathData}" class="stroke-indigo-500 fill-none stroke-2" />`;
+    } else if (els.sparkline) {
+        els.sparkline.innerHTML = ''; // Clear if not enough data
+    }
+
+    // Summary Panel Updates
+    const pCount = protokollData ? protokollData.length - 1 : 0;
+    const aCount = abrechnungData ? abrechnungData.length - 1 : 0;
+
+    if (els.protokollRows) els.protokollRows.textContent = `${pCount} rows`;
+    if (els.abrechnungRows) els.abrechnungRows.textContent = `${aCount} rows`;
+
+    // calculate health
+    const health = Analytics.assessDataHealth(mappedData, ['Summe', 'Datum']);
+    if (els.healthBar) els.healthBar.style.width = `${health.completeness}%`;
+    if (els.healthScore) els.healthScore.textContent = `${Math.round(health.completeness)}%`;
+
+    // Issues List
+    if (els.issuesList) {
+        let issuesHtml = '';
+        if (pCount === 0 && aCount === 0) {
+            issuesHtml = `<li class="flex items-start gap-2 text-sm text-slate-500"><i class="ph-fill ph-info text-blue-500 mt-0.5"></i>No files uploaded</li>`;
+        } else {
+            if (health.issues.length > 0) {
+                issuesHtml += health.issues.map(i => `<li class="flex items-start gap-2 text-sm text-slate-600"><i class="ph-bold ph-warning text-amber-500 mt-0.5"></i>${i}</li>`).join('');
+            }
+            if (Math.abs(pCount - aCount) > 0 && pCount > 0 && aCount > 0) {
+                issuesHtml += `<li class="flex items-start gap-2 text-sm text-slate-600"><i class="ph-bold ph-warning text-amber-500 mt-0.5"></i>Row count mismatch (${Math.abs(pCount - aCount)})</li>`;
+            }
+            if (issuesHtml === '') {
+                issuesHtml = `<li class="flex items-start gap-2 text-sm text-slate-600"><i class="ph-fill ph-check-circle text-emerald-500 mt-0.5"></i>Data looks healthy</li>`;
+            }
+        }
+        els.issuesList.innerHTML = issuesHtml;
+    }
 }

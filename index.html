@@ -22,6 +22,11 @@
 
 <body class="bg-secondary min-h-screen font-sans text-primary flex overflow-hidden">
 
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:shadow-lg">
+        Skip to main content
+    </a>
+
     <!-- Sidebar -->
     <aside class="w-64 sidebar border-r flex flex-col flex-shrink-0 z-50" aria-label="Main Navigation">
         <div class="h-16 flex items-center px-6 border-b border-slate-100">
@@ -31,20 +36,23 @@
             </span>
         </div>
 
-        <nav class="flex-1 overflow-y-auto py-6 space-y-1" aria-label="Tools">
+        <nav class="flex-1 overflow-y-auto py-6 space-y-1" role="navigation" aria-label="Tools">
             <button id="nav-tool1"
                 class="sidebar-link active w-full flex items-center px-6 py-3 text-sm font-medium transition-colors"
-                aria-current="page">
+                aria-current="page"
+                aria-label="Navigate to Value Counter tool">
                 <i class="ph ph-calculator mr-3 text-lg" aria-hidden="true"></i>
                 Value Counter
             </button>
             <button id="nav-tool2"
-                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium transition-colors">
+                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium transition-colors"
+                aria-label="Navigate to Smart Extractor tool">
                 <i class="ph ph-table mr-3 text-lg" aria-hidden="true"></i>
                 Smart Extractor
             </button>
             <button id="nav-tool3"
-                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium transition-colors">
+                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium transition-colors"
+                aria-label="Navigate to Row Manager tool">
                 <i class="ph ph-rows mr-3 text-lg" aria-hidden="true"></i>
                 Row Manager
             </button>
@@ -56,6 +64,11 @@
         <!-- Header -->
         <header class="app-header h-16 flex items-center justify-between px-6 shadow-sm">
             <div class="flex items-center gap-4">
+                <!-- Mobile Menu Toggle -->
+                <button id="mobileMenuToggle" class="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors" 
+                        aria-label="Toggle navigation menu" aria-expanded="false">
+                    <i class="ph ph-list text-2xl" aria-hidden="true"></i>
+                </button>
                 <div class="flex items-center gap-2">
                     <div
                         class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
@@ -102,7 +115,7 @@
         </header>
 
         <!-- Tool Content Area -->
-        <main class="flex-1 overflow-auto p-6" role="main" aria-label="Tool content area">
+        <main id="main-content" class="flex-1 overflow-auto p-6" role="main" aria-label="Tool content area">
             <!-- Tool 1: Value Counter -->
             <section id="tool1-content" class="space-y-6" aria-labelledby="tool1-heading">
                 <div class="flex items-center justify-between">
@@ -154,7 +167,7 @@
                                 </div>
                                 <div id="protokollStatusBadge" class="hidden" aria-live="polite"></div>
                             </div>
-                            
+
                             <div id="protokollDropzone"
                                 class="dropzone dropzone-protokoll border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200"
                                 role="button" tabindex="0"
@@ -165,18 +178,18 @@
                                 <input type="file" id="protokollFileInput" accept=".xlsx,.xls" class="hidden"
                                     tabindex="-1">
                             </div>
-                            
+
                             <!-- Progress Bar -->
                             <div id="protokollProgress" class="mt-4 hidden" aria-live="polite"></div>
-                            
+
                             <!-- File Metadata -->
-                            <div id="protokollMetadata" class="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-lg hidden"
+                            <div id="protokollMetadata"
+                                class="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-lg hidden"
                                 aria-live="polite">
                             </div>
-                            
+
                             <!-- Remove Button -->
-                            <button id="protokollRemoveBtn" 
-                                class="btn btn-secondary w-full mt-3 hidden"
+                            <button id="protokollRemoveBtn" class="btn btn-secondary w-full mt-3 hidden"
                                 aria-label="Remove Protokoll file">
                                 <i class="ph ph-x mr-2" aria-hidden="true"></i>
                                 Remove File
@@ -195,7 +208,7 @@
                                 </div>
                                 <div id="abrechnungStatusBadge" class="hidden" aria-live="polite"></div>
                             </div>
-                            
+
                             <div id="abrechnungDropzone"
                                 class="dropzone dropzone-abrechnung border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200"
                                 role="button" tabindex="0"
@@ -206,28 +219,29 @@
                                 <input type="file" id="abrechnungFileInput" accept=".xlsx,.xls" class="hidden"
                                     tabindex="-1">
                             </div>
-                            
+
                             <!-- Progress Bar -->
                             <div id="abrechnungProgress" class="mt-4 hidden" aria-live="polite"></div>
-                            
+
                             <!-- File Metadata -->
-                            <div id="abrechnungMetadata" class="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg hidden"
+                            <div id="abrechnungMetadata"
+                                class="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg hidden"
                                 aria-live="polite">
                             </div>
-                            
+
                             <!-- Remove Button -->
-                            <button id="abrechnungRemoveBtn" 
-                                class="btn btn-secondary w-full mt-3 hidden"
+                            <button id="abrechnungRemoveBtn" class="btn btn-secondary w-full mt-3 hidden"
                                 aria-label="Remove Abrechnung file">
                                 <i class="ph ph-x mr-2" aria-hidden="true"></i>
                                 Remove File
                             </button>
                         </section>
                     </div>
-                    
+
                     <!-- Upload History -->
                     <section class="section-card p-6 mt-6" aria-labelledby="upload-history-heading">
-                        <h3 id="upload-history-heading" class="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
+                        <h3 id="upload-history-heading"
+                            class="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
                             <i class="ph ph-clock-counter-clockwise text-slate-400" aria-hidden="true"></i>
                             Recent Uploads
                         </h3>
@@ -255,7 +269,8 @@ Wartung</textarea>
                 <!-- End Import Data Section Group -->
 
                 <!-- Reconciliation Section Group -->
-                <div id="reconciliationSection" class="section-group section-group-reconciliation hidden" aria-labelledby="reconciliation-heading">
+                <div id="reconciliationSection" class="section-group section-group-reconciliation hidden"
+                    aria-labelledby="reconciliation-heading">
                     <div class="section-group-header">
                         <div class="section-group-icon bg-gradient-to-br from-purple-500 to-purple-600">
                             <i class="ph-bold ph-scales text-white" aria-hidden="true"></i>
@@ -308,18 +323,19 @@ Wartung</textarea>
                     <!-- Reconciliation Tabs -->
                     <div class="section-card">
                         <nav class="internal-tabs border-b" role="tablist" aria-label="Reconciliation tabs">
-                            <button class="internal-tab active" role="tab" aria-selected="true" 
+                            <button class="internal-tab active" role="tab" aria-selected="true"
                                 aria-controls="reconciliation-all-section" data-reconciliation-tab="all">
                                 <i class="ph ph-list" aria-hidden="true"></i>
                                 All Results
                             </button>
-                            <button class="internal-tab" role="tab" aria-selected="false" 
+                            <button class="internal-tab" role="tab" aria-selected="false"
                                 aria-controls="reconciliation-matches-section" data-reconciliation-tab="matches">
                                 <i class="ph ph-check-circle" aria-hidden="true"></i>
                                 Matches
                             </button>
-                            <button class="internal-tab" role="tab" aria-selected="false" 
-                                aria-controls="reconciliation-discrepancies-section" data-reconciliation-tab="discrepancies">
+                            <button class="internal-tab" role="tab" aria-selected="false"
+                                aria-controls="reconciliation-discrepancies-section"
+                                data-reconciliation-tab="discrepancies">
                                 <i class="ph ph-warning" aria-hidden="true"></i>
                                 Discrepancies
                             </button>
@@ -329,18 +345,16 @@ Wartung</textarea>
                         <div class="p-6">
                             <div class="mb-4 flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <input type="text" id="reconciliationSearch" 
+                                    <input type="text" id="reconciliationSearch"
                                         class="px-3 py-2 text-sm border border-slate-300 rounded-lg"
                                         placeholder="Search order numbers..."
                                         aria-label="Search reconciliation results">
-                                    <button id="reconciliationRefreshBtn" 
-                                        class="btn btn-secondary text-sm"
+                                    <button id="reconciliationRefreshBtn" class="btn btn-secondary text-sm"
                                         aria-label="Refresh reconciliation">
                                         <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
                                     </button>
                                 </div>
-                                <button id="reconciliationExportBtn" 
-                                    class="btn btn-primary text-sm"
+                                <button id="reconciliationExportBtn" class="btn btn-primary text-sm"
                                     aria-label="Export reconciliation results">
                                     <i class="ph ph-download-simple mr-2" aria-hidden="true"></i>
                                     Export CSV
@@ -351,23 +365,29 @@ Wartung</textarea>
                                 <table class="w-full" id="reconciliationTable">
                                     <thead>
                                         <tr class="border-b border-slate-200">
-                                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                                                 <i class="ph ph-hash mr-1" aria-hidden="true"></i>
                                                 Order Number
                                             </th>
-                                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                                                 Status
                                             </th>
-                                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                                            <th
+                                                class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
                                                 Protokoll Amount
                                             </th>
-                                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                                            <th
+                                                class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
                                                 Abrechnung Amount
                                             </th>
-                                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                                            <th
+                                                class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
                                                 Difference
                                             </th>
-                                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                                                 Message
                                             </th>
                                         </tr>
@@ -436,49 +456,160 @@ Wartung</textarea>
                         </div>
                     </div>
 
-                    <!-- Summary Cards Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <!-- Total Matches Card -->
+                    <!-- Dashboard Metrics Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <!-- Total Amount Card with Sparkline -->
                         <div
-                            class="summary-card bg-action-soft border border-indigo-100 rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                            <div
-                                class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg">
-                                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                            class="stat-card bg-white border border-slate-200 rounded-xl p-4 shadow-sm relative overflow-hidden group hover:border-indigo-300 transition-all duration-300">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total
+                                        Amount</p>
+                                    <h4 id="dashboardTotalAmount" class="text-2xl font-bold text-slate-800 mt-1">€0,00
+                                    </h4>
+                                </div>
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                    <i class="ph-bold ph-currency-eur text-lg"></i>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Total
-                                    Matches</p>
-                                <p id="summaryTotalMatches" class="text-3xl font-bold text-indigo-700 tabular-nums">0
-                                </p>
+                            <div class="flex items-end justify-between mt-2">
+                                <div
+                                    class="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <i class="ph-bold ph-trend-up"></i>
+                                    <span id="trendLabel">Total</span>
+                                </div>
+                                <!-- Sparkline SVG Container -->
+                                <svg id="sparklineTotal" class="sparkline w-24 h-8 text-indigo-200" viewBox="0 0 100 30"
+                                    preserveAspectRatio="none">
+                                    <!-- Path injected by JS -->
+                                </svg>
                             </div>
                         </div>
 
-                        <!-- Total Rows Card -->
+                        <!-- Average Amount Card -->
                         <div
-                            class="summary-card bg-primary border border-default rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                            <div
-                                class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center text-white text-xl shadow-lg">
-                                <i class="ph ph-rows" aria-hidden="true"></i>
+                            class="stat-card bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:border-indigo-300 transition-all duration-300">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Avg Amount
+                                    </p>
+                                    <h4 id="dashboardAvgAmount" class="text-2xl font-bold text-slate-800 mt-1">€0,00
+                                    </h4>
+                                </div>
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                                    <i class="ph-bold ph-chart-line text-lg"></i>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Rows
-                                </p>
-                                <p id="summaryTotalRows" class="text-3xl font-bold text-slate-700 tabular-nums">0</p>
+                            <div class="mt-4">
+                                <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-500 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-1">Per transaction</p>
                             </div>
                         </div>
 
-                        <!-- Unique Targets Card -->
+                        <!-- Transaction Count Card -->
                         <div
-                            class="summary-card bg-primary border border-default rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                            <div
-                                class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center text-white text-xl shadow-lg">
-                                <i class="ph ph-target" aria-hidden="true"></i>
+                            class="stat-card bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:border-emerald-300 transition-all duration-300">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                        Transactions</p>
+                                    <h4 id="dashboardTxCount" class="text-2xl font-bold text-slate-800 mt-1">0</h4>
+                                </div>
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                    <i class="ph-bold ph-receipt text-lg"></i>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Unique
-                                    Targets</p>
-                                <p id="summaryUniqueTargets" class="text-3xl font-bold text-slate-700 tabular-nums">0
-                                </p>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <div
+                                    class="text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                                    <i class="ph-bold ph-target text-indigo-400 mr-1"></i>
+                                    <strong id="dashboardUniqueTargets">0</strong> Unique
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date Range Card -->
+                        <div
+                            class="stat-card bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:border-amber-300 transition-all duration-300">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Time Period
+                                    </p>
+                                    <h4 id="dashboardDateRange"
+                                        class="text-sm font-semibold text-slate-800 mt-1 leading-tight">No dates</h4>
+                                </div>
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+                                    <i class="ph-bold ph-calendar text-lg"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-2">Based on processed files</p>
+                        </div>
+                    </div>
+
+                    <!-- Data Summary Panel -->
+                    <div class="bg-white border border-slate-200 rounded-xl shadow-sm mb-6 overflow-hidden">
+                        <div
+                            class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                            <h3 class="font-semibold text-slate-700 flex items-center gap-2">
+                                <i class="ph-bold ph-database text-indigo-500"></i>
+                                Data Health & Summary
+                            </h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-medium text-slate-500">Overall Quality</span>
+                                <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                    <div id="dataHealthBar" class="h-full bg-emerald-500 transition-all duration-500"
+                                        style="width: 0%"></div>
+                                </div>
+                                <span id="dataHealthScore" class="text-xs font-bold text-slate-700">0%</span>
+                            </div>
+                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- File Breakdown -->
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">File
+                                    Statistics</h4>
+                                <div class="space-y-3">
+                                    <div
+                                        class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                                            <span class="text-sm font-medium text-slate-700">Protokoll</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="block text-sm font-bold text-slate-800"
+                                                id="summaryProtokollRows">0 rows</span>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                            <span class="text-sm font-medium text-slate-700">Abrechnung</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="block text-sm font-bold text-slate-800"
+                                                id="summaryAbrechnungRows">0 rows</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Data Issues -->
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Data
+                                    Integrity</h4>
+                                <ul id="dataIssuesList" class="space-y-2">
+                                    <li class="flex items-start gap-2 text-sm text-slate-500">
+                                        <i class="ph-fill ph-check-circle text-emerald-500 mt-0.5"></i>
+                                        Waiting for data...
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>

@@ -9,7 +9,16 @@ import { isValidExcelFile } from '../utils.js';
 import { saveToUploadHistory } from '../uploadHistory.js';
 import { showFileMetadata } from './metadata.js';
 import { analyzeData, updateDebugInfo } from './analyzer.js';
-import { renderTable } from './renderer.js';
+import { renderTable, renderDashboard } from './renderer.js';
+import {
+    initializeFileUpload,
+    updateFileProgress,
+    completeFileUpload,
+    failFileUpload,
+    FileStatus
+} from './fileUpload.js';
+import { performReconciliation } from './reconciliation.js';
+import { renderReconciliation } from './reconciliationRenderer.js';
 
 /**
  * Process Protokoll file
@@ -17,11 +26,13 @@ import { renderTable } from './renderer.js';
  */
 export function processProtokolFile(file) {
     if (!isValidExcelFile(file)) {
-        showFileMetadata('protokoll', file, false);
+        failFileUpload('protokoll', 'Invalid file format');
         showError('Invalid file format. Please upload an Excel file (.xlsx or .xls)');
         return;
     }
 
+    // Initialize upload state
+    initializeFileUpload('protokoll', file);
     saveToUploadHistory(file, 'protokoll');
 
     // Show loading indicator
@@ -31,28 +42,42 @@ export function processProtokolFile(file) {
         processingIndicator.classList.remove('hidden');
     }
 
+    // Show remove button
+    const removeBtn = document.getElementById('protokollRemoveBtn');
+    if (removeBtn) {
+        removeBtn.classList.remove('hidden');
+    }
+
+    // Simulate upload progress
+    updateFileProgress('protokoll', 30, FileStatus.UPLOADING);
+
     setTimeout(() => {
+        updateFileProgress('protokoll', 60, FileStatus.PROCESSING);
         const reader = new FileReader();
 
         reader.onload = (e) => {
             try {
+                updateFileProgress('protokoll', 80, FileStatus.PROCESSING);
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array' });
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
 
                 updateState('tool1.protokollData', rows);
-                showFileMetadata('protokoll', file, true, rows.length);
+                completeFileUpload('protokoll', rows.length);
                 analyzeData(rows);
+                renderDashboard();
                 showSuccess(`Protokoll file loaded: ${file.name}`);
+                
+                // Try reconciliation if both files are loaded
+                checkAndPerformReconciliation();
             } catch (error) {
                 console.error('Error processing Protokoll file:', error);
-                showFileMetadata('protokoll', file, false);
+                failFileUpload('protokoll', 'Processing failed');
                 showError('Failed to process Protokoll file');
             } finally {
                 if (processingIndicator) {
                     processingIndicator.classList.add('hidden');
-                    // Reset text
                     setTimeout(() => {
                         processingIndicator.innerHTML = `<i class="ph ph-spinner animate-spin text-lg" aria-hidden="true"></i> Processing...`;
                     }, 500);
@@ -61,6 +86,7 @@ export function processProtokolFile(file) {
         };
 
         reader.onerror = () => {
+            failFileUpload('protokoll', 'Failed to read file');
             showError('Failed to read file');
             if (processingIndicator) processingIndicator.classList.add('hidden');
         };
@@ -102,6 +128,7 @@ export function processAbrechnungFile(file) {
                 updateState('tool1.abrechnungData', rows);
                 showFileMetadata('abrechnung', file, true, rows.length);
                 countTargetValues(rows);
+                renderDashboard();
                 updateDebugInfo();
                 showSuccess(`Abrechnung file loaded: ${file.name}`);
             } catch (error) {
@@ -186,4 +213,19 @@ function countTargetValues(rows) {
     updateState('tool1.lastUniqueTargets', uniqueTargetsFound);
 
     renderTable(countsMap, totalMatches, rows.length, uniqueTargetsFound);
+}
+
+/**
+ * Check if both files are loaded and perform reconciliation
+ */
+function checkAndPerformReconciliation() {
+    const protokollData = state.tool1.protokollData;
+    const abrechnungData = state.tool1.abrechnungData;
+
+    if (protokollData && abrechnungData) {
+        const results = performReconciliation();
+        if (results) {
+            renderReconciliation();
+        }
+    }
 }

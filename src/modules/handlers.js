@@ -4,11 +4,13 @@
  */
 
 import { state, updateState } from './state.js';
-import { switchTab } from './navigation.js';
+import { switchTab, setupMobileMenu } from './navigation.js';
 import { openSettingsModal, closeSettingsModal, toggleHelpPanel } from './modals.js';
 import { toggleSection } from './sections.js';
 import { processProtokolFile, processAbrechnungFile } from './tool1/fileProcessor.js';
 import { renderTable } from './tool1/renderer.js';
+import { clearFileUpload } from './tool1/fileUpload.js';
+import { hideReconciliation, setupReconciliationHandlers } from './tool1/reconciliationRenderer.js';
 import { setupTool2Handlers } from './tool2/handlers.js';
 import { setupTool3Handlers } from './tool3/handlers.js';
 
@@ -18,6 +20,9 @@ import { setupTool3Handlers } from './tool3/handlers.js';
 export function initializeHandlers() {
     // Navigation handlers
     setupNavigationHandlers();
+    
+    // Mobile menu
+    setupMobileMenu();
 
     // Modal handlers
     setupModalHandlers();
@@ -26,6 +31,9 @@ export function initializeHandlers() {
     setupTool1Handlers();
     setupTool2Handlers();
     setupTool3Handlers();
+    
+    // Setup reconciliation handlers
+    setupReconciliationHandlers();
 
     // Global keyboard shortcuts
     setupKeyboardShortcuts();
@@ -90,6 +98,10 @@ function setupTool1Handlers() {
 
     // Reset button
     document.getElementById('resetTargetsBtn')?.addEventListener('click', resetDefaultTargets);
+
+    // Remove file buttons
+    document.getElementById('protokollRemoveBtn')?.addEventListener('click', () => removeFile('protokoll'));
+    document.getElementById('abrechnungRemoveBtn')?.addEventListener('click', () => removeFile('abrechnung'));
 
     // Section toggles
     document.getElementById('extractedDetailsToggle')?.addEventListener('click', () => {
@@ -265,4 +277,38 @@ async function copyDebugInfo() {
         const { showError } = await import('./toast.js');
         showError('Failed to copy to clipboard');
     }
+}
+
+/**
+ * Remove uploaded file and clear state
+ * @param {string} fileType - 'protokoll' or 'abrechnung'
+ */
+function removeFile(fileType) {
+    // Clear upload state
+    clearFileUpload(fileType);
+    
+    // Reset file input
+    const fileInput = document.getElementById(`${fileType}FileInput`);
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    
+    // Hide remove button
+    const removeBtn = document.getElementById(`${fileType}RemoveBtn`);
+    if (removeBtn) {
+        removeBtn.classList.add('hidden');
+    }
+    
+    // Clear reconciliation if no files loaded
+    const protokollData = state.tool1.protokollData;
+    const abrechnungData = state.tool1.abrechnungData;
+    
+    if (!protokollData && !abrechnungData) {
+        hideReconciliation();
+    }
+    
+    // Import and show toast
+    import('./toast.js').then(({ showSuccess }) => {
+        showSuccess(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} file removed`);
+    });
 }
