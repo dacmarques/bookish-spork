@@ -135,15 +135,37 @@
             </div>
         </div>
 
-        <!-- Drag & Drop Zone -->
-        <div id="dropArea" class="relative group cursor-pointer">
-            <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".xlsx, .xls">
-            <div class="w-full h-48 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center bg-white transition-all group-hover:border-indigo-400 group-hover:bg-indigo-50">
-                <div class="p-4 rounded-full bg-indigo-50 text-indigo-600 mb-3 group-hover:scale-110 transition-transform">
-                    <i class="ph ph-upload-simple text-4xl"></i>
+        <!-- Drag & Drop Zones Container -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Zone 1: Protokoll -->
+            <div class="space-y-2">
+                <h3 class="font-semibold text-slate-700 ml-1">1. Protokoll Upload</h3>
+                <div id="dropArea" class="relative group cursor-pointer h-48">
+                    <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".xlsx, .xls">
+                    <div class="w-full h-full border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center bg-white transition-all group-hover:border-indigo-400 group-hover:bg-indigo-50">
+                        <div class="p-3 rounded-full bg-indigo-50 text-indigo-600 mb-2 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-file-text text-3xl"></i>
+                        </div>
+                        <p class="font-medium text-slate-700">Protokoll <span class="text-indigo-600 font-bold">.xlsx</span></p>
+                        <p class="text-xs text-slate-400 mt-1">Drag & drop or click</p>
+                    </div>
                 </div>
-                <p class="text-lg font-medium text-slate-700">Drop your <span class="text-indigo-600 font-bold">.xlsx</span> file here</p>
-                <p class="text-sm text-slate-400 mt-1">or click to browse</p>
+            </div>
+
+            <!-- Zone 2: Abrechnung -->
+            <div class="space-y-2">
+                <h3 class="font-semibold text-slate-700 ml-1">2. Abrechnung Upload</h3>
+                <div id="dropAreaAbrechnung" class="relative group cursor-pointer h-48">
+                    <input type="file" id="fileInputAbrechnung" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".xlsx, .xls">
+                    <div id="abrechnungDropContent" class="w-full h-full border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center bg-white transition-all group-hover:border-emerald-400 group-hover:bg-emerald-50">
+                        <div class="p-3 rounded-full bg-emerald-50 text-emerald-600 mb-2 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-currency-eur text-3xl"></i>
+                        </div>
+                        <p class="font-medium text-slate-700">Abrechnung <span class="text-emerald-600 font-bold">.xlsx</span></p>
+                        <p id="abrechnungStatus" class="text-xs text-slate-400 mt-1">Drag & drop or click</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -160,7 +182,7 @@
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 relative group">
-                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Protokoll (Nr.)</span>
+                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Datum</span>
                         <span id="outDatum" class="block text-lg font-semibold text-slate-800 mt-1">-</span>
                         <button onclick="copyToClipboard('outDatum')" class="absolute top-2 right-2 text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Copy">
                             <i class="ph ph-copy"></i>
@@ -192,17 +214,14 @@
 
             <!-- 2. Count Table -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-800">Target Matches</h2>
                         <p id="matchSummary" class="text-sm text-slate-500">Found 0 matches in 0 rows.</p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="copyTableToClipboard()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 text-slate-600 flex items-center gap-2 transition-colors">
-                            <i class="ph ph-copy"></i> Copy
-                        </button>
-                        <button onclick="downloadCSV()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 text-slate-600 flex items-center gap-2 transition-colors">
-                            <i class="ph ph-download-simple"></i> CSV
+                        <button onclick="downloadMergedAbrechnung()" id="btnDownloadMerged" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm flex items-center gap-2 transition-all">
+                            <i class="ph ph-download-simple"></i> Download Abrechnung
                         </button>
                     </div>
                 </div>
@@ -498,9 +517,20 @@
             let extractedHeader = {}; // For CSV export
             let sortState = { column: 'count', direction: 'desc' }; // Default sort
 
+            // New: Abrechnung State
+            let abrechnungWorkbook = null;
+            let abrechnungFilename = null;
+
             // --- Elements ---
             const dropArea = document.getElementById('dropArea');
             const fileInput = document.getElementById('fileInput');
+
+            // New Elements for Abrechnung
+            const dropAreaAbrechnung = document.getElementById('dropAreaAbrechnung');
+            const fileInputAbrechnung = document.getElementById('fileInputAbrechnung');
+            const abrechnungStatus = document.getElementById('abrechnungStatus');
+            const abrechnungContent = document.getElementById('abrechnungDropContent');
+
             const feedback = document.getElementById('feedback');
             const resultsContainer = document.getElementById('resultsContainer');
             const targetValuesArea = document.getElementById('targetValuesArea');
@@ -526,22 +556,29 @@
                     configIcon.classList.toggle('ph-caret-down');
                 });
 
+                // Zone 1: Protokoll
                 fileInput.addEventListener('change', handleFileSelect);
+                setupDragDrop(dropArea, handleDrop);
 
-                // Drag effects
+                // Zone 2: Abrechnung
+                fileInputAbrechnung.addEventListener('change', handleAbrechnungFileSelect);
+                setupDragDrop(dropAreaAbrechnung, handleAbrechnungDrop);
+            }
+
+            function setupDragDrop(area, dropHandler) {
                 ['dragenter', 'dragover'].forEach(eventName => {
-                    dropArea.addEventListener(eventName, (e) => {
+                    area.addEventListener(eventName, (e) => {
                         e.preventDefault();
-                        dropArea.querySelector('div').classList.add('drag-active');
+                        area.querySelector('div').classList.add('drag-active');
                     }, false);
                 });
                 ['dragleave', 'drop'].forEach(eventName => {
-                    dropArea.addEventListener(eventName, (e) => {
+                    area.addEventListener(eventName, (e) => {
                         e.preventDefault();
-                        dropArea.querySelector('div').classList.remove('drag-active');
+                        area.querySelector('div').classList.remove('drag-active');
                     }, false);
                 });
-                dropArea.addEventListener('drop', handleDrop, false);
+                area.addEventListener('drop', dropHandler, false);
             }
 
             // --- Core Logic ---
@@ -616,14 +653,33 @@
 
             function analyzeData(rows) {
                 // 1. Extract Headers
-                const datum = findValue(rows, "Nr.:");
+                let rawDatum = findValue(rows, "Nr.:");
+                let formattedDatum = rawDatum || "Not Found";
+
+                // Format Logic: XXXYYYYYYYYZZZZ -> 12345678 (indices 3-11)
+                // Assume 12345678 is YYYYMMDD per instruction logic inferred
+                if (rawDatum && rawDatum.length >= 11) {
+                    const datePart = rawDatum.substring(3, 11);
+                    // Check if it looks like digits
+                    if (/^\d{8}$/.test(datePart)) {
+                        // Assume YYYYMMDD
+                        const y = datePart.substring(0, 4);
+                        const m = datePart.substring(4, 6);
+                        const d = datePart.substring(6, 8);
+                        formattedDatum = `${d}.${m}.${y}`;
+                    } else {
+                        // Fallback or keep raw if not digits
+                        console.warn("Extracted date part is not 8 digits:", datePart);
+                    }
+                }
+
                 const auftrag = findValue(rows, "Auftrag Nr.:");
                 const inv = findValue(rows, "INV:");
                 const anlage = findValue(rows, "Anlage:");
                 const ort = findOrtValue(rows); // Special logic for 2nd occurrence
 
                 extractedHeader = {
-                    datum: datum || "Not Found",
+                    datum: formattedDatum,
                     auftrag: auftrag || "Not Found",
                     anlage: (inv || anlage) ? `${inv || ''}_${anlage || ''}` : "N/A",
                     ort: ort || "Not Found"
@@ -854,6 +910,131 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+            };
+
+            // --- Abrechnung Logic ---
+
+            function handleAbrechnungFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) processAbrechnungFile(file);
+            }
+
+            function handleAbrechnungDrop(e) {
+                const dt = e.dataTransfer;
+                const file = dt.files[0];
+                if (file) processAbrechnungFile(file);
+            }
+
+            function processAbrechnungFile(file) {
+                if (!file.name.match(/\.(xlsx|xls)$/)) {
+                    alert("Please upload an Excel (.xlsx) file for Abrechnung.");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        abrechnungWorkbook = XLSX.read(data, { type: 'array' });
+                        abrechnungFilename = file.name;
+
+                        // Update UI
+                        abrechnungStatus.textContent = `Loaded: ${file.name}`;
+                        abrechnungStatus.classList.add('text-emerald-700', 'font-semibold');
+                        abrechnungContent.classList.add('bg-emerald-50', 'border-emerald-500');
+
+                        showFeedback(`Abrechnung loaded: ${file.name}`, 'success');
+
+                    } catch (err) {
+                        console.error(err);
+                        showFeedback(`Error reading Abrechnung file: ${err.message}`, 'error');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            window.downloadMergedAbrechnung = function() {
+                if (!abrechnungWorkbook) {
+                    alert("Please upload the 'Abrechnung' file first.");
+                    return;
+                }
+                if (!currentResults || currentResults.length === 0) {
+                    alert("No counts available. Please upload and process the 'Protokoll' file first.");
+                    return;
+                }
+
+                try {
+                    // Clone workbook logic (SheetJS usually modifies in place, so we modify the loaded one)
+                    // If user wants to do multiple downloads, that's fine, we update in place.
+
+                    const firstSheetName = abrechnungWorkbook.SheetNames[0];
+                    const sheet = abrechnungWorkbook.Sheets[firstSheetName];
+                    const range = XLSX.utils.decode_range(sheet['!ref']);
+
+                    // Create a lookup map from results for faster access
+                    // currentResults is [[target, count], ...]
+                    const countMap = new Map(currentResults);
+
+                    let matchesUpdated = 0;
+
+                    // Iterate Column A (Index 0)
+                    for (let R = range.s.r; R <= range.e.r; ++R) {
+                        const cellRefA = XLSX.utils.encode_cell({r: R, c: 0}); // Column A
+                        const cellA = sheet[cellRefA];
+
+                        if (cellA && cellA.v) {
+                            const valA = String(cellA.v).trim();
+
+                            // Check if this value exists in our counts
+                            // The counts logic in `analyzeData` uses .includes().
+                            // Here user requirement: "Search in column1 Abrechnung file -> When it fits"
+                            // If `Protokoll` analysis counted "01.01.0010" based on substring,
+                            // And `Abrechnung` Col A contains "01.01.0010", we match.
+                            // Assuming exact match on the target value derived.
+
+                            // However, strictly speaking, `currentResults` keys are the "Target Values" (e.g., "01.01.0010").
+                            // Does Abrechnung Col A contain exactly that, or does it contain text *containing* that?
+                            // Requirement: "search in the column1 Abrechnung file-> When it fits"
+                            // Usually this implies the Target Value *is* the ID in Abrechnung.
+                            // I will assume exact string match or 'contains' logic?
+                            // Given "Insert Count value in Abrechnung B column same row", likely A is the ID.
+                            // Let's try exact match first as keys are distinct.
+
+                            if (countMap.has(valA)) {
+                                const count = countMap.get(valA);
+
+                                // Write to Column B (Index 1)
+                                const cellRefB = XLSX.utils.encode_cell({r: R, c: 1});
+
+                                // Write number
+                                sheet[cellRefB] = { t: 'n', v: count };
+                                matchesUpdated++;
+
+                                // Remove from map if "write first shown" implies we consume it?
+                                // User said: "it is supposed to not have duplicated, case yes, write the first shown."
+                                // This implies if Abrechnung has duplicate IDs, we write to the first one only.
+                                countMap.delete(valA);
+                            }
+                        }
+                    }
+
+                    // Recalculate range in case we added cells (unlikely if strictly A->B)
+                    // But good practice if B didn't exist
+                    if (range.e.c < 1) {
+                        range.e.c = 1;
+                        sheet['!ref'] = XLSX.utils.encode_range(range);
+                    }
+
+                    // Write File
+                    const outFilename = `Abrechnung_Updated_${new Date().toISOString().slice(0,10)}.xlsx`;
+                    XLSX.writeFile(abrechnungWorkbook, outFilename);
+
+                    showFeedback(`Downloaded updated Abrechnung. Updated ${matchesUpdated} rows.`, 'success');
+
+                } catch (err) {
+                    console.error("Merge error:", err);
+                    alert("Error creating merged file: " + err.message);
+                }
             };
 
             // Also need global access to resetDefaultTargets if used in onclick
