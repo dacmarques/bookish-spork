@@ -9,6 +9,9 @@ export const state = {
         currentTargets: [],
         protokollData: null,
         abrechnungData: null,
+        protokollUpload: null, // File upload state for Protokoll
+        abrechnungUpload: null, // File upload state for Abrechnung
+        reconciliation: null, // Reconciliation results
         extractedHeader: {},
         lastCountsMap: {},
         lastTotalMatches: 0,

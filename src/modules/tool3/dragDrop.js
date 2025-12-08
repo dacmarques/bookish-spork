@@ -6,6 +6,7 @@
 import { state } from '../state.js';
 import { renderTable } from './renderer.js';
 import { showSuccess, showInfo } from '../toast.js';
+import { throttle } from '../utils.js';
 
 let draggedIndex = null;
 
@@ -108,7 +109,7 @@ export function handleDragStart(e) {
 }
 
 /**
- * Handle drag over event for drop zone feedback
+ * Handle drag over event for drop zone feedback (internal implementation)
  * 
  * Provides visual feedback as the user drags rows over potential drop locations.
  * Adds a visual indicator (border line) above or below the row being hovered,
@@ -128,7 +129,7 @@ export function handleDragStart(e) {
  * - Hovering over bottom half of row: Shows insertion line below
  * - Updates continuously as mouse moves
  */
-export function handleDragOver(e) {
+function handleDragOverInternal(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
 
@@ -146,6 +147,12 @@ export function handleDragOver(e) {
     // Add indicator to current target
     tr.classList.add('drop-indicator');
 }
+
+/**
+ * Throttled drag over handler to prevent excessive redraws
+ * Limits visual feedback updates to once every 50ms for better performance
+ */
+export const handleDragOver = throttle(handleDragOverInternal, 50);
 
 /**
  * Handle drag end

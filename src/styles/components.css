@@ -32,6 +32,8 @@
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--color-neutral-200);
     transition: all 0.2s ease;
+    /* CSS Containment for improved rendering performance */
+    contain: layout style;
 }
 
 .section-card:hover {
@@ -542,6 +544,8 @@ textarea:focus {
 .table-container {
     position: relative;
     overflow: auto;
+    /* CSS Containment for improved rendering performance */
+    contain: layout style paint;
     max-height: calc(100vh - 300px);
     /* Ensure container has a height for sticky header */
     border: 1px solid var(--color-neutral-200);
@@ -564,6 +568,22 @@ textarea:focus {
 
 .table-container.scrolled-to-end::after {
     opacity: 0;
+}
+
+/* Virtual Scroll Optimization */
+.virtual-scroll-wrapper {
+    position: relative;
+    will-change: transform;
+    contain: strict;
+}
+
+.virtual-scroll-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    will-change: transform;
+    contain: layout style paint;
 }
 
 /* Table Styles */
@@ -639,6 +659,8 @@ table td {
 table tbody tr {
     transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
         box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    /* CSS Containment for improved row rendering */
+    contain: layout style;
 }
 
 table tbody tr:hover {
@@ -741,18 +763,35 @@ table tbody tr:hover {
 /* Tool 2 - Smart Extractor Validation Styles */
 .validation-error {
     background-color: var(--color-error-bg) !important;
-    border: 1px solid var(--color-error-hover) !important;
+    color: var(--color-error-hover);
+    border: 1px solid var(--color-error) !important;
 }
 
 .validation-warning {
-    background-color: #fef3c7 !important;
-    /* Warning not fully variabilized in main.css yet, keep hardcoded or add warning vars */
+    background-color: #fef9c3 !important;
+    /* Yellow 50 (light mode) */
+    color: #854d0e;
+    /* Yellow 800 */
+    border: 1px solid #fde047;
+    /* Yellow 300 */
+}
+
+[data-theme="dark"] .validation-warning {
+    background-color: #422006 !important;
+    /* Yellow 950 */
+    color: #fde047;
+    /* Yellow 300 */
+    border: 1px solid #a16207;
+    /* Yellow 700 */
 }
 
 /* Tool 3 - Row Manager Drag & Drop Styles */
 .dragging-row {
     opacity: 0.5;
     background-color: var(--color-action-bg) !important;
+    /* Performance optimization for drag operations */
+    will-change: transform, opacity;
+    contain: layout style;
 }
 
 /* Summary Cards */
@@ -993,4 +1032,234 @@ select[aria-invalid="false"] {
 .btn-danger:focus-visible {
     outline-color: var(--color-error);
     box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.2);
+}
+
+/* ============================================================================
+   MOBILE & TOUCH RESPONSIVE ENHANCEMENTS
+   ============================================================================
+*/
+
+/* Enhanced Drag Handle Hover States (extends existing .drag-handle) */
+.drag-handle:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+}
+
+/* Button Groups */
+.btn-group {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+/* Responsive Grid Utilities */
+.grid-responsive {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+/* Mobile-Specific Table Enhancements */
+@media (max-width: 768px) {
+
+    /* Card-based table view option for very small screens */
+    .table-card-view table {
+        display: block;
+    }
+
+    .table-card-view thead {
+        display: none;
+    }
+
+    .table-card-view tbody {
+        display: block;
+    }
+
+    .table-card-view tr {
+        display: block;
+        margin-bottom: var(--space-4);
+        border: 1px solid var(--color-neutral-200);
+        border-radius: var(--radius-md);
+        padding: var(--space-3);
+        background: white;
+    }
+
+    .table-card-view td {
+        display: flex;
+        justify-content: space-between;
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid var(--color-neutral-100);
+    }
+
+    .table-card-view td:last-child {
+        border-bottom: none;
+    }
+
+    .table-card-view td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-tertiary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    /* Responsive Dropzone Adjustments */
+    .dropzone {
+        text-align: center;
+    }
+
+    .dropzone-text {
+        font-size: 0.9rem;
+    }
+
+    .dropzone-subtext {
+        font-size: 0.75rem;
+        margin-top: var(--space-2);
+        color: var(--text-muted);
+    }
+
+    /* Section Group Headers - Mobile */
+    .section-group-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+
+    .section-group-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* Modals - Full Screen on Small Mobile */
+    @media (max-width: 480px) {
+        .modal-overlay {
+            align-items: flex-start;
+            padding: 0;
+        }
+
+        .modal-content {
+            width: 100vw;
+            height: 100vh;
+            max-height: 100vh;
+            margin: 0;
+            border-radius: 0;
+        }
+    }
+
+    /* Enhanced Touch Feedback */
+    .btn:active:not(:disabled),
+    .sidebar-link:active,
+    .internal-tab:active {
+        transform: scale(0.96);
+        opacity: 0.9;
+    }
+
+    /* Improve button icon spacing on mobile */
+    .btn i {
+        font-size: 1.1rem;
+    }
+
+    /* Section cards have less shadow on mobile */
+    .section-card {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Toast positioning for mobile */
+    .toast-container {
+        bottom: var(--space-4);
+        left: var(--space-4);
+        right: var(--space-4);
+    }
+}
+
+/* Touch Device Specific Enhancements */
+@media (hover: none) and (pointer: coarse) {
+
+    /* Enhanced dropzone visual feedback for touch */
+    .dropzone {
+        border-width: 2px;
+    }
+
+    /* Increase spacing in interactive lists */
+    .sidebar-link {
+        padding: var(--space-4) var(--space-6);
+    }
+
+    /* Better touch targets for sortable headers */
+    th.sortable {
+        padding: var(--space-4);
+    }
+
+    /* Enhanced row selection areas */
+    table tbody tr {
+        cursor: pointer;
+    }
+
+    /* Larger close buttons */
+    .toast button,
+    .modal-close {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* Landscape Mobile Optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+
+    /* Utilize horizontal space better and reduce vertical spacing */
+    .section-group {
+        padding: var(--space-3) var(--space-5);
+        margin-bottom: var(--space-3);
+    }
+
+    /* Dropzones side by side if space allows */
+    .grid.grid-cols-1 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Header more compact */
+    .app-header {
+        min-height: 48px;
+        padding: var(--space-2) var(--space-4);
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    /* Hide interactive elements */
+    aside.sidebar,
+    .app-header,
+    .btn,
+    .dropzone,
+    .toast-container {
+        display: none !important;
+    }
+
+    /* Full width content */
+    .flex-1 {
+        width: 100%;
+    }
+
+    /* Optimize tables for printing */
+    .table-container {
+        overflow: visible;
+        max-height: none;
+        border: none;
+    }
+
+    /* Remove backgrounds and shadows */
+    .section-card,
+    .section-group {
+        box-shadow: none;
+        border: 1px solid #000;
+        break-inside: avoid;
+    }
+
+    /* Ensure readable text */
+    body {
+        color: #000;
+        background: #fff;
+    }
 }

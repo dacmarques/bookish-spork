@@ -107,18 +107,21 @@
             <section id="tool1-content" class="space-y-6" aria-labelledby="tool1-heading">
                 <div class="flex items-center justify-between">
                     <h2 id="tool1-heading" class="text-2xl font-bold text-slate-800">Value Counter</h2>
-                    
+
                     <!-- Internal Tab Navigation -->
                     <nav class="internal-tabs" role="tablist" aria-label="Value Counter sections">
-                        <button class="internal-tab active" role="tab" aria-selected="true" aria-controls="import-section" data-tab="import">
+                        <button class="internal-tab active" role="tab" aria-selected="true"
+                            aria-controls="import-section" data-tab="import">
                             <i class="ph ph-upload-simple" aria-hidden="true"></i>
                             Import
                         </button>
-                        <button class="internal-tab" role="tab" aria-selected="false" aria-controls="analysis-section" data-tab="analysis">
+                        <button class="internal-tab" role="tab" aria-selected="false" aria-controls="analysis-section"
+                            data-tab="analysis">
                             <i class="ph ph-chart-bar" aria-hidden="true"></i>
                             Analysis
                         </button>
-                        <button class="internal-tab" role="tab" aria-selected="false" aria-controls="debug-section" data-tab="debug">
+                        <button class="internal-tab" role="tab" aria-selected="false" aria-controls="debug-section"
+                            data-tab="debug">
                             <i class="ph ph-bug" aria-hidden="true"></i>
                             Debug
                         </button>
@@ -139,43 +142,106 @@
 
                     <!-- File Upload Areas -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6" aria-label="File upload section">
-                    <!-- Protokoll Upload -->
-                    <section class="section-card p-6" aria-labelledby="protokoll-heading">
-                        <h3 id="protokoll-heading" class="text-lg font-semibold mb-4">Protokoll File</h3>
-                        <div id="protokollDropzone"
-                            class="dropzone dropzone-protokoll border-2 border-dashed rounded-lg p-8 text-center cursor-pointer"
-                            role="button" tabindex="0"
-                            aria-label="Upload Protokoll File. Drop file here or press Enter to browse.">
-                            <i class="ph ph-upload text-4xl text-indigo-400 mb-2" aria-hidden="true"></i>
-                            <p class="text-sm text-slate-600">Drop Protokoll file here or click to browse</p>
-                            <input type="file" id="protokollFileInput" accept=".xlsx,.xls" class="hidden" tabindex="-1">
-                        </div>
-                        <div id="protokollMetadata" class="mt-4 p-3 bg-secondary rounded-lg hidden" aria-live="polite">
-                        </div>
-                    </section>
+                        <!-- Protokoll Upload -->
+                        <section class="section-card p-6" aria-labelledby="protokoll-heading">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 id="protokoll-heading" class="text-lg font-semibold flex items-center gap-2">
+                                        <i class="ph ph-file-text text-indigo-500" aria-hidden="true"></i>
+                                        Protokoll File
+                                    </h3>
+                                    <p class="text-xs text-slate-500 mt-1">Upload your protocol Excel file</p>
+                                </div>
+                                <div id="protokollStatusBadge" class="hidden" aria-live="polite"></div>
+                            </div>
+                            
+                            <div id="protokollDropzone"
+                                class="dropzone dropzone-protokoll border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200"
+                                role="button" tabindex="0"
+                                aria-label="Upload Protokoll File. Drop file here or press Enter to browse.">
+                                <i class="ph ph-upload text-4xl text-indigo-400 mb-2" aria-hidden="true"></i>
+                                <p class="text-sm text-slate-600 mb-1">Drop Protokoll file here or click to browse</p>
+                                <p class="text-xs text-slate-400">.xlsx or .xls files only</p>
+                                <input type="file" id="protokollFileInput" accept=".xlsx,.xls" class="hidden"
+                                    tabindex="-1">
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div id="protokollProgress" class="mt-4 hidden" aria-live="polite"></div>
+                            
+                            <!-- File Metadata -->
+                            <div id="protokollMetadata" class="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-lg hidden"
+                                aria-live="polite">
+                            </div>
+                            
+                            <!-- Remove Button -->
+                            <button id="protokollRemoveBtn" 
+                                class="btn btn-secondary w-full mt-3 hidden"
+                                aria-label="Remove Protokoll file">
+                                <i class="ph ph-x mr-2" aria-hidden="true"></i>
+                                Remove File
+                            </button>
+                        </section>
 
-                    <!-- Abrechnung Upload -->
-                    <section class="section-card p-6" aria-labelledby="abrechnung-heading">
-                        <h3 id="abrechnung-heading" class="text-lg font-semibold mb-4">Abrechnung File</h3>
-                        <div id="abrechnungDropzone"
-                            class="dropzone dropzone-abrechnung border-2 border-dashed rounded-lg p-8 text-center cursor-pointer"
-                            role="button" tabindex="0"
-                            aria-label="Upload Abrechnung File. Drop file here or press Enter to browse.">
-                            <i class="ph ph-upload text-4xl text-emerald-400 mb-2" aria-hidden="true"></i>
-                            <p class="text-sm text-slate-600">Drop Abrechnung file here or click to browse</p>
-                            <input type="file" id="abrechnungFileInput" accept=".xlsx,.xls" class="hidden"
-                                tabindex="-1">
-                        </div>
-                        <div id="abrechnungMetadata" class="mt-4 p-3 bg-secondary rounded-lg hidden" aria-live="polite">
+                        <!-- Abrechnung Upload -->
+                        <section class="section-card p-6" aria-labelledby="abrechnung-heading">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 id="abrechnung-heading" class="text-lg font-semibold flex items-center gap-2">
+                                        <i class="ph ph-file-text text-emerald-500" aria-hidden="true"></i>
+                                        Abrechnung File
+                                    </h3>
+                                    <p class="text-xs text-slate-500 mt-1">Upload your billing Excel file</p>
+                                </div>
+                                <div id="abrechnungStatusBadge" class="hidden" aria-live="polite"></div>
+                            </div>
+                            
+                            <div id="abrechnungDropzone"
+                                class="dropzone dropzone-abrechnung border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200"
+                                role="button" tabindex="0"
+                                aria-label="Upload Abrechnung File. Drop file here or press Enter to browse.">
+                                <i class="ph ph-upload text-4xl text-emerald-400 mb-2" aria-hidden="true"></i>
+                                <p class="text-sm text-slate-600 mb-1">Drop Abrechnung file here or click to browse</p>
+                                <p class="text-xs text-slate-400">.xlsx or .xls files only</p>
+                                <input type="file" id="abrechnungFileInput" accept=".xlsx,.xls" class="hidden"
+                                    tabindex="-1">
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div id="abrechnungProgress" class="mt-4 hidden" aria-live="polite"></div>
+                            
+                            <!-- File Metadata -->
+                            <div id="abrechnungMetadata" class="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg hidden"
+                                aria-live="polite">
+                            </div>
+                            
+                            <!-- Remove Button -->
+                            <button id="abrechnungRemoveBtn" 
+                                class="btn btn-secondary w-full mt-3 hidden"
+                                aria-label="Remove Abrechnung file">
+                                <i class="ph ph-x mr-2" aria-hidden="true"></i>
+                                Remove File
+                            </button>
+                        </section>
+                    </div>
+                    
+                    <!-- Upload History -->
+                    <section class="section-card p-6 mt-6" aria-labelledby="upload-history-heading">
+                        <h3 id="upload-history-heading" class="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
+                            <i class="ph ph-clock-counter-clockwise text-slate-400" aria-hidden="true"></i>
+                            Recent Uploads
+                        </h3>
+                        <div id="uploadHistoryList" class="space-y-2">
+                            <p class="text-xs text-slate-400 italic">No recent uploads</p>
                         </div>
                     </section>
-                </div>
 
                     <!-- Target Values -->
                     <section class="section-card p-6" aria-labelledby="targets-heading">
                         <h3 id="targets-heading" class="text-lg font-semibold mb-4">Target Values</h3>
                         <label for="targetValues" class="sr-only">Target Values List</label>
-                        <textarea id="targetValues" rows="4" class="w-full border border-slate-300 rounded-lg p-3 text-sm"
+                        <textarea id="targetValues" rows="4"
+                            class="w-full border border-slate-300 rounded-lg p-3 text-sm"
                             placeholder="Enter target values (one per line)">Montage
 Demontage
 Reparatur
@@ -187,6 +253,139 @@ Wartung</textarea>
                     </section>
                 </div>
                 <!-- End Import Data Section Group -->
+
+                <!-- Reconciliation Section Group -->
+                <div id="reconciliationSection" class="section-group section-group-reconciliation hidden" aria-labelledby="reconciliation-heading">
+                    <div class="section-group-header">
+                        <div class="section-group-icon bg-gradient-to-br from-purple-500 to-purple-600">
+                            <i class="ph-bold ph-scales text-white" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <h3 id="reconciliation-heading" class="section-group-title">Reconciliation View</h3>
+                            <p class="section-group-description">Compare Protokoll and Abrechnung files</p>
+                        </div>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="section-card p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-medium text-slate-500 uppercase">Matches</span>
+                                <i class="ph ph-check-circle text-emerald-500 text-xl" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-slate-800" id="reconciliationMatches">0</div>
+                            <div class="text-xs text-slate-500 mt-1" id="reconciliationMatchPercent">0% match rate</div>
+                        </div>
+
+                        <div class="section-card p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-medium text-slate-500 uppercase">Discrepancies</span>
+                                <i class="ph ph-warning text-amber-500 text-xl" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-slate-800" id="reconciliationDiscrepancies">0</div>
+                            <div class="text-xs text-slate-500 mt-1">Requires attention</div>
+                        </div>
+
+                        <div class="section-card p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-medium text-slate-500 uppercase">Missing</span>
+                                <i class="ph ph-x-circle text-red-500 text-xl" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-slate-800" id="reconciliationMissing">0</div>
+                            <div class="text-xs text-slate-500 mt-1">Orders not found</div>
+                        </div>
+
+                        <div class="section-card p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-medium text-slate-500 uppercase">Total Orders</span>
+                                <i class="ph ph-list-numbers text-indigo-500 text-xl" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-slate-800" id="reconciliationTotal">0</div>
+                            <div class="text-xs text-slate-500 mt-1">Combined</div>
+                        </div>
+                    </div>
+
+                    <!-- Reconciliation Tabs -->
+                    <div class="section-card">
+                        <nav class="internal-tabs border-b" role="tablist" aria-label="Reconciliation tabs">
+                            <button class="internal-tab active" role="tab" aria-selected="true" 
+                                aria-controls="reconciliation-all-section" data-reconciliation-tab="all">
+                                <i class="ph ph-list" aria-hidden="true"></i>
+                                All Results
+                            </button>
+                            <button class="internal-tab" role="tab" aria-selected="false" 
+                                aria-controls="reconciliation-matches-section" data-reconciliation-tab="matches">
+                                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                                Matches
+                            </button>
+                            <button class="internal-tab" role="tab" aria-selected="false" 
+                                aria-controls="reconciliation-discrepancies-section" data-reconciliation-tab="discrepancies">
+                                <i class="ph ph-warning" aria-hidden="true"></i>
+                                Discrepancies
+                            </button>
+                        </nav>
+
+                        <!-- Reconciliation Table -->
+                        <div class="p-6">
+                            <div class="mb-4 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <input type="text" id="reconciliationSearch" 
+                                        class="px-3 py-2 text-sm border border-slate-300 rounded-lg"
+                                        placeholder="Search order numbers..."
+                                        aria-label="Search reconciliation results">
+                                    <button id="reconciliationRefreshBtn" 
+                                        class="btn btn-secondary text-sm"
+                                        aria-label="Refresh reconciliation">
+                                        <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <button id="reconciliationExportBtn" 
+                                    class="btn btn-primary text-sm"
+                                    aria-label="Export reconciliation results">
+                                    <i class="ph ph-download-simple mr-2" aria-hidden="true"></i>
+                                    Export CSV
+                                </button>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full" id="reconciliationTable">
+                                    <thead>
+                                        <tr class="border-b border-slate-200">
+                                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                                                <i class="ph ph-hash mr-1" aria-hidden="true"></i>
+                                                Order Number
+                                            </th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                                                Status
+                                            </th>
+                                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                                                Protokoll Amount
+                                            </th>
+                                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                                                Abrechnung Amount
+                                            </th>
+                                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                                                Difference
+                                            </th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                                                Message
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reconciliationTableBody">
+                                        <tr>
+                                            <td colspan="6" class="px-4 py-8 text-center text-slate-400">
+                                                <i class="ph ph-scales text-4xl mb-2 block" aria-hidden="true"></i>
+                                                Upload both Protokoll and Abrechnung files to see reconciliation results
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Reconciliation Section Group -->
 
                 <!-- Extracted Data Section Group -->
                 <div class="section-group section-group-data">
@@ -200,101 +399,109 @@ Wartung</textarea>
                         </div>
                     </div>
 
-                <!-- Extracted Header -->
-                <section class="section-card" aria-labelledby="extracted-heading">
-                    <div class="section-header">
-                        <h3 id="extracted-heading" class="text-lg font-semibold flex items-center gap-2">
-                            <i class="ph ph-info text-indigo-500" aria-hidden="true"></i>
-                            Extracted Header Information
+                    <!-- Extracted Header -->
+                    <section class="section-card" aria-labelledby="extracted-heading">
+                        <div class="section-header">
+                            <h3 id="extracted-heading" class="text-lg font-semibold flex items-center gap-2">
+                                <i class="ph ph-info text-indigo-500" aria-hidden="true"></i>
+                                Extracted Header Information
+                            </h3>
+                            <button id="extractedDetailsToggle" class="collapse-btn"
+                                aria-label="Toggle Extracted Information" aria-expanded="true"
+                                aria-controls="extractedDetailsContent">
+                                <i id="extractedDetailsIcon" class="ph ph-caret-down collapse-icon rotated"
+                                    aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <div id="extractedDetailsContent" class="collapsible-content expanded p-6" role="region"
+                            aria-live="polite">
+                            <div id="extractedHeaderInfo" class="text-sm text-slate-500">
+                                Upload Protokoll file to see extracted information
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Results Header & Summary -->
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold flex items-center gap-2">
+                            <i class="ph ph-chart-bar text-indigo-600" aria-hidden="true"></i>
+                            Results
                         </h3>
-                        <button id="extractedDetailsToggle" class="collapse-btn"
-                            aria-label="Toggle Extracted Information" aria-expanded="true"
-                            aria-controls="extractedDetailsContent">
-                            <i id="extractedDetailsIcon" class="ph ph-caret-down collapse-icon rotated"
-                                aria-hidden="true"></i>
-                        </button>
-                    </div>
-                    <div id="extractedDetailsContent" class="collapsible-content expanded p-6" role="region"
-                        aria-live="polite">
-                        <div id="extractedHeaderInfo" class="text-sm text-slate-500">
-                            Upload Protokoll file to see extracted information
+
+                        <!-- Loading Indicator (Hidden by default) -->
+                        <div id="processingIndicator"
+                            class="hidden flex items-center gap-2 text-sm text-indigo-600 font-medium">
+                            <i class="ph ph-spinner animate-spin text-lg" aria-hidden="true"></i>
+                            Processing...
                         </div>
                     </div>
-                </section>
 
-                <!-- Results Header & Summary -->
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold flex items-center gap-2">
-                        <i class="ph ph-chart-bar text-indigo-600" aria-hidden="true"></i>
-                        Results
-                    </h3>
-
-                    <!-- Loading Indicator (Hidden by default) -->
-                    <div id="processingIndicator"
-                        class="hidden flex items-center gap-2 text-sm text-indigo-600 font-medium">
-                        <i class="ph ph-spinner animate-spin text-lg" aria-hidden="true"></i>
-                        Processing...
-                    </div>
-                </div>
-
-                <!-- Summary Cards Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <!-- Total Matches Card -->
-                    <div class="summary-card bg-action-soft border border-indigo-100 rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <!-- Summary Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <!-- Total Matches Card -->
                         <div
-                            class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg">
-                            <i class="ph ph-check-circle" aria-hidden="true"></i>
+                            class="summary-card bg-action-soft border border-indigo-100 rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg">
+                                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Total
+                                    Matches</p>
+                                <p id="summaryTotalMatches" class="text-3xl font-bold text-indigo-700 tabular-nums">0
+                                </p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Total Matches</p>
-                            <p id="summaryTotalMatches" class="text-3xl font-bold text-indigo-700 tabular-nums">0</p>
-                        </div>
-                    </div>
 
-                    <!-- Total Rows Card -->
-                    <div class="summary-card bg-primary border border-default rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                        <!-- Total Rows Card -->
                         <div
-                            class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center text-white text-xl shadow-lg">
-                            <i class="ph ph-rows" aria-hidden="true"></i>
+                            class="summary-card bg-primary border border-default rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center text-white text-xl shadow-lg">
+                                <i class="ph ph-rows" aria-hidden="true"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Rows
+                                </p>
+                                <p id="summaryTotalRows" class="text-3xl font-bold text-slate-700 tabular-nums">0</p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Rows</p>
-                            <p id="summaryTotalRows" class="text-3xl font-bold text-slate-700 tabular-nums">0</p>
-                        </div>
-                    </div>
 
-                    <!-- Unique Targets Card -->
-                    <div class="summary-card bg-primary border border-default rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                        <!-- Unique Targets Card -->
                         <div
-                            class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center text-white text-xl shadow-lg">
-                            <i class="ph ph-target" aria-hidden="true"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Unique Targets</p>
-                            <p id="summaryUniqueTargets" class="text-3xl font-bold text-slate-700 tabular-nums">0</p>
+                            class="summary-card bg-primary border border-default rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center text-white text-xl shadow-lg">
+                                <i class="ph ph-target" aria-hidden="true"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Unique
+                                    Targets</p>
+                                <p id="summaryUniqueTargets" class="text-3xl font-bold text-slate-700 tabular-nums">0
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                </header>
-                <div class="table-container overflow-x-auto" role="region" aria-labelledby="results-title">
-                    <table class="w-full">
-                        <thead>
-                            <tr>
-                                <th class="w-16">#</th>
-                                <th class="sortable" data-sort="target">
-                                    Target Value
-                                    <i class="ph ph-caret-up-down sort-icon"></i>
-                                </th>
-                                <th class="text-right sortable" data-sort="count">
-                                    Count
-                                    <i class="ph ph-caret-up-down sort-icon"></i>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
-                </div>
-                </article>
+                    </header>
+                    <div class="table-container overflow-x-auto" role="region" aria-labelledby="results-title">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th class="w-16">#</th>
+                                    <th class="sortable" data-sort="target">
+                                        Target Value
+                                        <i class="ph ph-caret-up-down sort-icon"></i>
+                                    </th>
+                                    <th class="text-right sortable" data-sort="count">
+                                        Count
+                                        <i class="ph ph-caret-up-down sort-icon"></i>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                    </article>
                 </div>
                 <!-- End Extracted Data Section Group -->
 
@@ -345,13 +552,17 @@ Wartung</textarea>
                 <div class="section-card p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold">Upload Excel Files</h3>
-                        <button id="btnClearUpload" onclick="clearExtractorUpload()" 
+                        <button id="btnClearUpload" onclick="clearExtractorUpload()"
                             class="btn btn-secondary text-xs hidden">
                             <i class="ph ph-x text-sm"></i>
                             Clear Files
                         </button>
+                        <button id="btnPasteClipboard" class="btn btn-secondary text-xs ml-2">
+                            <i class="ph ph-clipboard-text text-sm"></i>
+                            Paste from Clipboard
+                        </button>
                     </div>
-                    
+
                     <!-- Drop Area -->
                     <div id="drop-area"
                         class="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/50 transition-all"
@@ -370,7 +581,9 @@ Wartung</textarea>
                                 <i class="ph ph-files text-indigo-600" aria-hidden="true"></i>
                                 Uploaded Files
                             </h4>
-                            <span id="fileCountBadge" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-medium">0 files</span>
+                            <span id="fileCountBadge"
+                                class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-medium">0
+                                files</span>
                         </div>
                         <div id="extractorFileList" class="space-y-2">
                             <!-- File items will be added here dynamically -->
@@ -400,6 +613,16 @@ Wartung</textarea>
                             class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="ph ph-download-simple text-lg"></i>
                             Export XLSX
+                        </button>
+                        <button id="btn-export-csv" disabled
+                            class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed hidden sm:flex">
+                            <i class="ph ph-file-csv text-lg"></i>
+                            CSV
+                        </button>
+                        <button id="btn-export-json" disabled
+                            class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed hidden sm:flex">
+                            <i class="ph ph-brackets-curly text-lg"></i>
+                            JSON
                         </button>
                         <button id="btnClear" class="btn btn-danger">
                             <i class="ph ph-trash text-lg"></i>
@@ -471,7 +694,10 @@ Wartung</textarea>
                                         <div class="empty-state">
                                             <i class="ph ph-file-dashed empty-state-icon" aria-hidden="true"></i>
                                             <h3 class="empty-state-text">No Data Extracted Yet</h3>
-                                            <p class="empty-state-subtext">Upload Excel files with "Protokoll" or "Abrechnung" in the filename to automatically extract and display data. Supported columns: Auftrag-Nr., Anlage, Einsatzort, Datum, Summe, Bemerkung.</p>
+                                            <p class="empty-state-subtext">Upload Excel files with "Protokoll" or
+                                                "Abrechnung" in the filename to automatically extract and display data.
+                                                Supported columns: Auftrag-Nr., Anlage, Einsatzort, Datum, Summe,
+                                                Bemerkung.</p>
                                             <div class="empty-state-hint">
                                                 <i class="ph ph-info" aria-hidden="true"></i>
                                                 <span>Tip: Files are processed automatically upon upload</span>
@@ -512,7 +738,8 @@ Wartung</textarea>
                             </button>
                             <button id="tool2DebugToggle" class="collapse-btn" aria-label="Toggle Debug Information"
                                 aria-expanded="false" aria-controls="tool2DebugContent">
-                                <i id="tool2DebugCollapseIcon" class="ph ph-caret-down collapse-icon" aria-hidden="true"></i>
+                                <i id="tool2DebugCollapseIcon" class="ph ph-caret-down collapse-icon"
+                                    aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
@@ -540,6 +767,16 @@ Wartung</textarea>
                             class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="ph ph-copy text-lg"></i>
                             Copy Selected Rows
+                        </button>
+                        <button id="btn-rm-export-excel" disabled
+                            class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="ph ph-download-simple text-lg"></i>
+                            Export XLSX
+                        </button>
+                        <button id="btn-rm-save" disabled
+                            class="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="ph ph-floppy-disk text-lg"></i>
+                            Save Changes
                         </button>
                     </div>
                     <div class="flex items-center gap-3">

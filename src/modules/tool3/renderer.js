@@ -12,15 +12,15 @@ import { announceToScreenReader } from '../ui.js';
  */
 function initScrollDetection(container) {
     if (!container) return;
-    
+
     const checkScroll = () => {
         const hasScroll = container.scrollWidth > container.clientWidth;
         const isScrolledToEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 5;
-        
+
         container.classList.toggle('has-horizontal-scroll', hasScroll);
         container.classList.toggle('scrolled-to-end', isScrolledToEnd);
     };
-    
+
     checkScroll();
     container.addEventListener('scroll', checkScroll);
     window.addEventListener('resize', checkScroll);
@@ -62,14 +62,36 @@ export function renderTable() {
         statusEl.textContent = `${state.tool3.data.length} Rows`;
     }
 
-    // Enable copy table button if there's data
+    // Enable copy table and export buttons if there's data
     const copyBtn = document.getElementById('btnCopyTable3');
-    if (copyBtn && state.tool3.data.length > 0) {
-        copyBtn.disabled = false;
-        copyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-    } else if (copyBtn) {
-        copyBtn.disabled = true;
-        copyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    const exportExcelBtn = document.getElementById('btn-rm-export-excel');
+    const saveBtn = document.getElementById('btn-rm-save');
+
+    const hasData = state.tool3.data.length > 0;
+
+    if (copyBtn) {
+        copyBtn.disabled = !hasData;
+        copyBtn.classList.toggle('opacity-50', !hasData);
+        copyBtn.classList.toggle('cursor-not-allowed', !hasData);
+    }
+
+    if (exportExcelBtn) {
+        exportExcelBtn.disabled = !hasData;
+        exportExcelBtn.classList.toggle('opacity-50', !hasData);
+        exportExcelBtn.classList.toggle('cursor-not-allowed', !hasData);
+    }
+
+    if (saveBtn) {
+        saveBtn.disabled = !hasData;
+        saveBtn.classList.toggle('opacity-50', !hasData);
+        saveBtn.classList.toggle('cursor-not-allowed', !hasData);
+        if (hasData) {
+            saveBtn.classList.remove('btn-secondary');
+            saveBtn.classList.add('btn-primary');
+        } else {
+            saveBtn.classList.remove('btn-primary');
+            saveBtn.classList.add('btn-secondary'); // Visual fallback to indicate inactive
+        }
     }
 
     // Render Headers
@@ -81,7 +103,7 @@ export function renderTable() {
     const dragHeader = `<th class="w-10 px-4 py-3 bg-slate-50 border-b border-slate-200 text-center" aria-label="Drag to reorder">
         <i class="ph ph-dots-six-vertical text-slate-400" aria-hidden="true"></i>
     </th>`;
-    const dataHeaders = state.tool3.headers.map(h => 
+    const dataHeaders = state.tool3.headers.map(h =>
         `<th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50 border-b border-slate-200">${h || '-'}</th>`
     ).join('');
     const actionsHeader = `<th class="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50 border-b border-slate-200 sticky right-0 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-20">Actions</th>`;
@@ -115,7 +137,7 @@ export function renderTable() {
                    ${isSelected ? 'checked' : ''}
                    aria-label="Select row ${index + 1}">
         </td>`;
-        
+
         // Drag Handle
         html += `<td class="px-4 py-2 text-center w-10">
             <div class="drag-handle cursor-grab active:cursor-grabbing" 
@@ -158,7 +180,7 @@ export function renderTable() {
 
     // Update select all checkbox
     updateSelectAllCheckbox();
-    
+
     // Initialize scroll detection for horizontal scroll indicator
     const tableContainer = tbody.closest('.overflow-auto, .table-container');
     initScrollDetection(tableContainer);
@@ -226,11 +248,11 @@ function updateSelectAllCheckbox() {
     const selectAllCb = document.getElementById('rm-select-all');
     if (!selectAllCb) return;
 
-    const allSelected = state.tool3.data.length > 0 && 
-                       state.tool3.selectedIndices.size === state.tool3.data.length;
-    const someSelected = state.tool3.selectedIndices.size > 0 && 
-                        state.tool3.selectedIndices.size < state.tool3.data.length;
-    
+    const allSelected = state.tool3.data.length > 0 &&
+        state.tool3.selectedIndices.size === state.tool3.data.length;
+    const someSelected = state.tool3.selectedIndices.size > 0 &&
+        state.tool3.selectedIndices.size < state.tool3.data.length;
+
     selectAllCb.checked = allSelected;
     selectAllCb.indeterminate = someSelected;
 }
