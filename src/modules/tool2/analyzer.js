@@ -184,6 +184,26 @@ export function processData(matrix, fileName) {
     const rawSum = findValueInMatrix(matrix, "Auftragssumme", 'next_col');
     const parsedSum = rawSum !== "" ? parseCurrency(rawSum) : 0;
 
+    // Build debug info
+    const debugData = {
+        fileName,
+        matrixSize: `${matrix.length} rows × ${matrix[0]?.length || 0} columns`,
+        extractedValues: {
+            'Datum (raw)': rawDatum,
+            'Datum (parsed)': datum,
+            'Auftrags-Nr.': auftragsNr,
+            'Anlage': anlage,
+            'Einsatzort': einsatzort,
+            'Fachmonteurstunde': fachmonteur,
+            'Auftragssumme (raw)': rawSum,
+            'Auftragssumme (parsed)': parsedSum,
+            'Bemerkung': bemerkung
+        },
+        firstFiveRows: matrix.slice(0, 5).map(row => row.slice(0, 8))
+    };
+    
+    updateDebugInfo(debugData);
+
     // Prevent adding empty rows if essentially no data found
     if (!datum && !auftragsNr && !parsedSum) {
         showToast(`Keine relevanten Daten in ${fileName} gefunden`, 'error');
@@ -211,4 +231,30 @@ export function processData(matrix, fileName) {
 
     updateUI();
     renderTable();
+}
+
+/**
+ * Update debug information display
+ * @param {Object} debugData - Debug data to display
+ */
+function updateDebugInfo(debugData) {
+    const debugInfoEl = document.getElementById('tool2DebugInfo');
+    if (!debugInfoEl) return;
+
+    const debugText = `
+File: ${debugData.fileName}
+Matrix Size: ${debugData.matrixSize}
+
+Extracted Values:
+${Object.entries(debugData.extractedValues)
+    .map(([key, value]) => `  ${key}: ${value || '(empty)'}`)
+    .join('\n')}
+
+First 5 Rows (Preview):
+${debugData.firstFiveRows.map((row, i) => 
+    `  Row ${i + 1}: [${row.map(cell => JSON.stringify(cell)).join(', ')}]`
+).join('\n')}
+    `.trim();
+
+    debugInfoEl.textContent = debugText;
 }

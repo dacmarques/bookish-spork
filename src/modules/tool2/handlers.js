@@ -18,6 +18,14 @@ export function setupTool2Handlers() {
             document.getElementById('fileElem')?.click();
         });
 
+        // Keyboard accessibility
+        dropArea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                document.getElementById('fileElem')?.click();
+            }
+        });
+
         dropArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -59,6 +67,42 @@ export function setupTool2Handlers() {
         filterInput.addEventListener('keyup', (e) => {
             state.tool2.filter = e.target.value.toLowerCase();
             renderTable();
+        });
+    }
+
+    // Debug section toggle
+    const debugToggle = document.getElementById('tool2DebugToggle');
+    const debugContent = document.getElementById('tool2DebugContent');
+    const debugIcon = document.getElementById('tool2DebugCollapseIcon');
+    
+    if (debugToggle && debugContent) {
+        debugToggle.addEventListener('click', () => {
+            const isExpanded = debugToggle.getAttribute('aria-expanded') === 'true';
+            debugToggle.setAttribute('aria-expanded', !isExpanded);
+            debugContent.classList.toggle('hidden');
+            if (debugIcon) {
+                debugIcon.classList.toggle('rotated');
+            }
+        });
+    }
+
+    // Copy debug info button
+    const copyDebugBtn = document.getElementById('copyTool2DebugBtn');
+    if (copyDebugBtn) {
+        copyDebugBtn.addEventListener('click', () => {
+            const debugInfo = document.getElementById('tool2DebugInfo');
+            if (debugInfo) {
+                navigator.clipboard.writeText(debugInfo.textContent).then(() => {
+                    import('../toast.js').then(({ showToast }) => {
+                        showToast('Debug info copied to clipboard', 'success');
+                    });
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    import('../toast.js').then(({ showToast }) => {
+                        showToast('Failed to copy debug info', 'error');
+                    });
+                });
+            }
         });
     }
 

@@ -108,24 +108,37 @@
     --text-tertiary: #475569;
     --text-muted: #64748b;
 
-    /* Action Colors */
-    --color-action: #4f46e5;
-    --color-action-hover: #4338ca;
-    --color-action-active: #3730a3;
-    --color-action-bg: #eef2ff;
+    /* Action Colors - darkened for 7:1 contrast against white */
+    --color-action: #4338ca;
+    /* Indigo 700 */
+    --color-action-hover: #3730a3;
+    /* Indigo 800 */
+    --color-action-active: #312e81;
+    /* Indigo 900 */
+    --color-action-bg: #e0e7ff;
+    /* Indigo 100 */
     --color-action-light: #c7d2fe;
+    /* Indigo 200 */
 
     /* Success Colors */
-    --color-success: #059669;
-    --color-success-hover: #047857;
+    --color-success: #047857;
+    /* Emerald 700 */
+    --color-success-hover: #065f46;
+    /* Emerald 800 */
     --color-success-bg: #d1fae5;
-    --color-success-light: #ecfdf5;
+    /* Emerald 100 */
+    --color-success-light: #a7f3d0;
+    /* Emerald 200 */
 
     /* Error Colors */
-    --color-error: #dc2626;
-    --color-error-hover: #b91c1c;
-    --color-error-bg: #fecaca;
-    --color-error-light: #fef2f2;
+    --color-error: #b91c1c;
+    /* Red 700 */
+    --color-error-hover: #991b1b;
+    /* Red 800 */
+    --color-error-bg: #fee2e2;
+    /* Red 100 */
+    --color-error-light: #fecaca;
+    /* Red 200 */
 
     /* Neutral Colors */
     --color-neutral-50: #f8fafc;
@@ -135,17 +148,19 @@
     --color-neutral-400: #94a3b8;
     --color-neutral-500: #64748b;
 
-    /* Border Radius */
+    /* Border Radius - Consistent 8px base */
     --radius-sm: 4px;
     --radius-md: 8px;
+    /* Base radius */
     --radius-lg: 12px;
     --radius-full: 50%;
 
-    /* Shadows */
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+    /* Shadows - Enhanced for better depth perception */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    /* Subtle elevation as requested: 0 2px 4px rgba(0,0,0,0.08) */
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
 
     /* Spacing */
     --space-1: 4px;
@@ -155,14 +170,17 @@
     --space-5: 20px;
     --space-6: 24px;
     --space-8: 32px;
+    --space-12: 48px;
 
     /* Background */
     --bg-primary: #ffffff;
     --bg-secondary: #f8fafc;
     --bg-tertiary: #f1f5f9;
+    --bg-header: rgba(255, 255, 255, 0.95);
 }
 
 /* Dark Mode */
+/* Dark Mode - Manual Override */
 [data-theme="dark"] {
     --text-primary: #f1f5f9;
     --text-secondary: #cbd5e1;
@@ -184,9 +202,65 @@
     --color-error-bg: #7f1d1d;
     --color-error-light: #991b1b;
 
+    --color-neutral-50: #0f172a;
+    --color-neutral-100: #1e293b;
+    --color-neutral-200: #334155;
+    --color-neutral-300: #475569;
+    --color-neutral-400: #64748b;
+    --color-neutral-500: #94a3b8;
+
     --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-tertiary: #334155;
+    --bg-secondary: #020617;
+    --bg-tertiary: #1e293b;
+    --bg-header: rgba(15, 23, 42, 0.95);
+    --bg-header: rgba(15, 23, 42, 0.95);
+
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+}
+
+/* Dark Mode - System Preference (overridden by data-theme="light") */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-tertiary: #94a3b8;
+        --text-muted: #64748b;
+
+        --color-action: #818cf8;
+        --color-action-hover: #a5b4fc;
+        --color-action-bg: #1e1b4b;
+        --color-action-light: #312e81;
+
+        --color-success: #34d399;
+        --color-success-hover: #6ee7b7;
+        --color-success-bg: #064e3b;
+        --color-success-light: #065f46;
+
+        --color-error: #f87171;
+        --color-error-hover: #fca5a5;
+        --color-error-bg: #7f1d1d;
+        --color-error-light: #991b1b;
+
+        --color-neutral-50: #0f172a;
+        --color-neutral-100: #1e293b;
+        --color-neutral-200: #334155;
+        --color-neutral-300: #475569;
+        --color-neutral-400: #64748b;
+        --color-neutral-500: #94a3b8;
+
+        --bg-primary: #0f172a;
+        --bg-secondary: #020617;
+        --bg-tertiary: #1e293b;
+        --bg-header: rgba(15, 23, 42, 0.95);
+
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+        --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+    }
 }
 
 /* Base Styles */
@@ -195,6 +269,43 @@ body {
     color: var(--text-primary);
     background: var(--bg-secondary);
     transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Utility Classes */
+.bg-primary {
+    background-color: var(--bg-primary);
+}
+
+.bg-secondary {
+    background-color: var(--bg-secondary);
+}
+
+.bg-tertiary {
+    background-color: var(--bg-tertiary);
+}
+
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-tertiary {
+    color: var(--text-tertiary);
+}
+
+.border-default {
+    border-color: var(--color-neutral-200);
+}
+
+.bg-action-soft {
+    background-color: var(--color-action-bg);
+}
+
+.text-action {
+    color: var(--color-action);
 }
 
 /* Custom Scrollbar */
@@ -222,12 +333,20 @@ body {
     position: sticky;
     top: 0;
     z-index: 40;
-    backdrop-filter: blur(8px);
-    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    background-color: var(--bg-header);
+    border-bottom: 1px solid var(--color-neutral-200);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 .header-status {
     backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+}
+
+.header-status:hover {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Section Layouts */
@@ -235,13 +354,42 @@ body {
     animation: fadeIn 0.4s ease-in-out;
 }
 
+/* Main Content Area */
+main[role="main"] {
+    background:
+        linear-gradient(180deg,
+            rgba(248, 250, 252, 0.5) 0%,
+            rgba(241, 245, 249, 0.3) 100%),
+        repeating-linear-gradient(45deg,
+            transparent,
+            transparent 10px,
+            rgba(99, 102, 241, 0.01) 10px,
+            rgba(99, 102, 241, 0.01) 20px);
+}
+
+/* Tool Content Spacing */
+#tool1-content,
+#tool2-content,
+#tool3-content {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Visual Flow Improvements */
+.space-y-6>*+* {
+    margin-top: var(--space-6);
+}
+
 .section-header-inline {
     padding-bottom: var(--space-4);
     border-bottom: 2px solid var(--color-neutral-200);
+    margin-bottom: var(--space-6);
 }
 
 .section-header-inline h2 {
     margin: 0;
+    font-size: 1.875rem;
+    letter-spacing: -0.025em;
 }
 
 .section-header-inline p {
@@ -267,25 +415,377 @@ body {
     }
 }
 
+@keyframes highlight-section {
+    0% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(99, 102, 241, 0.2);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+    }
+}
+
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Focus States */
+/* Focus States - Enhanced for Accessibility */
 button:focus-visible,
 input:focus-visible,
-textarea:focus-visible {
-    outline: 2px solid var(--color-action);
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: 3px solid var(--color-action);
     outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(67, 56, 202, 0.15);
 }
 
-/* Responsiveness Media Queries */
+/* Keyboard navigation focus for interactive elements */
+.dropzone:focus-visible,
+.sidebar-link:focus-visible,
+.collapse-btn:focus-visible {
+    outline: 3px solid var(--color-action);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(67, 56, 202, 0.15);
+}
+
+/* Screen Reader Only - Accessibility */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN - MOBILE & TABLET
+   ============================================================================
+   
+   Breakpoints:
+   - Tablet: max-width: 1024px (iPad Pro, landscape tablets)
+   - Mobile: max-width: 768px (phones, small tablets)
+   - Small Mobile: max-width: 480px (smaller phones)
+   
+   ============================================================================
+*/
+
+/* Tablet Layout (≤1024px) */
 @media (max-width: 1024px) {
+    /* Reduce padding in containers for space efficiency */
     .section-card {
         padding: var(--space-4);
     }
 
+    .section-group {
+        padding: var(--space-5);
+        margin-bottom: var(--space-5);
+    }
+
+    /* Larger dropzones for better touch targets */
     .dropzone {
-        padding: var(--space-6);
+        padding: var(--space-8);
+        min-height: 140px;
+    }
+
+    /* Stack dual upload sections vertically */
+    .grid.grid-cols-2 {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+
+    /* Adjust header on tablets */
+    .app-header {
+        padding: var(--space-4);
+    }
+
+    .header-status {
+        font-size: 0.65rem;
+        padding: var(--space-2) var(--space-3);
+        gap: var(--space-2);
+    }
+
+    /* Tables remain scrollable horizontally */
+    .table-container {
+        max-height: calc(100vh - 250px);
+    }
+}
+
+/* Mobile Layout (≤768px) */
+@media (max-width: 768px) {
+    /* Hide sidebar by default, show on toggle (future enhancement) */
+    aside.sidebar {
+        position: fixed;
+        left: -100%;
+        width: 280px;
+        height: 100vh;
+        z-index: 100;
+        transition: left 0.3s ease;
+    }
+
+    aside.sidebar.mobile-open {
+        left: 0;
+        box-shadow: var(--shadow-xl);
+    }
+
+    /* Full-width main content on mobile */
+    .flex-1 {
+        width: 100%;
+    }
+
+    /* Stack all sections vertically */
+    .section-group {
+        padding: var(--space-4);
+        margin-bottom: var(--space-4);
+    }
+
+    /* Enhanced dropzone for touch */
+    .dropzone {
+        padding: var(--space-8) var(--space-4);
+        min-height: 160px;
+        font-size: 0.95rem;
+    }
+
+    .dropzone i {
+        font-size: 2.5rem;
+    }
+
+    /* Ensure all buttons meet touch target size */
+    .btn {
+        min-height: 48px;
+        min-width: 48px;
+        padding: var(--space-3) var(--space-5);
+    }
+
+    /* Header adjustments for mobile */
+    .app-header {
+        padding: var(--space-3);
+        height: auto;
+        min-height: 56px;
+        flex-wrap: wrap;
+    }
+
+    .app-header h1 {
+        font-size: 1rem;
+    }
+
+    .header-status {
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 0.625rem;
+    }
+
+    /* Table container with horizontal scroll */
+    .table-container {
+        max-height: calc(100vh - 200px);
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    }
+
+    /* Add scroll hint overlay for tables */
+    .table-container::before {
+        content: 'Scroll →';
+        position: absolute;
+        top: 50%;
+        right: var(--space-4);
+        transform: translateY(-50%);
+        background: rgba(79, 70, 229, 0.9);
+        color: white;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 20;
+        pointer-events: none;
+        opacity: 0;
+        animation: scrollHintFade 3s ease-in-out 1s;
+    }
+
+    @keyframes scrollHintFade {
+        0%, 100% { opacity: 0; }
+        10%, 90% { opacity: 1; }
+    }
+
+    .table-container.has-horizontal-scroll::before {
+        display: block;
+    }
+
+    .table-container.scrolled-to-end::before {
+        display: none;
+    }
+
+    /* Reduce table cell padding on mobile */
+    table th,
+    table td {
+        padding: var(--space-2) var(--space-3);
+        font-size: 0.8rem;
+    }
+
+    table th {
+        font-size: 0.7rem;
+    }
+
+    /* Internal tabs become full width and stack if needed */
+    .internal-tabs {
+        flex-direction: column;
+        gap: var(--space-1);
+    }
+
+    .internal-tab {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Modal adjustments for mobile */
+    .modal-content {
+        width: 95vw;
+        max-height: 85vh;
+        margin: var(--space-4);
+        padding: var(--space-4);
+    }
+
+    /* Toast notifications adapt to mobile */
+    .toast {
+        min-width: 280px;
+        max-width: calc(100vw - var(--space-8));
+        font-size: 0.8rem;
+    }
+
+    /* Row drag handles larger for touch */
+    .drag-handle {
+        min-width: 44px;
+        min-height: 44px;
+        padding: var(--space-3);
+    }
+}
+
+/* Small Mobile Layout (≤480px) */
+@media (max-width: 480px) {
+    /* Even tighter spacing for very small screens */
+    .section-group {
+        padding: var(--space-3);
+        margin-bottom: var(--space-3);
+    }
+
+    .dropzone {
+        padding: var(--space-6) var(--space-3);
+        min-height: 140px;
+    }
+
+    /* Compact header */
+    .app-header h1 {
+        font-size: 0.9rem;
+    }
+
+    .header-status span {
+        font-size: 0.6rem;
+    }
+
+    /* Hide some header elements to save space */
+    .header-status span:not(:first-child):not(:nth-child(3)) {
+        display: none;
+    }
+
+    /* Single column for everything */
+    .grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Buttons stack vertically when in groups */
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+    }
+
+    /* Tables with very compact cells */
+    table th,
+    table td {
+        padding: var(--space-1) var(--space-2);
+        font-size: 0.75rem;
+    }
+
+    table th {
+        font-size: 0.65rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Enhance all interactive elements for touch */
+    .btn,
+    .sidebar-link,
+    .internal-tab,
+    .dropzone,
+    th.sortable,
+    .drag-handle {
+        -webkit-tap-highlight-color: rgba(79, 70, 229, 0.1);
+        touch-action: manipulation;
+    }
+
+    /* Remove hover effects on touch devices */
+    .btn:hover:not(:disabled),
+    .sidebar-link:hover {
+        transform: none;
+    }
+
+    /* Increase spacing between interactive elements */
+    .btn-group .btn {
+        margin: var(--space-1) 0;
+    }
+
+    /* Larger dropzone icons for better visual feedback */
+    .dropzone i {
+        font-size: 3rem;
+    }
+
+    /* Enhanced drag-and-drop feedback */
+    .dropzone.drag-over {
+        transform: scale(1.03);
+    }
+}
+
+/* Landscape Orientation Adjustments */
+@media (max-width: 1024px) and (orientation: landscape) {
+    /* Reduce vertical padding in landscape to maximize content area */
+    .section-group {
+        padding: var(--space-3) var(--space-6);
+        margin-bottom: var(--space-3);
+    }
+
+    /* Header becomes more compact in landscape */
+    .app-header {
+        min-height: 48px;
+    }
+
+    /* Tables take more vertical space */
+    .table-container {
+        max-height: calc(100vh - 150px);
+    }
+}
+
+/* High DPI Screens (Retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Slightly reduce font sizes on high-DPI small screens for better fit */
+    @media (max-width: 768px) {
+        body {
+            font-size: 15px;
+        }
+
+        .btn {
+            font-size: 0.9rem;
+        }
     }
 }

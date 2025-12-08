@@ -22,6 +22,7 @@ export const state = {
     // Tool 2 - Smart Extractor
     tool2: {
         extractedData: [],
+        uploadedFiles: [],
         totalSum: 0,
         validRecords: 0,
         fileMetadata: new Map(),

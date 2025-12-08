@@ -20,11 +20,10 @@
     <link rel="stylesheet" href="src/styles/components.css">
 </head>
 
-<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex overflow-hidden">
+<body class="bg-secondary min-h-screen font-sans text-primary flex overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-50"
-        aria-label="Main Navigation">
+    <aside class="w-64 sidebar border-r flex flex-col flex-shrink-0 z-50" aria-label="Main Navigation">
         <div class="h-16 flex items-center px-6 border-b border-slate-100">
             <span class="font-bold text-xl text-slate-800 flex items-center gap-2">
                 <i class="ph ph-squares-four text-indigo-600" aria-hidden="true"></i>
@@ -34,18 +33,18 @@
 
         <nav class="flex-1 overflow-y-auto py-6 space-y-1" aria-label="Tools">
             <button id="nav-tool1"
-                class="sidebar-link active w-full flex items-center px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                class="sidebar-link active w-full flex items-center px-6 py-3 text-sm font-medium transition-colors"
                 aria-current="page">
                 <i class="ph ph-calculator mr-3 text-lg" aria-hidden="true"></i>
                 Value Counter
             </button>
             <button id="nav-tool2"
-                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium transition-colors">
                 <i class="ph ph-table mr-3 text-lg" aria-hidden="true"></i>
                 Smart Extractor
             </button>
             <button id="nav-tool3"
-                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                class="sidebar-link w-full flex items-center px-6 py-3 text-sm font-medium transition-colors">
                 <i class="ph ph-rows mr-3 text-lg" aria-hidden="true"></i>
                 Row Manager
             </button>
@@ -53,11 +52,17 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col">
         <!-- Header -->
-        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm">
+        <header class="app-header h-16 flex items-center justify-between px-6 shadow-sm">
             <div class="flex items-center gap-4">
-                <h1 class="text-lg font-semibold text-slate-800">Excel Tools Suite</h1>
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                        <i class="ph-bold ph-table text-white text-lg" aria-hidden="true"></i>
+                    </div>
+                    <h1 class="text-lg font-semibold text-slate-800">Excel Tools Suite</h1>
+                </div>
                 <div class="header-status flex items-center gap-3 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200"
                     aria-live="polite" aria-atomic="true">
                     <span class="flex items-center gap-1">
@@ -66,8 +71,13 @@
                     </span>
                     <span class="text-slate-300" aria-hidden="true">•</span>
                     <span class="flex items-center gap-1">
+                        <i class="ph ph-calculator text-emerald-500" aria-hidden="true"></i>
+                        Total: <strong class="text-slate-700" id="global-total-sum">0</strong>
+                    </span>
+                    <span class="text-slate-300" aria-hidden="true">•</span>
+                    <span class="flex items-center gap-1">
                         <i class="ph ph-clock text-slate-400" aria-hidden="true"></i>
-                        Last activity: <span id="last-activity">--:--</span>
+                        Last: <span id="last-activity">--:--</span>
                     </span>
                 </div>
             </div>
@@ -84,7 +94,7 @@
                     aria-label="Settings">
                     <i class="ph ph-gear text-lg" aria-hidden="true"></i>
                 </button>
-                <button id="themeToggle" class="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                <button id="themeToggle" class="p-2 hover:bg-secondary rounded-lg transition-colors"
                     aria-label="Toggle Dark Mode">
                     <i class="ph ph-moon text-lg" aria-hidden="true"></i>
                 </button>
@@ -95,10 +105,40 @@
         <main class="flex-1 overflow-auto p-6" role="main" aria-label="Tool content area">
             <!-- Tool 1: Value Counter -->
             <section id="tool1-content" class="space-y-6" aria-labelledby="tool1-heading">
-                <h2 id="tool1-heading" class="text-2xl font-bold text-slate-800">Value Counter</h2>
+                <div class="flex items-center justify-between">
+                    <h2 id="tool1-heading" class="text-2xl font-bold text-slate-800">Value Counter</h2>
+                    
+                    <!-- Internal Tab Navigation -->
+                    <nav class="internal-tabs" role="tablist" aria-label="Value Counter sections">
+                        <button class="internal-tab active" role="tab" aria-selected="true" aria-controls="import-section" data-tab="import">
+                            <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                            Import
+                        </button>
+                        <button class="internal-tab" role="tab" aria-selected="false" aria-controls="analysis-section" data-tab="analysis">
+                            <i class="ph ph-chart-bar" aria-hidden="true"></i>
+                            Analysis
+                        </button>
+                        <button class="internal-tab" role="tab" aria-selected="false" aria-controls="debug-section" data-tab="debug">
+                            <i class="ph ph-bug" aria-hidden="true"></i>
+                            Debug
+                        </button>
+                    </nav>
+                </div>
 
-                <!-- File Upload Areas -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" aria-label="File upload section">
+                <!-- Import Data Section Group -->
+                <div class="section-group section-group-upload">
+                    <div class="section-group-header">
+                        <div class="section-group-icon">
+                            <i class="ph-bold ph-upload-simple" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <h3 class="section-group-title">Import Data</h3>
+                            <p class="section-group-description">Upload your Excel files for processing</p>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Areas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" aria-label="File upload section">
                     <!-- Protokoll Upload -->
                     <section class="section-card p-6" aria-labelledby="protokoll-heading">
                         <h3 id="protokoll-heading" class="text-lg font-semibold mb-4">Protokoll File</h3>
@@ -110,7 +150,7 @@
                             <p class="text-sm text-slate-600">Drop Protokoll file here or click to browse</p>
                             <input type="file" id="protokollFileInput" accept=".xlsx,.xls" class="hidden" tabindex="-1">
                         </div>
-                        <div id="protokollMetadata" class="mt-4 p-3 bg-slate-50 rounded-lg hidden" aria-live="polite">
+                        <div id="protokollMetadata" class="mt-4 p-3 bg-secondary rounded-lg hidden" aria-live="polite">
                         </div>
                     </section>
 
@@ -126,25 +166,39 @@
                             <input type="file" id="abrechnungFileInput" accept=".xlsx,.xls" class="hidden"
                                 tabindex="-1">
                         </div>
-                        <div id="abrechnungMetadata" class="mt-4 p-3 bg-slate-50 rounded-lg hidden" aria-live="polite">
+                        <div id="abrechnungMetadata" class="mt-4 p-3 bg-secondary rounded-lg hidden" aria-live="polite">
                         </div>
                     </section>
                 </div>
 
-                <!-- Target Values -->
-                <section class="section-card p-6" aria-labelledby="targets-heading">
-                    <h3 id="targets-heading" class="text-lg font-semibold mb-4">Target Values</h3>
-                    <label for="targetValues" class="sr-only">Target Values List</label>
-                    <textarea id="targetValues" rows="4" class="w-full border border-slate-300 rounded-lg p-3 text-sm"
-                        placeholder="Enter target values (one per line)">Montage
+                    <!-- Target Values -->
+                    <section class="section-card p-6" aria-labelledby="targets-heading">
+                        <h3 id="targets-heading" class="text-lg font-semibold mb-4">Target Values</h3>
+                        <label for="targetValues" class="sr-only">Target Values List</label>
+                        <textarea id="targetValues" rows="4" class="w-full border border-slate-300 rounded-lg p-3 text-sm"
+                            placeholder="Enter target values (one per line)">Montage
 Demontage
 Reparatur
 Wartung</textarea>
-                    <button id="resetTargetsBtn" class="btn btn-secondary mt-2">
-                        <i class="ph ph-arrow-counter-clockwise mr-2" aria-hidden="true"></i>
-                        Reset to Defaults
-                    </button>
-                </section>
+                        <button id="resetTargetsBtn" class="btn btn-secondary mt-2">
+                            <i class="ph ph-arrow-counter-clockwise mr-2" aria-hidden="true"></i>
+                            Reset to Defaults
+                        </button>
+                    </section>
+                </div>
+                <!-- End Import Data Section Group -->
+
+                <!-- Extracted Data Section Group -->
+                <div class="section-group section-group-data">
+                    <div class="section-group-header">
+                        <div class="section-group-icon">
+                            <i class="ph-bold ph-table" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <h3 class="section-group-title">Extracted Data</h3>
+                            <p class="section-group-description">View and analyze processed data</p>
+                        </div>
+                    </div>
 
                 <!-- Extracted Header -->
                 <section class="section-card" aria-labelledby="extracted-heading">
@@ -186,38 +240,38 @@ Wartung</textarea>
                 <!-- Summary Cards Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <!-- Total Matches Card -->
-                    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center gap-4">
+                    <div class="summary-card bg-action-soft border border-indigo-100 rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                         <div
-                            class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 text-xl">
+                            class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg">
                             <i class="ph ph-check-circle" aria-hidden="true"></i>
                         </div>
-                        <div>
-                            <p class="text-xs font-medium text-indigo-600 uppercase tracking-wide">Total Matches</p>
-                            <p id="summaryTotalMatches" class="text-2xl font-bold text-indigo-700">0</p>
+                        <div class="flex-1">
+                            <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Total Matches</p>
+                            <p id="summaryTotalMatches" class="text-3xl font-bold text-indigo-700 tabular-nums">0</p>
                         </div>
                     </div>
 
                     <!-- Total Rows Card -->
-                    <div class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4">
+                    <div class="summary-card bg-primary border border-default rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                         <div
-                            class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-xl">
+                            class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center text-white text-xl shadow-lg">
                             <i class="ph ph-rows" aria-hidden="true"></i>
                         </div>
-                        <div>
-                            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Rows</p>
-                            <p id="summaryTotalRows" class="text-2xl font-bold text-slate-700">0</p>
+                        <div class="flex-1">
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Rows</p>
+                            <p id="summaryTotalRows" class="text-3xl font-bold text-slate-700 tabular-nums">0</p>
                         </div>
                     </div>
 
                     <!-- Unique Targets Card -->
-                    <div class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4">
+                    <div class="summary-card bg-primary border border-default rounded-xl p-5 flex items-center gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                         <div
-                            class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-xl">
+                            class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center text-white text-xl shadow-lg">
                             <i class="ph ph-target" aria-hidden="true"></i>
                         </div>
-                        <div>
-                            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Unique Targets</p>
-                            <p id="summaryUniqueTargets" class="text-2xl font-bold text-slate-700">0</p>
+                        <div class="flex-1">
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Unique Targets</p>
+                            <p id="summaryUniqueTargets" class="text-3xl font-bold text-slate-700 tabular-nums">0</p>
                         </div>
                     </div>
                 </div>
@@ -241,6 +295,8 @@ Wartung</textarea>
                     </table>
                 </div>
                 </article>
+                </div>
+                <!-- End Extracted Data Section Group -->
 
                 <!-- Debug Info Section -->
                 <section class="section-card" aria-labelledby="debug-heading">
@@ -285,9 +341,46 @@ Wartung</textarea>
                     </div>
                 </header>
 
+                <!-- File Upload Section -->
+                <div class="section-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Upload Excel Files</h3>
+                        <button id="btnClearUpload" onclick="clearExtractorUpload()" 
+                            class="btn btn-secondary text-xs hidden">
+                            <i class="ph ph-x text-sm"></i>
+                            Clear Files
+                        </button>
+                    </div>
+                    
+                    <!-- Drop Area -->
+                    <div id="drop-area"
+                        class="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/50 transition-all"
+                        role="button" tabindex="0"
+                        aria-label="Upload Excel files. Drop files here or press Enter to browse.">
+                        <i class="ph ph-upload text-4xl text-indigo-400 mb-2" aria-hidden="true"></i>
+                        <p class="text-sm text-slate-600 font-medium mb-1">Drop Excel files here or click to browse</p>
+                        <p class="text-xs text-slate-400">Supports .xlsx and .xls files</p>
+                        <input type="file" id="fileElem" accept=".xlsx,.xls" multiple class="hidden" tabindex="-1">
+                    </div>
+
+                    <!-- File Metadata Display -->
+                    <div id="extractorMetadata" class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200 hidden">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                <i class="ph ph-files text-indigo-600" aria-hidden="true"></i>
+                                Uploaded Files
+                            </h4>
+                            <span id="fileCountBadge" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-medium">0 files</span>
+                        </div>
+                        <div id="extractorFileList" class="space-y-2">
+                            <!-- File items will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Controls Bar -->
                 <div
-                    class="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    class="flex flex-wrap items-center justify-between gap-4 p-4 bg-primary rounded-xl border border-default shadow-sm">
                     <div class="flex items-center gap-3 flex-1 min-w-[300px]">
                         <div class="relative flex-1">
                             <i
@@ -316,10 +409,10 @@ Wartung</textarea>
 
                 <!-- Main Data Table -->
                 <div
-                    class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]">
+                    class="bg-primary rounded-xl border border-default shadow-sm overflow-hidden flex flex-col h-[600px]">
                     <div class="overflow-auto custom-scrollbar flex-1">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                            <thead class="sticky top-0 z-10 shadow-sm">
                                 <tr>
                                     <th
                                         class="px-6 py-3 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
@@ -374,17 +467,15 @@ Wartung</textarea>
                             <tbody id="table-body" class="divide-y divide-slate-100">
                                 <!-- Empty State -->
                                 <tr id="empty-state" class="group">
-                                    <td colspan="8" class="px-6 py-12 text-center text-slate-400 bg-white">
-                                        <div class="flex flex-col items-center justify-center gap-3">
-                                            <div
-                                                class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
-                                                <i class="ph ph-file-dashed text-3xl text-slate-300"></i>
+                                    <td colspan="8" class="p-0 border-0">
+                                        <div class="empty-state">
+                                            <i class="ph ph-file-dashed empty-state-icon" aria-hidden="true"></i>
+                                            <h3 class="empty-state-text">No Data Extracted Yet</h3>
+                                            <p class="empty-state-subtext">Upload Excel files with "Protokoll" or "Abrechnung" in the filename to automatically extract and display data. Supported columns: Auftrag-Nr., Anlage, Einsatzort, Datum, Summe, Bemerkung.</p>
+                                            <div class="empty-state-hint">
+                                                <i class="ph ph-info" aria-hidden="true"></i>
+                                                <span>Tip: Files are processed automatically upon upload</span>
                                             </div>
-                                            <p class="text-base font-medium text-slate-600 empty-state-title">No data
-                                                extracted yet</p>
-                                            <p class="text-sm text-slate-400 max-w-md mx-auto">Upload Excel files with
-                                                "Protokoll" or "Abrechnung" in the filename to automatically extract
-                                                data.</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -406,6 +497,30 @@ Wartung</textarea>
                         </div>
                     </div>
                 </div>
+
+                <!-- Debug Information Section -->
+                <section class="section-card" aria-labelledby="tool2-debug-heading">
+                    <div class="section-header">
+                        <h3 id="tool2-debug-heading" class="text-lg font-semibold flex items-center gap-2">
+                            <i class="ph ph-bug text-slate-500" aria-hidden="true"></i>
+                            Debugging Information
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <button id="copyTool2DebugBtn" class="btn-icon-sm" title="Copy debug info"
+                                aria-label="Copy debugging information to clipboard">
+                                <i class="ph ph-copy"></i>
+                            </button>
+                            <button id="tool2DebugToggle" class="collapse-btn" aria-label="Toggle Debug Information"
+                                aria-expanded="false" aria-controls="tool2DebugContent">
+                                <i id="tool2DebugCollapseIcon" class="ph ph-caret-down collapse-icon" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="tool2DebugContent" class="collapsible-content p-6 hidden" role="region">
+                        <pre id="tool2DebugInfo"
+                            class="debug-output text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto font-mono">No debugging information available. Upload files to see extraction details.</pre>
+                    </div>
+                </section>
             </section>
 
             <!-- Tool 3: Row Manager -->
@@ -419,7 +534,7 @@ Wartung</textarea>
 
                 <!-- Controls Bar -->
                 <div
-                    class="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    class="flex flex-wrap items-center justify-between gap-4 p-4 bg-primary rounded-xl border border-default shadow-sm">
                     <div class="flex items-center gap-2">
                         <button id="btnCopyTable3" disabled
                             class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
@@ -437,10 +552,10 @@ Wartung</textarea>
 
                 <!-- Main Row Table -->
                 <div
-                    class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]">
+                    class="bg-primary rounded-xl border border-default shadow-sm overflow-hidden flex flex-col h-[600px]">
                     <div class="overflow-auto custom-scrollbar flex-1 relative">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-slate-50 sticky top-0 z-10 shadow-sm" id="rm-thead">
+                            <thead class="sticky top-0 z-10 shadow-sm" id="rm-thead">
                                 <tr id="rm-thead-tr">
                                     <!-- Headers injected by JS -->
                                     <th class="px-6 py-4 text-center text-slate-400 italic font-normal">Upload a file to
@@ -488,6 +603,7 @@ Wartung</textarea>
     </div>
 
     <!-- Main Application Script -->
+    <script src="src/scripts/theme.js"></script>
     <script type="module" src="src/main.js"></script>
 </body>
 

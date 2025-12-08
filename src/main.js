@@ -11,6 +11,7 @@ import { initializeScrollIndicators } from './modules/scroll.js';
 import { loadUploadHistory } from './modules/uploadHistory.js';
 import { restoreSectionStates } from './modules/sections.js';
 import { loadSampleData } from './modules/sampleData.js';
+import { initializeInternalTabs } from './modules/tabs.js';
 
 /**
  * Application Entry Point
@@ -39,6 +40,9 @@ function initializeApp() {
 
     // Restore collapsed section states
     restoreSectionStates();
+
+    // Initialize internal tab navigation
+    initializeInternalTabs();
 
     console.log('✅ Application ready');
 

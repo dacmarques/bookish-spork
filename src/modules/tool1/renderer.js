@@ -5,6 +5,27 @@
 
 import { state, updateState } from '../state.js';
 import { updateDebugInfo } from './analyzer.js';
+import { announceToScreenReader } from '../ui.js';
+
+/**
+ * Initialize horizontal scroll detection for table container
+ * @param {HTMLElement} container - The table container element
+ */
+function initScrollDetection(container) {
+    if (!container) return;
+    
+    const checkScroll = () => {
+        const hasScroll = container.scrollWidth > container.clientWidth;
+        const isScrolledToEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 5;
+        
+        container.classList.toggle('has-horizontal-scroll', hasScroll);
+        container.classList.toggle('scrolled-to-end', isScrolledToEnd);
+    };
+    
+    checkScroll();
+    container.addEventListener('scroll', checkScroll);
+    window.addEventListener('resize', checkScroll);
+}
 
 /**
  * Render results table
@@ -30,11 +51,15 @@ export function renderTable(countsMap, totalMatches, rowCount, uniqueTargets = 0
     if (targets.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="3" class="p-0 border-0">
-                    <div class="empty-state">
-                        <i class="ph ph-files empty-state-icon" aria-hidden="true"></i>
-                        <h3 class="empty-state-text">No Data Available</h3>
-                        <p class="empty-state-subtext">Upload a Protokoll and Abrechnung file to generic counts and targets.</p>
+                <td colspan=\"3\" class=\"p-0 border-0\">
+                    <div class=\"empty-state\">
+                        <i class=\"ph ph-files empty-state-icon\" aria-hidden=\"true\"></i>
+                        <h3 class=\"empty-state-text\">No Data Available</h3>
+                        <p class=\"empty-state-subtext\">Upload Protokoll and Abrechnung files above to analyze and count target values. Results will appear here once processing is complete.</p>
+                        <div class=\"empty-state-hint\">
+                            <i class=\"ph ph-info\" aria-hidden=\"true\"></i>
+                            <span>Tip: Ensure your files contain the expected column structure</span>
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -78,8 +103,8 @@ export function renderTable(countsMap, totalMatches, rowCount, uniqueTargets = 0
         tr.innerHTML = `
             <td class="text-slate-600">${index + 1}</td>
             <td class="font-medium text-slate-700">${target}</td>
-            <td class="text-right">
-                <span class="inline-flex items-center gap-2">
+            <td class="numeric-cell">
+                <span class="inline-flex items-center gap-2 justify-end">
                     <span class="font-semibold text-indigo-600">${count}</span>
                     <span class="text-xs text-slate-400">(${percentage}%)</span>
                 </span>
@@ -96,6 +121,13 @@ export function renderTable(countsMap, totalMatches, rowCount, uniqueTargets = 0
     if (resultsSection) {
         resultsSection.classList.remove('hidden');
     }
+    
+    // Initialize scroll detection for horizontal scroll indicator
+    const tableContainer = tbody.closest('.table-container');
+    initScrollDetection(tableContainer);
+    
+    // Announce results to screen readers
+    announceToScreenReader(`Results updated: ${totalMatches} matches found across ${uniqueTargets} unique targets in ${rowCount} rows`);
 }
 
 /**

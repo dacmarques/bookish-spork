@@ -16,6 +16,9 @@ function initToastContainer() {
         toastContainer.id = 'toastContainer';
         toastContainer.className = 'fixed top-4 right-4 z-50 space-y-2';
         toastContainer.style.cssText = 'pointer-events: none;';
+        toastContainer.setAttribute('aria-live', 'polite');
+        toastContainer.setAttribute('aria-atomic', 'false');
+        toastContainer.setAttribute('role', 'status');
         document.body.appendChild(toastContainer);
     }
 }
@@ -72,16 +75,21 @@ function processToastQueue() {
 function createToastElement(message, type) {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type} toast-enter`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+    toast.style.pointerEvents = 'auto';
     
     const icon = getToastIcon(type);
+    const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
     
     toast.innerHTML = `
         <i class="${icon}" aria-hidden="true"></i>
-        <span>${message}</span>
+        <span role="status" aria-label="${typeLabel}: ${message}">${message}</span>
         <button onclick="this.parentElement.remove()" 
                 class="ml-auto text-current opacity-70 hover:opacity-100 transition-opacity"
-                aria-label="Close notification">
-            <i class="ph ph-x text-lg"></i>
+                aria-label="Close ${typeLabel.toLowerCase()} notification"
+                tabindex="0">
+            <i class="ph ph-x text-lg" aria-hidden="true"></i>
         </button>
     `;
     

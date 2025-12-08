@@ -21,35 +21,54 @@ export function processProtokolFile(file) {
         showError('Invalid file format. Please upload an Excel file (.xlsx or .xls)');
         return;
     }
-    
+
     saveToUploadHistory(file, 'protokoll');
-    
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
-            
-            updateState('tool1.protokollData', rows);
-            showFileMetadata('protokoll', file, true, rows.length);
-            analyzeData(rows);
-            showSuccess(`Protokoll file loaded: ${file.name}`);
-        } catch (error) {
-            console.error('Error processing Protokoll file:', error);
-            showFileMetadata('protokoll', file, false);
-            showError('Failed to process Protokoll file');
-        }
-    };
-    
-    reader.onerror = () => {
-        showError('Failed to read file');
-    };
-    
-    reader.readAsArrayBuffer(file);
-}/**
+
+    // Show loading indicator
+    const processingIndicator = document.getElementById('processingIndicator');
+    if (processingIndicator) {
+        processingIndicator.innerHTML = `<i class="ph ph-spinner animate-spin text-lg" aria-hidden="true"></i> Processing ${file.name}...`;
+        processingIndicator.classList.remove('hidden');
+    }
+
+    setTimeout(() => {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+
+                updateState('tool1.protokollData', rows);
+                showFileMetadata('protokoll', file, true, rows.length);
+                analyzeData(rows);
+                showSuccess(`Protokoll file loaded: ${file.name}`);
+            } catch (error) {
+                console.error('Error processing Protokoll file:', error);
+                showFileMetadata('protokoll', file, false);
+                showError('Failed to process Protokoll file');
+            } finally {
+                if (processingIndicator) {
+                    processingIndicator.classList.add('hidden');
+                    // Reset text
+                    setTimeout(() => {
+                        processingIndicator.innerHTML = `<i class="ph ph-spinner animate-spin text-lg" aria-hidden="true"></i> Processing...`;
+                    }, 500);
+                }
+            }
+        };
+
+        reader.onerror = () => {
+            showError('Failed to read file');
+            if (processingIndicator) processingIndicator.classList.add('hidden');
+        };
+
+        reader.readAsArrayBuffer(file);
+    }, 50);
+}
+/**
  * Process Abrechnung file
  * @param {File} file - Excel file to process
  */
@@ -62,9 +81,12 @@ export function processAbrechnungFile(file) {
 
     saveToUploadHistory(file, 'abrechnung');
 
-    // Show loading indicator
+    // Show loading indicator with filename
     const processingIndicator = document.getElementById('processingIndicator');
-    if (processingIndicator) processingIndicator.classList.remove('hidden');
+    if (processingIndicator) {
+        processingIndicator.innerHTML = `<i class="ph ph-spinner animate-spin text-lg" aria-hidden="true"></i> Processing ${file.name}...`;
+        processingIndicator.classList.remove('hidden');
+    }
 
     // Small timeout to allow UI to update (show spinner) before heavy processing
     setTimeout(() => {
@@ -88,7 +110,13 @@ export function processAbrechnungFile(file) {
                 showError('Failed to process Abrechnung file');
             } finally {
                 // Hide loading indicator
-                if (processingIndicator) processingIndicator.classList.add('hidden');
+                if (processingIndicator) {
+                    processingIndicator.classList.add('hidden');
+                    // Reset text
+                    setTimeout(() => {
+                        processingIndicator.innerHTML = `<i class="ph ph-spinner animate-spin text-lg" aria-hidden="true"></i> Processing...`;
+                    }, 500);
+                }
             }
         };
 

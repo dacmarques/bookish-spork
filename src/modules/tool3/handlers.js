@@ -6,7 +6,7 @@
 import { state } from '../state.js';
 import { processFile, clearRowManagerUpload } from './fileProcessor.js';
 import { handleTableClick, toggleSelectAll } from './selection.js';
-import { handleDragStart, handleDragOver, handleDragEnd, handleDropRow } from './dragDrop.js';
+import { handleDragStart, handleDragOver, handleDragEnd, handleDropRow, handleKeyboardReorder } from './dragDrop.js';
 import { showToast } from '../toast.js';
 
 /**
@@ -18,6 +18,14 @@ export function setupTool3Handlers() {
     if (dropArea) {
         dropArea.addEventListener('click', () => {
             document.getElementById('rm-file-input')?.click();
+        });
+
+        // Keyboard accessibility for drop area
+        dropArea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                document.getElementById('rm-file-input')?.click();
+            }
         });
 
         dropArea.addEventListener('dragover', (e) => {
@@ -63,6 +71,7 @@ export function setupTool3Handlers() {
         tbody.addEventListener('dragover', handleDragOver);
         tbody.addEventListener('dragend', handleDragEnd);
         tbody.addEventListener('drop', handleDropRow);
+        tbody.addEventListener('keydown', handleKeyboardReorder);
     }
 
     // Select all checkbox

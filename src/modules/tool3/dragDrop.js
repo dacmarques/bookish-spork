@@ -1,10 +1,11 @@
 /**
  * Tool 3 - Row Manager Drag & Drop
- * Handles drag and drop row reordering
+ * Handles drag and drop row reordering with keyboard support
  */
 
 import { state } from '../state.js';
 import { renderTable } from './renderer.js';
+import { showSuccess, showInfo } from '../toast.js';
 
 let draggedIndex = null;
 
@@ -53,10 +54,50 @@ export function handleDragStart(e) {
 
     // Create ghost element
     const ghost = document.createElement('div');
-    ghost.className = 'absolute -top-[1000px] bg-indigo-600 text-white px-3 py-2 rounded-lg shadow-lg font-bold text-sm z-50';
-    ghost.innerHTML = `<i class="ph ph-stack"></i> Moving ${count} Row${count > 1 ? 's' : ''}`;
+    ghost.className = 'fixed top-0 left-0 bg-white border border-indigo-200 shadow-xl rounded-lg p-3 z-50 pointer-events-none flex items-center gap-3 min-w-[200px]';
+
+    // Icon
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'w-8 h-8 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center';
+    iconDiv.innerHTML = '<i class="ph ph-rows text-lg"></i>';
+    ghost.appendChild(iconDiv);
+
+    // Text content
+    const contentDiv = document.createElement('div');
+    const title = document.createElement('div');
+    title.className = 'text-sm font-bold text-slate-700';
+    title.textContent = count > 1 ? `${count} Rows Selected` : 'Moving Row';
+
+    const subtitle = document.createElement('div');
+    subtitle.className = 'text-xs text-slate-500';
+
+    // Try to get some ID from the dragged row to show
+    // Assumption: Row might have cells, specific text to show
+    if (count === 1) {
+        // Try to find order number or some identifier in the row cells
+        const cells = tr.querySelectorAll('td');
+        if (cells.length > 1) {
+            // Usually first or second cell has ID
+            const textHTML = cells[1]?.innerText || '';
+            subtitle.textContent = textHTML.substring(0, 20) + (textHTML.length > 20 ? '...' : '');
+        } else {
+            subtitle.textContent = `Row #${index + 1}`;
+        }
+    } else {
+        subtitle.textContent = 'Drag to reorder';
+    }
+
+    contentDiv.appendChild(title);
+    contentDiv.appendChild(subtitle);
+    ghost.appendChild(contentDiv);
+
     document.body.appendChild(ghost);
-    e.dataTransfer.setDragImage(ghost, 0, 0);
+
+    // We need to offset the drag image so it's not right under the cursor blocking view if possible
+    // But setDragImage requires element to be visible
+    e.dataTransfer.setDragImage(ghost, 10, 10);
+
+    // Remove after small delay to let browser capture it
     setTimeout(() => document.body.removeChild(ghost), 0);
 
     // Add dragging-row class to all selected rows
@@ -174,4 +215,92 @@ export function handleDropRow(e) {
 
     // Re-render
     renderTable();
+}
+
+/**
+ * Handle keyboard navigation for row reordering
+ * @param {KeyboardEvent} e - Keyboard event
+ */
+export function handleKeyboardReorder(e) {
+    const tbody = document.getElementById('rm-tbody');
+    if (!tbody) return;
+
+    const tr = e.target.closest('tr');
+    if (!tr) return;
+
+    const index = parseInt(tr.dataset.index, 10);
+    if (isNaN(index)) return;
+
+    // Arrow keys for reordering
+    if (e.key === 'ArrowUp' && e.altKey) {
+        e.preventDefault();
+        moveSelectedRows(-1);
+        showInfo('Moved row(s) up');
+    } else if (e.key === 'ArrowDown' && e.altKey) {
+        e.preventDefault();
+        moveSelectedRows(1);
+        showInfo('Moved row(s) down');
+    }
+    // Space to select/deselect
+    else if (e.key === ' ' && !e.shiftKey) {
+        e.preventDefault();
+        const checkbox = tr.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+}
+
+/**
+ * Move selected rows up or down
+ * @param {number} direction - -1 for up, 1 for down
+ */
+function moveSelectedRows(direction) {
+    if (state.tool3.selectedIndices.size === 0) return;
+
+    const indicesArray = Array.from(state.tool3.selectedIndices).sort((a, b) => a - b);
+
+    // Check boundaries
+    if (direction === -1 && indicesArray[0] === 0) return; // Can't move up from top
+    if (direction === 1 && indicesArray[indicesArray.length - 1] === state.tool3.data.length - 1) return; // Can't move down from bottom
+
+    const newData = [...state.tool3.data];
+    const movingItems = indicesArray.map(i => newData[i]);
+
+    // Remove moving items
+    for (let i = indicesArray.length - 1; i >= 0; i--) {
+        newData.splice(indicesArray[i], 1);
+    }
+
+    // Calculate new insertion point
+    let insertIndex = indicesArray[0] + direction;
+    if (direction === 1) {
+        // When moving down, adjust for removed items
+        insertIndex = indicesArray[0] + 1;
+    }
+
+    // Insert at new position
+    newData.splice(insertIndex, 0, ...movingItems);
+
+    // Update state
+    state.tool3.data = newData;
+
+    // Update selection to new indices
+    state.tool3.selectedIndices.clear();
+    for (let i = 0; i < movingItems.length; i++) {
+        state.tool3.selectedIndices.add(insertIndex + i);
+    }
+
+    // Re-render
+    renderTable();
+
+    // Restore focus to first moved row
+    setTimeout(() => {
+        const tbody = document.getElementById('rm-tbody');
+        const firstRow = tbody?.querySelector(`tr[data-index="${insertIndex}"]`);
+        if (firstRow) {
+            firstRow.focus();
+        }
+    }, 50);
 }

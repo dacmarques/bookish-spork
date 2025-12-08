@@ -4,6 +4,27 @@
  */
 
 import { state } from '../state.js';
+import { announceToScreenReader } from '../ui.js';
+
+/**
+ * Initialize horizontal scroll detection for table container
+ * @param {HTMLElement} container - The table container element
+ */
+function initScrollDetection(container) {
+    if (!container) return;
+    
+    const checkScroll = () => {
+        const hasScroll = container.scrollWidth > container.clientWidth;
+        const isScrolledToEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 5;
+        
+        container.classList.toggle('has-horizontal-scroll', hasScroll);
+        container.classList.toggle('scrolled-to-end', isScrolledToEnd);
+    };
+    
+    checkScroll();
+    container.addEventListener('scroll', checkScroll);
+    window.addEventListener('resize', checkScroll);
+}
 
 /**
  * Render the data table with drag-and-drop support
@@ -52,13 +73,20 @@ export function renderTable() {
     }
 
     // Render Headers
-    const checkboxHeader = `<th class="w-10 px-4 py-3 bg-slate-50 border-b border-slate-200 text-center"><input type="checkbox" id="rm-select-all" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"></th>`;
+    const checkboxHeader = `<th class="w-10 px-4 py-3 bg-slate-50 border-b border-slate-200 text-center">
+        <input type="checkbox" id="rm-select-all" 
+               class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+               aria-label="Select all rows">
+    </th>`;
+    const dragHeader = `<th class="w-10 px-4 py-3 bg-slate-50 border-b border-slate-200 text-center" aria-label="Drag to reorder">
+        <i class="ph ph-dots-six-vertical text-slate-400" aria-hidden="true"></i>
+    </th>`;
     const dataHeaders = state.tool3.headers.map(h => 
         `<th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50 border-b border-slate-200">${h || '-'}</th>`
     ).join('');
     const actionsHeader = `<th class="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50 border-b border-slate-200 sticky right-0 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-20">Actions</th>`;
 
-    theadTr.innerHTML = checkboxHeader + dataHeaders + actionsHeader;
+    theadTr.innerHTML = checkboxHeader + dragHeader + dataHeaders + actionsHeader;
 
     // Render Body
     tbody.innerHTML = '';
@@ -75,9 +103,28 @@ export function renderTable() {
         const bgClass = isSelected ? 'bg-indigo-50' : 'bg-white';
 
         tr.className = `hover:bg-indigo-50 transition-colors ${bgClass} group border-b border-slate-100`;
+        tr.setAttribute('tabindex', '0');
+        tr.setAttribute('role', 'row');
+        tr.setAttribute('aria-label', `Row ${index + 1}. Press Alt+Arrow Up or Down to reorder, Space to select`);
 
         // Selection Checkbox
-        let html = `<td class="px-4 py-2 text-center w-10"><input type="checkbox" class="rm-row-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" data-index="${index}" ${isSelected ? 'checked' : ''}></td>`;
+        let html = `<td class="px-4 py-2 text-center w-10">
+            <input type="checkbox" 
+                   class="rm-row-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
+                   data-index="${index}" 
+                   ${isSelected ? 'checked' : ''}
+                   aria-label="Select row ${index + 1}">
+        </td>`;
+        
+        // Drag Handle
+        html += `<td class="px-4 py-2 text-center w-10">
+            <div class="drag-handle cursor-grab active:cursor-grabbing" 
+                 role="button"
+                 tabindex="-1"
+                 aria-label="Drag to reorder row ${index + 1}">
+                <i class="ph ph-dots-six-vertical text-slate-400 group-hover:text-indigo-600" aria-hidden="true"></i>
+            </div>
+        </td>`;
 
         // Cells
         html += row.map(cell => {
@@ -89,11 +136,17 @@ export function renderTable() {
         html += `
             <td class="px-4 py-2 whitespace-nowrap text-right sticky right-0 bg-white group-hover:bg-indigo-50 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.05)] z-10">
                 <div class="flex justify-end gap-2">
-                    <button onclick="window.rmCopyRow(${index})" title="Copy Row" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all">
-                        <i class="ph ph-copy text-lg"></i>
+                    <button onclick="window.rmCopyRow(${index})" 
+                            title="Copy Row" 
+                            aria-label="Copy row ${index + 1} to clipboard"
+                            class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all min-w-[32px] min-h-[32px]">
+                        <i class="ph ph-copy text-lg" aria-hidden="true"></i>
                     </button>
-                    <button onclick="window.rmBulkCopy(${index})" title="Bulk Copy (Next 22)" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all">
-                        <i class="ph ph-stack text-lg"></i>
+                    <button onclick="window.rmBulkCopy(${index})" 
+                            title="Bulk Copy (Next 22)" 
+                            aria-label="Copy 22 rows starting from row ${index + 1}"
+                            class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all min-w-[32px] min-h-[32px]">
+                        <i class="ph ph-stack text-lg" aria-hidden="true"></i>
                     </button>
                 </div>
             </td>
@@ -105,6 +158,10 @@ export function renderTable() {
 
     // Update select all checkbox
     updateSelectAllCheckbox();
+    
+    // Initialize scroll detection for horizontal scroll indicator
+    const tableContainer = tbody.closest('.overflow-auto, .table-container');
+    initScrollDetection(tableContainer);
 }
 
 /**
@@ -153,7 +210,9 @@ export function updateSelectionUI() {
     // Update Status Text
     if (statusEl) {
         if (state.tool3.selectedIndices.size > 0) {
-            statusEl.textContent = `${state.tool3.selectedIndices.size} of ${state.tool3.data.length} Selected`;
+            const statusText = `${state.tool3.selectedIndices.size} of ${state.tool3.data.length} Selected`;
+            statusEl.textContent = statusText;
+            announceToScreenReader(statusText);
         } else {
             statusEl.textContent = `${state.tool3.data.length} Rows`;
         }

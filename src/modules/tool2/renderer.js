@@ -5,6 +5,27 @@
 
 import { state } from '../state.js';
 import { showToast } from '../toast.js';
+import { announceToScreenReader } from '../ui.js';
+
+/**
+ * Initialize horizontal scroll detection for table container
+ * @param {HTMLElement} container - The table container element
+ */
+function initScrollDetection(container) {
+    if (!container) return;
+    
+    const checkScroll = () => {
+        const hasScroll = container.scrollWidth > container.clientWidth;
+        const isScrolledToEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 5;
+        
+        container.classList.toggle('has-horizontal-scroll', hasScroll);
+        container.classList.toggle('scrolled-to-end', isScrolledToEnd);
+    };
+    
+    checkScroll();
+    container.addEventListener('scroll', checkScroll);
+    window.addEventListener('resize', checkScroll);
+}
 
 /**
  * Render the extracted data table
@@ -94,16 +115,32 @@ export function renderTable() {
             tr.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-slate-400 border-b border-slate-100">
                     <div class="flex items-center gap-2 max-w-[150px]">
-                        <i data-lucide="file" class="w-3 h-3 flex-shrink-0"></i>
+                        <i data-lucide="file" class="w-3 h-3 flex-shrink-0" aria-hidden="true"></i>
                         <span class="truncate" title="${safe(data.fileName)}">${safe(data.fileName)}</span>
                     </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700 font-mono text-xs bg-slate-50 rounded ${isAuftragsNrMissing ? 'validation-error' : ''}" title="${isAuftragsNrMissing ? 'Missing Auftrag-Nr.' : ''}">${safe(data.auftragsNr) || '<span class="text-slate-400 italic">Missing</span>'}</td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-xs max-w-[150px] truncate ${isAnlageMissing ? 'validation-warning' : ''}" title="${isAnlageMissing ? 'Missing Anlage' : safe(data.anlage)}">${safe(data.anlage) || '<span class="text-slate-400 italic">Missing</span>'}</td>
+                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700 font-mono text-xs bg-slate-50 rounded ${isAuftragsNrMissing ? 'validation-error' : ''}" 
+                    title="${isAuftragsNrMissing ? 'Missing Auftrag-Nr.' : ''}"
+                    ${isAuftragsNrMissing ? 'aria-invalid="true" aria-describedby="error-auftragsNr"' : ''}>
+                    ${safe(data.auftragsNr) || '<span class="text-slate-400 italic" role="alert">Missing</span>'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-xs max-w-[150px] truncate ${isAnlageMissing ? 'validation-warning' : ''}" 
+                    title="${isAnlageMissing ? 'Missing Anlage' : safe(data.anlage)}"
+                    ${isAnlageMissing ? 'aria-invalid="true"' : ''}>
+                    ${safe(data.anlage) || '<span class="text-slate-400 italic" role="alert">Missing</span>'}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-xs max-w-[150px] truncate" title="${safe(data.einsatzort)}">${safe(data.einsatzort)}</td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700 ${isDatumInvalid ? 'validation-warning' : ''}" title="${isDatumInvalid ? 'Invalid date format' : ''}">${safe(data.datum) || '<span class="text-slate-400 italic">Missing</span>'}</td>
+                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-700 ${isDatumInvalid ? 'validation-warning' : ''}" 
+                    title="${isDatumInvalid ? 'Invalid date format' : ''}"
+                    ${isDatumInvalid ? 'aria-invalid="true"' : ''}>
+                    ${safe(data.datum) || '<span class="text-slate-400 italic" role="alert">Missing</span>'}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-slate-600 text-center text-right numeric">${safe(data.fachmonteur)}</td>
-                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-right font-mono text-slate-800 font-semibold numeric ${isSumInvalid ? 'validation-warning' : ''}" title="${isSumInvalid ? 'Invalid or zero sum' : ''}">${sumDisplay}</td>
+                <td class="px-6 py-4 whitespace-nowrap border-b border-slate-100 text-right font-mono text-slate-800 font-semibold numeric ${isSumInvalid ? 'validation-warning' : ''}" 
+                    title="${isSumInvalid ? 'Invalid or zero sum' : ''}"
+                    ${isSumInvalid ? 'aria-invalid="true"' : ''}>
+                    ${sumDisplay}
+                </td>
                 <td class="px-6 py-4 border-b border-slate-100 text-slate-500 text-xs min-w-[200px] leading-relaxed">${safe(data.bemerkung)}</td>
             `;
             tableBody.appendChild(tr);
@@ -112,6 +149,15 @@ export function renderTable() {
 
     // Re-initialize Lucide icons
     if (window.lucide) window.lucide.createIcons();
+    
+    // Initialize scroll detection for horizontal scroll indicator
+    const tableContainer = tableBody.closest('.overflow-auto');
+    initScrollDetection(tableContainer);
+    
+    // Announce to screen readers
+    if (filtered.length > 0) {
+        announceToScreenReader(`Table updated: Showing ${filtered.length} records`);
+    }
 }
 
 /**
