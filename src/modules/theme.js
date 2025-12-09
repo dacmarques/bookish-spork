@@ -26,6 +26,15 @@ export function initializeDarkMode() {
 
     // Update toggle button state
     updateThemeToggle();
+
+    // Listen for system changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+            const newTheme = e.matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            updateThemeToggle();
+        }
+    });
 }
 
 /**

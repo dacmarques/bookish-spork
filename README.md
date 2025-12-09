@@ -46,16 +46,26 @@ This is a refactored version of the monolithic Excel Tools application, now orga
 - **No Build Step Required**: Runs directly in modern browsers
 - **Easy Testing**: Modules can be tested independently
 
+### Enhanced Data Persistence ✨ NEW
+- **Quota Management**: Automatic cleanup when storage is full
+- **IndexedDB Support**: Store large files (50MB+) without localStorage limits
+- **Work Sessions**: Save and restore complete work sessions
+- **Auto-Save**: Background saves every 5 minutes
+- **Storage Monitor**: Visual usage tracking and management tools
+- See `docs/STORAGE_ENHANCEMENTS.md` for full details
+
 ### State Management
 - Centralized application state in `state.js`
 - Event-driven updates with `stateChanged` events
-- Persistent state with localStorage integration
+- Persistent state with robust storage management
+- Map and Set serialization support
 
 ### Clean Separation of Concerns
 - **State**: Data management (`state.js`)
 - **Handlers**: User interactions (`handlers.js`)
 - **Rendering**: UI updates (tool-specific renderers)
 - **Utilities**: Reusable helpers (`utils.js`)
+- **Storage**: Enhanced persistence layer (`storage.js`, `indexedDB.js`)
 
 ## Running the Application
 

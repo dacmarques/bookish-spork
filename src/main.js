@@ -13,12 +13,30 @@ import { restoreSectionStates } from './modules/sections.js';
 import { loadSampleData } from './modules/sampleData.js';
 import { initializeInternalTabs } from './modules/tabs.js';
 import { initializeTooltips } from './modules/tooltip.js';
+import { initializeSettings } from './modules/settings.js';
+import { initializeUndoRedo } from './modules/undoRedo.js';
+import { initializeSessionManager } from './modules/sessionManager.js';
+import { initializeBatchOperations } from './modules/batchOperations.js';
+// Enhanced storage management
+import { initializeStorageManagement } from './modules/storage.js';
+import { initializeIndexedDB } from './modules/indexedDB.js';
+import { initializeStorageMonitor } from './modules/storageMonitor.js';
+import { startAutoSave, showSessionManager } from './modules/workSessionManager.js';
 
 /**
  * Application Entry Point
  */
 function initializeApp() {
     console.log('🚀 Excel Tools Suite starting...');
+
+    // Initialize enhanced storage management first
+    initializeStorageManagement();
+    initializeStorageMonitor();
+    
+    // Initialize IndexedDB (async, non-blocking)
+    initializeIndexedDB().catch(err => {
+        console.warn('IndexedDB unavailable:', err);
+    });
 
     // Initialize state management
     initializeState();
@@ -48,10 +66,20 @@ function initializeApp() {
     // Initialize tooltip system
     initializeTooltips();
 
+    // Initialize state management features (#19, #20, #13, #27)
+    initializeSettings();
+    initializeUndoRedo();
+    initializeSessionManager();
+    initializeBatchOperations();
+    
+    // Start auto-save for work sessions (every 5 minutes)
+    startAutoSave(5 * 60 * 1000);
+
     console.log('✅ Application ready');
 
-    // Expose sample data loader for testing
+    // Expose utilities for testing and console access
     window.loadSampleData = loadSampleData;
+    window.showSessionManager = showSessionManager;
 }
 
 // Start app when DOM is ready

@@ -79,9 +79,16 @@ export function formatFileSize(bytes) {
  */
 export function saveToStorage(key, value) {
     try {
+        // Use direct localStorage for backward compatibility
+        // New code should use storage.js directly
         localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
         console.error('Failed to save to localStorage:', e);
+        // If quota exceeded, try to cleanup
+        if (e.name === 'QuotaExceededError') {
+            console.warn('Storage quota exceeded. Please clear old data.');
+            window.dispatchEvent(new CustomEvent('storageQuotaExceeded'));
+        }
     }
 }
 

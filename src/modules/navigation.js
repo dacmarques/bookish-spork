@@ -63,7 +63,11 @@ export function switchTab(tabName) {
     updateLastActivity();
     
     // Save to localStorage
-    localStorage.setItem('uet_active_tab', tabName);
+    try {
+        localStorage.setItem('uet_active_tab', tabName);
+    } catch (e) {
+        console.error('Failed to save active tab:', e);
+    }
     
     // Remove navigation transition effect after animation
     requestAnimationFrame(() => {
@@ -75,7 +79,7 @@ export function switchTab(tabName) {
  * Restore last active tab
  */
 export function restoreActiveTab() {
-    const savedTab = localStorage.getItem('uet_active_tab');
+    const savedTab = localStorage.getItem('uet_active_tab') || null;
     if (savedTab) {
         switchTab(savedTab);
     }

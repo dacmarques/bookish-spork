@@ -4,7 +4,7 @@
  */
 
 import { restoreActiveTab } from './navigation.js';
-import { updateGlobalHeader } from './header.js';
+import { updateGlobalHeader, addStateManagementToolbars } from './header.js';
 
 /**
  * Initialize UI components
@@ -15,6 +15,9 @@ export function initializeUI() {
     
     // Update global header
     updateGlobalHeader();
+    
+    // Add state management toolbars to header
+    addStateManagementToolbars();
     
     // Initialize Lucide icons (Tool 2)
     if (typeof lucide !== 'undefined') {
