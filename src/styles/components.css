@@ -89,11 +89,11 @@
 
 .internal-tab:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--color-neutral-100);
 }
 
 .internal-tab.active {
-    background: white;
+    background: var(--bg-primary);
     color: var(--color-action);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -196,7 +196,7 @@ textarea {
     padding: var(--space-3);
     border: 1px solid var(--color-neutral-300);
     border-radius: var(--radius-md);
-    background-color: white;
+    background-color: var(--bg-primary);
     color: var(--text-primary);
     font-size: 0.875rem;
     line-height: 1.5;
@@ -623,10 +623,22 @@ textarea:focus {
     color: #1e40af;
 }
 
+[data-theme="dark"] .toast-info {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    border-color: #3b82f6;
+    color: #dbeafe;
+}
+
 .toast-warning {
     background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
     border-color: #fbbf24;
     color: #92400e;
+}
+
+[data-theme="dark"] .toast-warning {
+    background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+    border-color: #f59e0b;
+    color: #fef3c7;
 }
 
 .toast-enter {
@@ -808,7 +820,7 @@ th.sortable[aria-sort="descending"] .sort-icon {
 table td {
     font-size: 0.875rem;
     color: var(--text-secondary);
-    background-color: white;
+    background-color: var(--bg-primary);
     /* Ensure content covers sticky header if scrolled behind (though not applicable here) and covers bg */
 }
 
@@ -852,7 +864,7 @@ table tbody tr:hover {
     padding: var(--space-12) var(--space-6);
     text-align: center;
     color: var(--text-tertiary);
-    background-color: white;
+    background-color: var(--bg-primary);
     animation: fadeIn 0.4s ease;
 }
 
@@ -1241,7 +1253,7 @@ select[aria-invalid="false"] {
         border: 1px solid var(--color-neutral-200);
         border-radius: var(--radius-md);
         padding: var(--space-3);
-        background: white;
+        background: var(--bg-primary);
     }
 
     .table-card-view td {
@@ -1489,18 +1501,18 @@ select[aria-invalid="false"] {
 }
 
 .btn-danger {
-    background-color: #ef4444;
+    background-color: var(--color-error);
     color: white;
-    border: 1px solid #dc2626;
+    border: 1px solid var(--color-error-hover);
 }
 
 .btn-danger:hover {
-    background-color: #dc2626;
+    background-color: var(--color-error-hover);
 }
 
 .btn-danger:disabled {
-    background-color: #fca5a5;
-    border-color: #fca5a5;
+    background-color: var(--color-error-light);
+    border-color: var(--color-error-light);
     cursor: not-allowed;
 }
 
@@ -1531,8 +1543,10 @@ td.editing {
 td.editing input {
     width: 100%;
     padding: 0.5rem;
-    border: 2px solid #3b82f6;
+    border: 2px solid var(--color-action);
     outline: none;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 /* Unsaved changes indicator */
@@ -1551,11 +1565,11 @@ td.editing input {
 
 /* Row selection styles */
 tr.selected {
-    background-color: #dbeafe !important;
+    background-color: var(--color-action-bg) !important;
 }
 
 tr:has(.row-select-checkbox:checked) {
-    background-color: #dbeafe !important;
+    background-color: var(--color-action-bg) !important;
 }
 
 /* Filter active indicator */
@@ -1570,19 +1584,24 @@ tr:has(.row-select-checkbox:checked) {
     right: -2px;
     width: 8px;
     height: 8px;
-    background-color: #3b82f6;
+    background-color: var(--color-action);
     border-radius: 50%;
-    border: 2px solid white;
+    border: 2px solid var(--bg-primary);
 }
 
 /* Validation Styles */
 .validation-error {
-    background-color: #fee2e2 !important;
-    border-left: 3px solid #ef4444 !important;
+    background-color: var(--color-error-light) !important;
+    border-left: 3px solid var(--color-error) !important;
 }
 
 .validation-warning {
     background-color: #fef3c7 !important;
+    border-left: 3px solid #f59e0b !important;
+}
+
+[data-theme="dark"] .validation-warning {
+    background-color: #78350f !important;
     border-left: 3px solid #f59e0b !important;
 }
 
@@ -1592,8 +1611,8 @@ tr:has(.row-select-checkbox:checked) {
 
 /* Cell Error Highlighting */
 .cell-error {
-    background-color: #fee2e2 !important;
-    border: 2px solid #ef4444 !important;
+    background-color: var(--color-error-light) !important;
+    border: 2px solid var(--color-error) !important;
     position: relative;
     cursor: help;
 }
@@ -1605,7 +1624,7 @@ tr:has(.row-select-checkbox:checked) {
     right: 2px;
     width: 16px;
     height: 16px;
-    background-color: #ef4444;
+    background-color: var(--color-error);
     color: white;
     border-radius: 50%;
     font-size: 10px;
@@ -1623,6 +1642,11 @@ tr:has(.row-select-checkbox:checked) {
     cursor: help;
 }
 
+[data-theme="dark"] .cell-warning {
+    background-color: #78350f !important;
+    border: 2px solid #f59e0b !important;
+}
+
 .cell-warning::after {
     content: '⚠';
     position: absolute;
@@ -1638,16 +1662,17 @@ tr:has(.row-select-checkbox:checked) {
     z-index: 10000;
     max-width: 320px;
     padding: 12px 16px;
-    background: white;
+    background: var(--bg-primary);
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     opacity: 0;
     transition: opacity 0.2s ease;
     pointer-events: none;
+    border: 1px solid var(--color-neutral-200);
 }
 
 .validation-tooltip.error {
-    border-left: 4px solid #ef4444;
+    border-left: 4px solid var(--color-error);
 }
 
 .validation-tooltip.warning {
@@ -1680,7 +1705,7 @@ tr:has(.row-select-checkbox:checked) {
 
 .tooltip-suggestion {
     padding: 8px 12px;
-    background-color: #f1f5f9;
+    background-color: var(--color-neutral-100);
     border-radius: 6px;
     font-size: 12px;
     color: var(--text-secondary);
@@ -1694,7 +1719,7 @@ tr:has(.row-select-checkbox:checked) {
 }
 
 .quality-report-card {
-    background: white;
+    background: var(--bg-primary);
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--color-neutral-200);
@@ -1720,7 +1745,7 @@ tr:has(.row-select-checkbox:checked) {
     align-items: center;
     padding: 20px 24px;
     border-bottom: 1px solid var(--color-neutral-200);
-    background: linear-gradient(to right, #f8fafc, #f1f5f9);
+    background: linear-gradient(to right, var(--bg-secondary), var(--bg-tertiary));
 }
 
 .quality-report-header h3 {
@@ -1781,7 +1806,7 @@ tr:has(.row-select-checkbox:checked) {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: white;
+    background: var(--bg-primary);
 }
 
 .score-value {
@@ -1822,7 +1847,7 @@ tr:has(.row-select-checkbox:checked) {
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background-color: #f8fafc;
+    background-color: var(--bg-secondary);
     border-radius: 6px;
 }
 
@@ -1843,7 +1868,7 @@ tr:has(.row-select-checkbox:checked) {
     gap: 12px;
     padding: 16px 24px;
     border-bottom: 1px solid var(--color-neutral-200);
-    background-color: #f8fafc;
+    background-color: var(--bg-secondary);
 }
 
 .issue-summary {
@@ -1857,8 +1882,8 @@ tr:has(.row-select-checkbox:checked) {
 }
 
 .issue-summary.error {
-    background-color: #fee2e2;
-    color: #991b1b;
+    background-color: var(--color-error-light);
+    color: var(--color-error-hover);
 }
 
 .issue-summary.warning {
@@ -1866,9 +1891,14 @@ tr:has(.row-select-checkbox:checked) {
     color: #92400e;
 }
 
+[data-theme="dark"] .issue-summary.warning {
+    background-color: #78350f;
+    color: #fde047;
+}
+
 .issue-summary.success {
-    background-color: #d1fae5;
-    color: #065f46;
+    background-color: var(--color-success-light);
+    color: var(--color-success-hover);
 }
 
 .issue-icon {
@@ -1908,12 +1938,17 @@ tr:has(.row-select-checkbox:checked) {
 }
 
 .error-item {
-    background-color: #fef2f2;
-    border-left-color: #ef4444;
+    background-color: var(--color-error-light);
+    border-left-color: var(--color-error);
 }
 
 .warning-item {
     background-color: #fffbeb;
+    border-left-color: #f59e0b;
+}
+
+[data-theme="dark"] .warning-item {
+    background-color: #78350f;
     border-left-color: #f59e0b;
 }
 
@@ -1936,7 +1971,7 @@ tr:has(.row-select-checkbox:checked) {
 
 .issue-suggestion {
     padding: 8px 12px;
-    background-color: white;
+    background-color: var(--bg-tertiary);
     border-radius: 6px;
     font-size: 12px;
     color: var(--text-secondary);
@@ -1948,7 +1983,7 @@ tr:has(.row-select-checkbox:checked) {
     display: flex;
     gap: 12px;
     padding: 20px 24px;
-    background-color: #f8fafc;
+    background-color: var(--bg-secondary);
 }
 
 .quality-actions .btn {
@@ -1979,8 +2014,8 @@ tr:has(.row-select-checkbox:checked) {
 }
 
 .validation-message.error {
-    background-color: #fee2e2;
-    border-left: 4px solid #ef4444;
+    background-color: var(--color-error-light);
+    border-left: 4px solid var(--color-error);
 }
 
 .validation-message.warning {
@@ -1988,9 +2023,19 @@ tr:has(.row-select-checkbox:checked) {
     border-left: 4px solid #f59e0b;
 }
 
+[data-theme="dark"] .validation-message.warning {
+    background-color: #78350f;
+    border-left: 4px solid #f59e0b;
+}
+
 .validation-message.info {
     background-color: #dbeafe;
-    border-left: 4px solid #3b82f6;
+    border-left: 4px solid var(--color-action);
+}
+
+[data-theme="dark"] .validation-message.info {
+    background-color: #1e3a8a;
+    border-left: 4px solid var(--color-action);
 }
 
 .message-icon {
@@ -2035,7 +2080,7 @@ tr:has(.row-select-checkbox:checked) {
    ============================================ */
 
 .history-panel {
-    background: white;
+    background: var(--bg-primary);
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--color-neutral-200);
@@ -2049,7 +2094,7 @@ tr:has(.row-select-checkbox:checked) {
     align-items: center;
     padding: 16px 20px;
     border-bottom: 1px solid var(--color-neutral-200);
-    background: linear-gradient(to right, #f8fafc, #f1f5f9);
+    background: linear-gradient(to right, var(--bg-secondary), var(--bg-tertiary));
 }
 
 .history-title {
@@ -2241,7 +2286,7 @@ tr:has(.row-select-checkbox:checked) {
 }
 
 .history-item:hover {
-    background-color: white;
+    background-color: var(--bg-primary);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border-color: var(--color-neutral-300);
 }
@@ -2258,7 +2303,7 @@ tr:has(.row-select-checkbox:checked) {
     }
 
     50% {
-        background-color: #fef3c7;
+        background-color: var(--color-action-bg);
     }
 }
 
@@ -2269,7 +2314,7 @@ tr:has(.row-select-checkbox:checked) {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: white;
+    background-color: var(--bg-tertiary);
     border-radius: 6px;
     flex-shrink: 0;
 }
