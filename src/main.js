@@ -12,6 +12,7 @@ import { loadUploadHistory } from './modules/uploadHistory.js';
 import { restoreSectionStates } from './modules/sections.js';
 import { loadSampleData } from './modules/sampleData.js';
 import { initializeInternalTabs } from './modules/tabs.js';
+import { initializeTooltips } from './modules/tooltip.js';
 
 /**
  * Application Entry Point
@@ -43,6 +44,9 @@ function initializeApp() {
 
     // Initialize internal tab navigation
     initializeInternalTabs();
+
+    // Initialize tooltip system
+    initializeTooltips();
 
     console.log('✅ Application ready');
 

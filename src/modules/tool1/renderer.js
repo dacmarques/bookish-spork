@@ -49,16 +49,38 @@ export function renderTable(countsMap, totalMatches, rowCount, uniqueTargets = 0
     const targets = Object.keys(countsMap);
 
     // Rich Empty State
-    if (targets.length === 0) {
+    // Convert to array for sorting and filtering
+    const filter = state.tool1.filter ? state.tool1.filter.toLowerCase() : '';
+
+    let rows = targets
+        .filter(target => !filter || target.toLowerCase().includes(filter))
+        .map(target => ({
+            target,
+            count: countsMap[target]
+        }));
+
+    // Check if empty after filter
+    if (rows.length === 0 && targets.length > 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan=\"3\" class=\"p-0 border-0\">
-                    <div class=\"empty-state\">
-                        <i class=\"ph ph-files empty-state-icon\" aria-hidden=\"true\"></i>
-                        <h3 class=\"empty-state-text\">No Data Available</h3>
-                        <p class=\"empty-state-subtext\">Upload Protokoll and Abrechnung files above to analyze and count target values. Results will appear here once processing is complete.</p>
-                        <div class=\"empty-state-hint\">
-                            <i class=\"ph ph-info\" aria-hidden=\"true\"></i>
+                <td colspan="3" class="p-8 text-center text-slate-500">
+                    <i class="ph ph-magnifying-glass text-3xl mb-2 block text-slate-400"></i>
+                    No results found for "${state.tool1.filter}"
+                </td>
+            </tr>
+        `;
+        return;
+    } else if (targets.length === 0) {
+        // Original empty state check
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="p-0 border-0">
+                    <div class="empty-state">
+                        <i class="ph ph-files empty-state-icon" aria-hidden="true"></i>
+                        <h3 class="empty-state-text">No Data Available</h3>
+                        <p class="empty-state-subtext">Upload Protokoll and Abrechnung files above to analyze and count target values. Results will appear here once processing is complete.</p>
+                        <div class="empty-state-hint">
+                            <i class="ph ph-info" aria-hidden="true"></i>
                             <span>Tip: Ensure your files contain the expected column structure</span>
                         </div>
                     </div>
@@ -67,12 +89,6 @@ export function renderTable(countsMap, totalMatches, rowCount, uniqueTargets = 0
         `;
         return;
     }
-
-    // Convert to array for sorting
-    let rows = targets.map(target => ({
-        target,
-        count: countsMap[target]
-    }));
 
     // Apply Sorting
     const { column, direction } = state.tool1.sort;

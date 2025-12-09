@@ -9,7 +9,7 @@
 export function initializeDarkMode() {
     const savedTheme = localStorage.getItem('theme');
     const html = document.documentElement;
-    
+
     if (savedTheme) {
         html.setAttribute('data-theme', savedTheme);
     } else {
@@ -17,8 +17,14 @@ export function initializeDarkMode() {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
     }
-    
-    // Update toggle button if exists
+
+    // Initialize toggle button
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleDarkMode);
+    }
+
+    // Update toggle button state
     updateThemeToggle();
 }
 
@@ -29,10 +35,10 @@ export function toggleDarkMode() {
     const html = document.documentElement;
     const currentTheme = html.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
+
     html.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
-    
+
     updateThemeToggle();
 }
 
@@ -42,14 +48,14 @@ export function toggleDarkMode() {
 function updateThemeToggle() {
     const themeToggle = document.getElementById('themeToggle');
     if (!themeToggle) return;
-    
+
     const html = document.documentElement;
     const currentTheme = html.getAttribute('data-theme');
-    
+
     const icon = themeToggle.querySelector('i');
     if (icon) {
-        icon.className = currentTheme === 'dark' 
-            ? 'ph ph-sun text-lg' 
+        icon.className = currentTheme === 'dark'
+            ? 'ph ph-sun text-lg'
             : 'ph ph-moon text-lg';
     }
 }

@@ -13,6 +13,7 @@ import { clearFileUpload } from './tool1/fileUpload.js';
 import { hideReconciliation, setupReconciliationHandlers } from './tool1/reconciliationRenderer.js';
 import { setupTool2Handlers } from './tool2/handlers.js';
 import { setupTool3Handlers } from './tool3/handlers.js';
+import { exportToCSV, exportToJSON } from './shared/export-utils.js';
 
 /**
  * Initialize all event handlers
@@ -20,7 +21,7 @@ import { setupTool3Handlers } from './tool3/handlers.js';
 export function initializeHandlers() {
     // Navigation handlers
     setupNavigationHandlers();
-    
+
     // Mobile menu
     setupMobileMenu();
 
@@ -31,7 +32,7 @@ export function initializeHandlers() {
     setupTool1Handlers();
     setupTool2Handlers();
     setupTool3Handlers();
-    
+
     // Setup reconciliation handlers
     setupReconciliationHandlers();
 
@@ -139,6 +140,44 @@ function setupTool1Handlers() {
             renderTable(lastCountsMap, lastTotalMatches, lastRowCount, lastUniqueTargets);
         });
     });
+
+    // Tool 1 Export Handlers
+    const exportCsvBtn = document.getElementById('tool1ExportCsvBtn');
+    if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', () => {
+            const { lastCountsMap } = state.tool1;
+            if (!lastCountsMap || Object.keys(lastCountsMap).length === 0) {
+                import('./toast.js').then(({ showToast }) => showToast('No results to export', 'warning'));
+                return;
+            }
+            const data = Object.entries(lastCountsMap).map(([target, count]) => ({ Target: target, Count: count }));
+            exportToCSV(data, 'Value_Counter_Results');
+        });
+    }
+
+    const exportJsonBtn = document.getElementById('tool1ExportJsonBtn');
+    if (exportJsonBtn) {
+        exportJsonBtn.addEventListener('click', () => {
+            const debugData = {
+                timestamp: new Date().toISOString(),
+                tool1State: state.tool1
+            };
+            exportToJSON(debugData, 'Value_Counter_Debug');
+        });
+    }
+
+    // Search filter
+    const searchInput = document.getElementById('tool1-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const filter = e.target.value;
+            updateState('tool1.filter', filter);
+
+            // Re-render table with new filter
+            const { lastCountsMap, lastTotalMatches, lastRowCount, lastUniqueTargets } = state.tool1;
+            renderTable(lastCountsMap, lastTotalMatches, lastRowCount, lastUniqueTargets);
+        });
+    }
 }
 
 /**
@@ -175,16 +214,52 @@ function setupDragDrop(areaId, dropHandler) {
 }
 
 /**
- * Update target values from textarea
+ * Update target values from textarea with validation
  */
 function updateTargets() {
     const targetValuesArea = document.getElementById('targetValues');
-    const targets = targetValuesArea.value
-        .split('\n')
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
+    if (!targetValuesArea) return;
 
-    updateState('tool1.currentTargets', targets);
+    const errorContainer = document.getElementById('targetValuesError');
+    const rawLines = targetValuesArea.value.split('\n');
+
+    // Check for duplicates
+    const seen = new Set();
+    const duplicates = new Set();
+    const cleanTargets = [];
+
+    rawLines.forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed) {
+            if (seen.has(trimmed)) {
+                duplicates.add(trimmed);
+            } else {
+                seen.add(trimmed);
+                cleanTargets.push(trimmed);
+            }
+        }
+    });
+
+    updateState('tool1.currentTargets', cleanTargets);
+
+    // Validation Feedback
+    if (duplicates.size > 0 && errorContainer) {
+        targetValuesArea.setAttribute('aria-invalid', 'true');
+        // Add class if not present
+        if (!targetValuesArea.classList.contains('border-red-500')) {
+            // We use aria attribute for styling mostly, but can force class if needed
+        }
+
+        errorContainer.textContent = `Warning: Duplicate values found: ${Array.from(duplicates).join(', ')}`;
+        errorContainer.classList.remove('hidden');
+        errorContainer.classList.add('text-amber-600', 'text-xs', 'mt-1'); // Styling
+    } else {
+        targetValuesArea.setAttribute('aria-invalid', 'false');
+        if (errorContainer) {
+            errorContainer.textContent = '';
+            errorContainer.classList.add('hidden');
+        }
+    }
 }
 
 /**
@@ -257,18 +332,18 @@ async function copyDebugInfo() {
 
     try {
         await navigator.clipboard.writeText(text);
-        
+
         // Show success feedback
         const btn = document.getElementById('copyDebugBtn');
         const icon = btn?.querySelector('i');
-        
+
         if (icon) {
             icon.className = 'ph ph-check';
             setTimeout(() => {
                 icon.className = 'ph ph-copy';
             }, 2000);
         }
-        
+
         // Import and show toast
         const { showSuccess } = await import('./toast.js');
         showSuccess('Debug information copied to clipboard');
@@ -286,27 +361,27 @@ async function copyDebugInfo() {
 function removeFile(fileType) {
     // Clear upload state
     clearFileUpload(fileType);
-    
+
     // Reset file input
     const fileInput = document.getElementById(`${fileType}FileInput`);
     if (fileInput) {
         fileInput.value = '';
     }
-    
+
     // Hide remove button
     const removeBtn = document.getElementById(`${fileType}RemoveBtn`);
     if (removeBtn) {
         removeBtn.classList.add('hidden');
     }
-    
+
     // Clear reconciliation if no files loaded
     const protokollData = state.tool1.protokollData;
     const abrechnungData = state.tool1.abrechnungData;
-    
+
     if (!protokollData && !abrechnungData) {
         hideReconciliation();
     }
-    
+
     // Import and show toast
     import('./toast.js').then(({ showSuccess }) => {
         showSuccess(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} file removed`);

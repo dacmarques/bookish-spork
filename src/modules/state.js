@@ -19,7 +19,8 @@ export const state = {
         sort: {
             column: 'count', // default sort by count
             direction: 'desc' // default high to low
-        }
+        },
+        filter: ''
     },
 
     // Tool 2 - Smart Extractor

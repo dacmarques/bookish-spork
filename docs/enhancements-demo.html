@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhancements Demo - Features #1, #3, #5, #15, #16, #18</title>
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/components.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <style>
+        body {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .demo-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        .demo-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header style="margin-bottom: 2rem;">
+        <h1>Enhancements Demo</h1>
+        <p style="color: var(--text-secondary);">
+            Demonstration of fixes #1, #3, #5, #15, #16, #18 from enhaciments3.md
+        </p>
+        <button id="themeToggle" class="btn btn-secondary" style="margin-top: 1rem;">
+            <i class="ph ph-moon text-lg"></i>
+            Toggle Dark Mode
+        </button>
+    </header>
+
+    <!-- #15: Toast Notifications -->
+    <section class="demo-section">
+        <h2 class="demo-title">#15: Toast Notifications</h2>
+        <p class="demo-description">
+            Click buttons to see different toast notification types
+        </p>
+        <div class="demo-grid">
+            <button class="btn btn-primary" onclick="showSuccessToast()">
+                <i class="ph ph-check-circle"></i>
+                Success Toast
+            </button>
+            <button class="btn btn-secondary" onclick="showErrorToast()">
+                <i class="ph ph-x-circle"></i>
+                Error Toast
+            </button>
+            <button class="btn btn-secondary" onclick="showWarningToast()">
+                <i class="ph ph-warning"></i>
+                Warning Toast
+            </button>
+            <button class="btn btn-secondary" onclick="showInfoToast()">
+                <i class="ph ph-info"></i>
+                Info Toast
+            </button>
+        </div>
+    </section>
+
+    <!-- #16: Tooltips -->
+    <section class="demo-section">
+        <h2 class="demo-title">#16: Tooltip Component</h2>
+        <p class="demo-description">
+            Hover over or focus on elements to see tooltips
+        </p>
+        <div class="demo-grid">
+            <button class="btn btn-primary" 
+                    data-tooltip="This is a helpful tooltip"
+                    data-tooltip-position="top">
+                <i class="ph ph-info"></i>
+                Hover Me (Top)
+            </button>
+            <button class="btn btn-secondary" 
+                    data-tooltip="Tooltips work on all sides"
+                    data-tooltip-position="bottom">
+                <i class="ph ph-info"></i>
+                Hover Me (Bottom)
+            </button>
+            <button class="btn btn-secondary" 
+                    data-tooltip="Left side tooltip"
+                    data-tooltip-position="left">
+                <i class="ph ph-info"></i>
+                Hover Me (Left)
+            </button>
+            <button class="btn btn-secondary" 
+                    data-tooltip="Right side tooltip"
+                    data-tooltip-position="right">
+                <i class="ph ph-info"></i>
+                Hover Me (Right)
+            </button>
+        </div>
+        <div style="margin-top: 1rem;">
+            <label>
+                Field with Info Icon
+                <i class="ph ph-question tooltip-trigger" 
+                   data-tooltip="This provides additional context about the field"
+                   data-tooltip-position="right"
+                   tabindex="0"
+                   style="cursor: help; color: var(--color-action);"></i>
+            </label>
+        </div>
+    </section>
+
+    <!-- #3: Input Validation -->
+    <section class="demo-section">
+        <h2 class="demo-title">#3: Input Validation</h2>
+        <p class="demo-description">
+            Try submitting the form with invalid data
+        </p>
+        <form id="demoForm">
+            <div class="form-group">
+                <label class="form-label form-label-required" for="email">
+                    E-Mail
+                    <i class="ph ph-info tooltip-trigger" 
+                       data-tooltip="Wir werden Ihre E-Mail niemals weitergeben"
+                       data-tooltip-position="right"
+                       tabindex="0"
+                       style="cursor: help; color: var(--text-tertiary);"></i>
+                </label>
+                <input type="email" name="email" id="email" placeholder="beispiel@email.de" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label form-label-required" for="age">
+                    Alter (min. 18)
+                </label>
+                <input type="number" name="age" id="age" placeholder="18" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="description">
+                    Beschreibung (max. 200 Zeichen)
+                </label>
+                <textarea name="description" id="description" rows="4" maxlength="200"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="ph ph-check"></i>
+                    Absenden
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                    <i class="ph ph-x"></i>
+                    Zurücksetzen
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- #18: Empty States -->
+    <section class="demo-section">
+        <h2 class="demo-title">#18: Empty States & Contextual Help</h2>
+        <p class="demo-description">
+            Click buttons to see different empty state scenarios
+        </p>
+        <div class="demo-grid" style="margin-bottom: 1.5rem;">
+            <button class="btn btn-secondary" onclick="showEmptyState('noFile')">
+                No File
+            </button>
+            <button class="btn btn-secondary" onclick="showEmptyState('noData')">
+                No Data
+            </button>
+            <button class="btn btn-secondary" onclick="showEmptyState('noResults')">
+                No Results
+            </button>
+            <button class="btn btn-secondary" onclick="showEmptyState('error')">
+                Error State
+            </button>
+        </div>
+        <div id="emptyStateContainer" style="min-height: 300px; border: 1px solid var(--color-neutral-200); border-radius: var(--radius-md);">
+            <!-- Empty states will be rendered here -->
+        </div>
+    </section>
+
+    <!-- #5: Data Export -->
+    <section class="demo-section">
+        <h2 class="demo-title">#5: Data Export</h2>
+        <p class="demo-description">
+            Export sample data in different formats
+        </p>
+        <div class="demo-grid">
+            <button class="btn btn-primary" onclick="exportSampleData('excel')">
+                <i class="ph ph-file-xls"></i>
+                Export Excel
+            </button>
+            <button class="btn btn-secondary" onclick="exportSampleData('csv')">
+                <i class="ph ph-file-csv"></i>
+                Export CSV
+            </button>
+            <button class="btn btn-secondary" onclick="exportSampleData('json')">
+                <i class="ph ph-file-code"></i>
+                Export JSON
+            </button>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script type="module">
+        import { showToast, showSuccess, showError, showWarning, showInfo } from '../src/modules/toast.js';
+        import { initializeTooltips } from '../src/modules/tooltip.js';
+        import { renderEmptyState, EmptyStates, showContextualHelp } from '../src/modules/emptyStates.js';
+        import { initializeInputValidation, ValidationRules, addHelperText, addCharacterCounter } from '../src/modules/inputValidation.js';
+        import { exportToExcel, exportToCSV, exportToJSON } from '../src/modules/shared/export-utils.js';
+        import { initializeDarkMode } from '../src/modules/theme.js';
+
+        // Initialize
+        initializeDarkMode();
+        initializeTooltips();
+
+        // Setup form validation
+        initializeInputValidation('demoForm', {
+            email: {
+                required: { rule: ValidationRules.required, message: 'E-Mail ist erforderlich' },
+                email: { rule: ValidationRules.email, message: 'Ungültige E-Mail-Adresse' }
+            },
+            age: {
+                required: { rule: ValidationRules.required, message: 'Alter ist erforderlich' },
+                number: { rule: ValidationRules.number, message: 'Muss eine Zahl sein' },
+                min: { rule: ValidationRules.min(18), message: 'Mindestalter: 18' }
+            }
+        });
+
+        addHelperText('email', 'Wir werden Ihre E-Mail niemals weitergeben');
+        addCharacterCounter('description', 200);
+
+        // Handle form submission
+        document.getElementById('demoForm').addEventListener('validSubmit', (e) => {
+            showSuccess('Formular erfolgreich übermittelt!');
+            console.log('Form data:', e.detail);
+        });
+
+        // Toast functions
+        window.showSuccessToast = () => showSuccess('Operation erfolgreich abgeschlossen!');
+        window.showErrorToast = () => showError('Ein Fehler ist aufgetreten!');
+        window.showWarningToast = () => showWarning('Achtung: Diese Aktion kann nicht rückgängig gemacht werden');
+        window.showInfoToast = () => showInfo('Neue Funktionen sind verfügbar');
+
+        // Empty state functions
+        window.showEmptyState = (type) => {
+            const states = {
+                noFile: EmptyStates.noFile(() => showInfo('Datei-Upload würde hier geöffnet')),
+                noData: EmptyStates.noData(),
+                noResults: EmptyStates.noResults(() => showInfo('Suche würde zurückgesetzt')),
+                error: EmptyStates.error(() => showInfo('Erneuter Versuch würde gestartet'))
+            };
+            renderEmptyState('emptyStateContainer', states[type]);
+        };
+
+        // Show initial empty state
+        showEmptyState('noFile');
+
+        // Export functions
+        const sampleData = [
+            { Name: 'Max Mustermann', Alter: 30, Stadt: 'Berlin', Email: 'max@example.de' },
+            { Name: 'Anna Schmidt', Alter: 25, Stadt: 'München', Email: 'anna@example.de' },
+            { Name: 'Peter Weber', Alter: 35, Stadt: 'Hamburg', Email: 'peter@example.de' }
+        ];
+
+        window.exportSampleData = (format) => {
+            switch(format) {
+                case 'excel':
+                    exportToExcel(sampleData, 'Demo_Export', 'Daten');
+                    break;
+                case 'csv':
+                    exportToCSV(sampleData, 'Demo_Export');
+                    break;
+                case 'json':
+                    exportToJSON(sampleData, 'Demo_Export');
+                    break;
+            }
+        };
+    </script>
+</body>
+</html>
