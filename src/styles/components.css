@@ -701,8 +701,7 @@ textarea:focus {
 .table-container {
     position: relative;
     overflow: auto;
-    /* CSS Containment for improved rendering performance */
-    contain: layout style paint;
+    /* CSS Containment removed to prevent scroll/sticky issues */
     max-height: calc(100vh - 300px);
     /* Ensure container has a height for sticky header */
     border: 1px solid var(--color-neutral-200);

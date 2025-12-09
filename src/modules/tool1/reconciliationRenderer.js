@@ -189,6 +189,9 @@ export function setupReconciliationHandlers() {
     // Tab switching
     document.querySelectorAll('[data-reconciliation-tab]').forEach(button => {
         button.addEventListener('click', (e) => {
+            // Prevent default to avoid any scroll interference
+            e.preventDefault();
+            
             const tab = e.currentTarget.dataset.reconciliationTab;
             
             // Update active state
@@ -199,8 +202,16 @@ export function setupReconciliationHandlers() {
             e.currentTarget.classList.add('active');
             e.currentTarget.setAttribute('aria-selected', 'true');
             
-            // Render filtered table
+            // Render filtered table without scrolling
             renderReconciliationTable(tab);
+        });
+        
+        // Add keyboard support
+        button.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                button.click();
+            }
         });
     });
 

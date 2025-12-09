@@ -67,18 +67,62 @@ function scrollToSection(tabName, container) {
     }
     
     if (targetSection) {
-        targetSection.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start',
-            inline: 'nearest'
+        // Use requestAnimationFrame to ensure smooth scrolling without blocking
+        requestAnimationFrame(() => {
+            // Get the container's scroll parent (main content area)
+            const scrollParent = getScrollParent(container);
+            
+            if (scrollParent && scrollParent !== document.body && scrollParent !== document.documentElement) {
+                // Scroll within the container, not the whole page
+                const containerRect = scrollParent.getBoundingClientRect();
+                const targetRect = targetSection.getBoundingClientRect();
+                const scrollTop = scrollParent.scrollTop;
+                const offset = targetRect.top - containerRect.top + scrollTop;
+                
+                scrollParent.scrollTo({
+                    top: offset,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Fallback to scrollIntoView with block: 'nearest' to minimize disruption
+                targetSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest',
+                    inline: 'nearest'
+                });
+            }
+            
+            // Add a subtle highlight animation
+            targetSection.style.animation = 'highlight-section 0.6s ease';
+            setTimeout(() => {
+                targetSection.style.animation = '';
+            }, 600);
         });
-        
-        // Add a subtle highlight animation
-        targetSection.style.animation = 'highlight-section 0.6s ease';
-        setTimeout(() => {
-            targetSection.style.animation = '';
-        }, 600);
     }
+}
+
+/**
+ * Find the scrollable parent element
+ * @param {HTMLElement} element - The element to find scroll parent for
+ * @returns {HTMLElement} The scrollable parent element
+ */
+function getScrollParent(element) {
+    if (!element) return document.body;
+    
+    let parent = element.parentElement;
+    
+    while (parent) {
+        const style = window.getComputedStyle(parent);
+        const overflow = style.overflow + style.overflowY + style.overflowX;
+        
+        if (/(auto|scroll)/.test(overflow) && parent.scrollHeight > parent.clientHeight) {
+            return parent;
+        }
+        
+        parent = parent.parentElement;
+    }
+    
+    return document.documentElement;
 }
 
 /**

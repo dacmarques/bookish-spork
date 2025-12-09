@@ -3,6 +3,30 @@
  * Global styles and CSS variables
  */
 
+/* Smooth scroll behavior for all scrollable containers */
+html {
+    scroll-behavior: smooth;
+    height: 100%;
+}
+
+/* Ensure body uses full height and allows flex layout */
+body {
+    height: 100%;
+    overflow: hidden; /* Body should not scroll, only main content */
+}
+
+/* Fix for flex container to allow child scrolling */
+body > div.flex-1 {
+    min-height: 0; /* Critical: allows flex child to shrink and scroll */
+}
+
+/* Ensure main content area is scrollable and maintains scroll position */
+#main-content {
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+    min-height: 0; /* Critical for flex scrolling */
+}
+
 /* ============================================================================
    DESIGN SYSTEM DOCUMENTATION
    ============================================================================
@@ -330,6 +354,7 @@ body {
 
 /* App Header */
 .app-header {
+    flex-shrink: 0; /* Prevent header from shrinking */
     position: sticky;
     top: 0;
     z-index: 40;
